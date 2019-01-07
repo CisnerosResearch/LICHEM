@@ -1,0 +1,127 @@
+#!/bin/sh
+
+#rm Makefile
+
+
+prefix=$(pwd)/bin
+mpi=false
+
+echo ''
+echo '###################################################'
+echo '#                                                 #'
+echo '#   LICHEM: Layered Interacting CHEmical Models   #'
+echo '#                                                 #'
+echo '#        Symbiotic Computational Chemistry        #'
+echo '#                                                 #'
+echo '###################################################'
+echo ''
+
+for arg in "$@"; do
+    case "$arg" in
+    --prefix=*)
+        prefix=`echo $arg | sed 's/--prefix=//'`
+        ;;
+
+    --parallel)
+        mpi=true;;
+
+    --help)
+        echo 'usage: ./configure [options]'
+        echo 'options:'
+        echo '  --help    : available options.'
+        echo '  --parallel: install parallel lichem'
+        echo '  --prefix= : installation directory. '
+        echo '              i.e. --prefix=./bin/'
+        echo 'all invalid options are silently ignored'
+        exit 0
+        ;;
+    esac
+done
+
+echo 'GENERATING MAKEFILE ...'
+echo ''
+
+# HEADER #
+echo '###################################################' > Makefile
+echo '#                                                 #' >> Makefile
+echo '#   LICHEM: Layered Interacting CHEmical Models   #' >> Makefile
+echo '#                                                 #' >> Makefile
+echo '#        Symbiotic Computational Chemistry        #' >> Makefile
+echo '#                                                 #' >> Makefile
+echo '###################################################' >> Makefile
+echo '' >> Makefile
+echo '### Standard compiler settings ###' >> Makefile
+echo '' >> Makefile
+
+if $mpi; then
+    echo '   Configuring for parallel LICHEM'
+    echo '   Installation directory: ' $prefix
+    echo '   CXX= mpicxx'
+    echo '   CXXFLAGS=-O3 -fopenmp'
+    echo 'CXX= mpic++' >>Makefile
+    echo 'CXXFLAGS= -O3 -fopenmp' >>Makefile
+    #update header file
+    sed -i 's/LICHEM_QSM\.h/LICHEM_QSM_MPI\.h/g' include/LICHEM_headers.h
+    #add mpi header
+    if ! grep -q "#include <mpi\.h>" include/LICHEM_clibs.h ;
+    then
+        #sed -i 's/\ (.* \) #endif/ \ 1#include <mpi\.h>/g' include/LICHEM_clibs.h
+        sed -i '/#include <algorithm>/a #include <mpi\.h>' include/LICHEM_clibs.h
+        #echo '#endif' >> include/LICHEM_clibs.h
+    fi
+ 
+else
+    echo '   Configuring for serial LICHEM'
+    echo '   Installation directory: ' $prefix
+    echo '   CXX= g++'
+    echo '   CXXFLAGS= -static -O3 -fopenmp'
+    echo 'CXX= g++' >>Makefile
+    echo 'CXXFLAGS= -static -O3 -fopenmp' >>Makefile
+    #update header file
+    sed -i 's/LICHEM_QSM_MPI\.h/LICHEM_QSM\.h/g' include/LICHEM_headers.h
+    #if mpi.h exists remove it
+    if grep -q "#include <mpi\.h>" include/LICHEM_clibs.h ;
+    then
+        sed -i '/#include <mpi\.h>/d' include/LICHEM_clibs.h
+    fi
+
+    
+fi
+
+#INSTALL DIRECTORY
+echo '' >> Makefile
+echo '### Install directory ### ' >> Makefile
+echo 'INSTALLBIN='$prefix >> Makefile
+
+cat ./src/makefile.in >>Makefile
+
+if $mpi; then
+   echo '	$(CXX) ./src/mpi/LICHEM_MPI.cpp -o $(INSTALLBIN)/lichem.MPI $(FLAGSBINMPI)'>>Makefile
+   echo '	@strip $(INSTALLBIN)/lichem.MPI' >>Makefile
+#   echo '	@echo "" '>>Makefile
+#   echo '	@echo "Installation complete"'>>Makefile
+#   echo '	@echo "Please type " ' >>Makefile
+#   echo '	@echo "   export PATH="$(INSTALLBIN)":\$$PATH" ' >>Makefile
+#   echo '	@echo "to add lichem.MPI executable to your PATH"'
+
+else
+   echo '	$(CXX) ./src/LICHEM.cpp -o $(INSTALLBIN)/lichem $(FLAGSBIN)'>>Makefile
+   echo '	@strip $(INSTALLBIN)/lichem' >>Makefile
+#   echo '	@echo "" '>>Makefile
+#   echo '	@echo "Installation complete"'>>Makefile
+#   echo '	@echo "Please type " ' >>Makefile
+#   echo '	@echo "   export PATH="$(INSTALLBIN)":\$$PATH" ' >>Makefile
+#   echo '	@echo "to add lichem.MPI executable to your PATH"'
+
+fi
+
+echo''
+
+echo 'CONFIGURATION COMPLETE.'
+echo 'TO BUILD, TYPE;'
+echo ''
+echo '   make install' 
+echo ''
+
+echo ''
+

@@ -1,0 +1,17 @@
+Potential_type: QM
+QM_type: Gaussian
+QM_method: PBE1PBE
+QM_basis: 6-31G*
+QM_memory: 256 MB
+QM_charge: -1
+QM_spin: 1
+Calculation_type: qsm
+Beads: 3
+nqsm: 0
+Frozen_ends: Yes
+qm_opt_tolerance: 1e-2
+qm_rms_force_tol: 0.025
+qm_max_force_tol: 0.05
+mm_opt_tolerance: 1e-1
+max_opt_steps: 10
+max_qm_steps: 10
