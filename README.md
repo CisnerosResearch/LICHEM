@@ -6,7 +6,7 @@
 LICHEM: Layered Interacting CHEmical Models
 </h2> </div>
 
-<div align=center> <h4> By: Eric G. Kratz </h4> </div>
+<div align=center> <h4> By: The Cisneros Research Group </h4> </div>
 
 <div align=center> <h3> Symbiotic Computational Chemistry </h3> </div>
 ***
