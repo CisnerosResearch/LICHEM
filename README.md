@@ -53,7 +53,7 @@ However, the Makefile can be used to generate both files. Since LICHEM is
 designed to be simple, only a small number of packages are required to compile
 the code. An approximate list of packages is given below.
 ```
- LICHEM binary: OpenMP
+ LICHEM binary: OpenMP, (MPI if hybrid-parallel QSM is desired)
  LICHEM test suite: Python
  LICHEM manual: LaTeX, BibTeX, TeXLive
 ```
@@ -64,7 +64,7 @@ the Makefile.
 To install LICHEM, clone the git repository:
 ```
 user:$ mkdir LICHEM
-user:$ git clone https://github.com/kratman/LICHEM_QMMM.git ./LICHEM/
+user:$ git clone https://github.com/CisnerosResearch/LICHEM.git ./LICHEM/
 ```
 
 On Ubuntu boxes, the Makefile should function without modifications. However,
