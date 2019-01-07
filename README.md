@@ -13,7 +13,7 @@ LICHEM: Layered Interacting CHEmical Models
 
 ### LICHEM: A QM/MM interface for polarizable force fields
 
-[![GPL license](https://img.shields.io/badge/license-GPLv3-blue.svg?style=flat)](https://github.com/kratman/LICHEM_QMMM/blob/master/src/GPL_LICENSE)
+[![GPL license](https://img.shields.io/badge/license-GPLv3-blue.svg?style=flat)](https://github.com/CisnerosResearch/LICHEM/blob/master/src/GPL_LICENSE)
 
 ### Automated tests
 
