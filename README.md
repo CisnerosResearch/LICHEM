@@ -17,7 +17,7 @@ LICHEM: Layered Interacting CHEmical Models
 
 ### Automated tests
 
-**Travis CI build:** [![Build Status](https://travis-ci.org/kratman/LICHEM_QMMM.svg?branch=master)](https://travis-ci.org/kratman/LICHEM_QMMM)
+[//]:**Travis CI build:** [![Build Status](https://travis-ci.org/CisnerosResearch/LICHEM_QMMM.svg?branch=master)](https://travis-ci.org/CisnerosResearch/LICHEM_QMMM)
 
 ### Introduction
 
