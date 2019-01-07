@@ -70,8 +70,12 @@ user:$ git clone https://github.com/kratman/LICHEM_QMMM.git ./LICHEM/
 On Ubuntu boxes, the Makefile should function without modifications. However,
 it may be necessary to install additional LaTeX packages. On OSX machines,
 the SEDI, TEX, BIB, and CXXFLAGS variables will need to be modified.
+A configure file is provided to set up either serial or parallel build.
 
 The Makefile can produce both the documentation and the binary.
+```
+user:$ ./configure
+```
 ```
 user:$ make install
 ```
