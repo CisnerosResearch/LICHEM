@@ -9,7 +9,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%Documentation for LICHEM copyright 2014-2016 
+%Documentation for LICHEM copyright 2014-2016
 %                 Eric G. Kratz, Hatice Gokcan, Alice Walker,             %
 %                 Erik Vazquez-Montelongo, G. Andres Cisneros             %
 
@@ -35,10 +35,11 @@ Symbiotic Computational Chemistry \\
 v1.1
 \\ \vspace{2cm}
 \begin{center}
-\centering\includegraphics[scale=0.1]{../doc/images/trimer.png}
+%\centering\includegraphics[scale=0.1]{../doc/images/trimer.png}
+\centering\includegraphics[width=\textwidth]{../doc/images/LICHEM_logo.png}
 \end{center}}
 \author{A QM/MM Interface for Polarizable Force Fields}
-\date{Eric G. Kratz, Hatice G\"{o}kcan, Alice Walker, 
+\date{Eric G. Kratz, Hatice G\"{o}kcan, Alice Walker,
 Erik A. V\'azquez--Montelongo, \\
 G. Andr\'{e}s Cisneros, \\
 2018}
@@ -146,7 +147,7 @@ This is extremely useful for multipolar/polarizable force fields.
 LICHEM is primarily parallelized with OpenMP, with the exception
 of the Quadratic String Method (QSM), which can be used in a
 hybrid--parallel environment (MPI/OpenMP).  The packages called by the
-wrappers can use any form of parallelization. 
+wrappers can use any form of parallelization.
 Special care must be taken to avoid creating too many threads when calling
 multiple hybrid--parallel functions with the wrappers. \\
 
@@ -173,28 +174,28 @@ However, other versions of Eigen3 can be used to build LICHEM by modifying
 the Makefile. \\
 
 In order to install the OpenMP version of LICHEM, the user should first
-configure the program by: 
+configure the program by:
 
 \texttt{user:\$ ./configure}\\
 
-The configuration process will create a 
-Makefile to install the OpenMP version of 
-LICHEM under the installation directory 
-(i.e. LICHEMvXX/bin/). 
-After configuration, LICHEM can be installed 
+The configuration process will create a
+Makefile to install the OpenMP version of
+LICHEM under the installation directory
+(i.e. LICHEMvXX/bin/).
+After configuration, LICHEM can be installed
 by;\\
 
 \texttt{user:\$ make install} \\
 
-If the hybrid--parallel version of LICHEM (lichem.MPI) is required, 
+If the hybrid--parallel version of LICHEM (lichem.MPI) is required,
 the configuration should be performed with; \\
 
 \texttt{user:\$ ./configure --parallel} \\
 
-Both OpenMP and hybrid--parallel versions of LICHEM 
+Both OpenMP and hybrid--parallel versions of LICHEM
 (\texttt{lichem} and \texttt{lichem.MPI} respectively), will be installed in the same
-directory if a specific installation directory is not 
-specified during configuration; \\ 
+directory if a specific installation directory is not
+specified during configuration; \\
 
 \texttt{user:\$ ./configure --prefix=install_directory}.\\
 
@@ -363,8 +364,8 @@ This procedure is less efficient than linking to the packages directly,
 however, reading and writing input/output files is often negligible compared
 to the computational cost of the QM calculation.
 Currently, calculations can be performed using Gaussian \cite{Frisch2009},
-PSI4 \cite{Turney2012}, 
-NWChem \cite{NWChem2010}, 
+PSI4 \cite{Turney2012},
+NWChem \cite{NWChem2010},
 TINKER \cite{Ponder2015},
 and LAMMPS \cite{Plimpton1995}.
 Additional wrappers can be added to LICHEM with relatively little effort.
@@ -419,11 +420,11 @@ and general simulation options. \\
 
 -l: File name for output of LICHEM.\\
 
-Currently, LICHEM can be executed in hybrid--parallel only for QSM. 
+Currently, LICHEM can be executed in hybrid--parallel only for QSM.
 For hybrid--parallel execution of LICHEM;\\
 
 \texttt{
-\hspace{0.35in} mpirun -np Nprocs --hostfile host_list 
+\hspace{0.35in} mpirun -np Nprocs --hostfile host_list
 lichem.MPI \\
 \hspace*{1.1in} -n NCpus \\
 \hspace*{1.1in} -x react.xyz \\
@@ -433,29 +434,29 @@ lichem.MPI \\
 \hspace*{1.1in} -l Logfile.log
 }\\
 
-\noindent where \texttt{Nprocs} 
-is the number of MPI cores that 
-are going to be used by LICHEM, and \texttt{NCpus} 
-is the number of CPUs used 
-by QM and MM wrappers. 
-The MPI nodes are defined by the argument \texttt{--hostfile} 
+\noindent where \texttt{Nprocs}
+is the number of MPI cores that
+are going to be used by LICHEM, and \texttt{NCpus}
+is the number of CPUs used
+by QM and MM wrappers.
+The MPI nodes are defined by the argument \texttt{--hostfile}
 which includes the names of the available nodes for
-MPI execution. 
+MPI execution.
 
 \subsection{Load Balancing with \texttt{lichem.MPI}}
 
-The number of MPI nodes (\texttt{Nprocs}) 
-that is used for hybrid--parallel execution 
+The number of MPI nodes (\texttt{Nprocs})
+that is used for hybrid--parallel execution
 is important for load balancing
-so that the number of idle MPI nodes 
-is minimized. 
-In QSM calculations, 
-the reactant bead is always owned by the first 
-processor, while the product bead is always 
-owned by 
-the last processor. 
-The remaining beads are 
-then distributed in a cyclic manner; 
+so that the number of idle MPI nodes
+is minimized.
+In QSM calculations,
+the reactant bead is always owned by the first
+processor, while the product bead is always
+owned by
+the last processor.
+The remaining beads are
+then distributed in a cyclic manner;
 \begin{center}
 \renewcommand{\arraystretch}{1.1}
 \begin{table}[!ht]
@@ -473,23 +474,23 @@ $P_{Nproc-1}$ & $Nproc+1$ & $2(Nproc+1)$ & $\cdots$ & $Nbead-1$
 \end{table}
 \end{center}
 \vspace*{-18pt}
-where bead $0$ is the reactant and 
-bead $Nbead-1$ is 
-the product. 
-Calculations for reactant and product beads 
-are performed only in the first 
-step since the QSM algorithm 
+where bead $0$ is the reactant and
+bead $Nbead-1$ is
+the product.
+Calculations for reactant and product beads
+are performed only in the first
+step since the QSM algorithm
 requires frozen ends.
-The best load balance 
-in QSM simulations 
+The best load balance
+in QSM simulations
 is achieved when;
 \begin{equation}
 Nprocs = Nbeads - 2 \nonumber
-\end{equation} 
-where $Nprocs$ is the total 
-number of MPI nodes, and $Nbeads$ is 
-the total number of beads An example 
-for the distribution of the beads among MPI 
+\end{equation}
+where $Nprocs$ is the total
+number of MPI nodes, and $Nbeads$ is
+the total number of beads An example
+for the distribution of the beads among MPI
 nodes when the number of beads is larger than the
 available number of MPI nodes is depicted in Figure \ref{fig:loadbalance}.
 
@@ -564,13 +565,13 @@ Calculation types are documented in the Section \ref{sec:CalcTyp} and
 Chapter \ref{chap:Theory}.
 Current options are;\newline
 \begin{itemize}
-\item energy 
-\item opt 
-\item dfp 
-\item sd 
-\item neb 
-\item qsm 
-\item fbneb 
+\item energy
+\item opt
+\item dfp
+\item sd
+\item neb
+\item qsm
+\item fbneb
 \item pimc\newline
 \end{itemize}
 Some additional synonyms are accepted for each type of calculation, but not
@@ -586,14 +587,14 @@ This keyword is required and has no default.
 Default: N/A \newline\\
 
 qm\_type & : & Name of the QM wrapper.
-Current wrappers: Gaussian or PSI4 or NWChem. 
-When Gaussian is the QM wrapper, two options are available. 
-If Gaussian09 is wanted to be used 
-then keyword option can be either Gaussian or 
-g09. 
-If Gaussian16 is wanted to be used 
-then keyword option should 
-be g16. 
+Current wrappers: Gaussian or PSI4 or NWChem.
+When Gaussian is the QM wrapper, two options are available.
+If Gaussian09 is wanted to be used
+then keyword option can be either Gaussian or
+g09.
+If Gaussian16 is wanted to be used
+then keyword option should
+be g16.
 Default: N/A \\
 \end{longtable}
 \end{center}
@@ -611,9 +612,9 @@ Default: N/A \newline\\
 ensemble & : & Thermodynamic ensemble (NVT or NPT).
 Default: N/A \newline\\
 
-force\_constant & : & 
-Initial force constant to restrain 
-positions in MM calculations. 
+force\_constant & : &
+Initial force constant to restrain
+positions in MM calculations.
 Default is 100.0\newline \\
 
 lrec\_cut & : & LREC cutoff (\AA) for the smoothing function.
@@ -638,24 +639,24 @@ Default: No \newline\\
 pressure & : & Pressure of the simulation (atm).
 Default: 0.0 \newline\\
 
-restrain\_mm & :  & 
-String (yes/\textbf{no}). 
-Keyword to indicate if 
-the positions of the atoms in 
-MM region are going to be 
-restrained in initial QMMM 
-optimization steps (pre-iterations). 
-The number of pre-iterations are 
-defined by the value of force constant 
-which is divided by 2 in every step 
-until it is $<2$. For instance, if the 
-initial force 
-constant is given as 100.0, 
-then the pre-iterations 
-will involve 6 QMMM steps with 
+restrain\_mm & :  &
+String (yes/\textbf{no}).
+Keyword to indicate if
+the positions of the atoms in
+MM region are going to be
+restrained in initial QMMM
+optimization steps (pre-iterations).
+The number of pre-iterations are
+defined by the value of force constant
+which is divided by 2 in every step
+until it is $<2$. For instance, if the
+initial force
+constant is given as 100.0,
+then the pre-iterations
+will involve 6 QMMM steps with
 restrains on MM atoms,
-and 1 
-QMMM step without restrains;\newline 
+and 1
+QMMM step without restrains;\newline
 \begin{enumerate}
 \item QMMM step, F=100.0
 \item QMMM step, F=50.0
@@ -670,8 +671,8 @@ QMMM step without restrains;\newline
  \setcounter{enumi}{\theenumTemp}
 \item QMMM step, F=3.125
 \item QMMM step, without restrain
-\end{enumerate}    
-Currently, restrained MM calculations can only 
+\end{enumerate}
+Currently, restrained MM calculations can only
 be performed with TINKER and during QSM calculations. \newline \\
 
 temperature & : & Temperature of the simulation (Kelvin).
@@ -696,7 +697,7 @@ Default: No \newline\\
 use\_solvent & : & Use an implicit solvent for MM calculations (Yes/No).
 Implicit solvents can only be used for non-periodic simulations.
 Using an implicit solvent disables MM cutoffs in energy calculations.
-Default: No 
+Default: No
 \end{longtable}
 \end{center}
 \vspace*{-6pt}
@@ -713,20 +714,20 @@ Default: 0 \newline\\
 
 prod\_steps & : & Number of Monte Carlo and molecular dynamics steps for
 production runs.
-Default: 0 
+Default: 0
 \end{longtable}
 \end{center}
 \vspace*{-48pt}
 \subsubsection{Path Optimizations}
 \begin{center}
 \begin{longtable}{ p{4cm} c p{12.5cm}}
-beads & : & Number of replica beads for reaction 
+beads & : & Number of replica beads for reaction
 pathways and path-integral
 Monte Carlo simulations.
 Default: 1 \newline\\
 
 frozen\_ends & : & Freeze the end points of the reaction path optimizations
-(Yes/No). For QSM simulations, this keyword should be set to Yes. 
+(Yes/No). For QSM simulations, this keyword should be set to Yes.
 Default: No \newline\\
 
 init\_path\_chk & : & Copy the checkpoints from the previous point on the path
@@ -736,29 +737,29 @@ calculations by starting some of the points with a checkpoint guess.
 This keyword only has an effect on the initial calculation of the energies.
 Default: Yes \newline\\
 
-max\_opt\_steps & : & 
+max\_opt\_steps & : &
 Maximum number of steps for a QM/MM optimization.
 Default: 200 \newline\\
 
 max\_stepsize & : & Maximum displacement during an optimization step (\AA).
 Default: 0.10 \newline\\
 
-max\_qm\_steps & :  & 
-Integer. 
-Maximum number of steps for QM optimization. 
-It indicates that each QM/MM optimization step 
-can involve "\textsl{max\_qm\_steps}" at most; 
+max\_qm\_steps & :  &
+Integer.
+Maximum number of steps for QM optimization.
+It indicates that each QM/MM optimization step
+can involve "\textsl{max\_qm\_steps}" at most;
 
 
 \[
 \begin{aligned}
    &N \text{ QMMM step } \\
-   &(N \le \text{max\_opt\_steps}) 
-   \end{aligned} 
-   \rightarrow   
+   &(N \le \text{max\_opt\_steps})
+   \end{aligned}
+   \rightarrow
 \begin{cases}
 \begin{aligned}
-    &\text {i.} \quad n \text{ QM steps \newline} \\ 
+    &\text {i.} \quad n \text{ QM steps \newline} \\
     &\text {  } \quad (n \le max\_qm\_steps) \\
     &\\
     &\text {ii.} \quad \text{1 MM step }
@@ -769,10 +770,10 @@ can involve "\textsl{max\_qm\_steps}" at most;
 
 \\
 
-%nqsm & : & 
-%Integer. Keyword to indicate the number of images in the input coordinate file BeadStartStruct.xyz. 
-%It should be set to "\textsl{0}" if whole path exists. 
-%Default is "\textsl{0}". \textit{Currently, only Nqsm=0 
+%nqsm & : &
+%Integer. Keyword to indicate the number of images in the input coordinate file BeadStartStruct.xyz.
+%It should be set to "\textsl{0}" if whole path exists.
+%Default is "\textsl{0}". \textit{Currently, only Nqsm=0
 %option is available}\newline \\
 
 opt\_stepsize & : & Initial scale factor for the geometry optimizers.
@@ -786,7 +787,7 @@ Default: 1.0 \newline\\
 
 ts\_freqs & : & Automatically calculate frequencies for the optimized climbing
 image nudged elastic band transition states.
-Default: No 
+Default: No
 \end{longtable}
 \end{center}
 \vspace{-48pt}
@@ -800,12 +801,12 @@ Default: N/A \newline\\
 qm\_charge & : & Charge on the QM region.
 Default: 0 \newline\\
 
-qm\_max\_force\_tol & : & 
-Real, positive. Use for QM calculations 
-during path optimizations. 
-Tolerance for maximum force among 
-forces of the QM atoms 
-along the path in Hartree/Bohr.  
+qm\_max\_force\_tol & : &
+Real, positive. Use for QM calculations
+during path optimizations.
+Tolerance for maximum force among
+forces of the QM atoms
+along the path in Hartree/Bohr.
 Default value is 1e-2 Hartree/Bohr.\newline \\
 
 qm\_memory & : & Amount of RAM for the QM calculations.
@@ -818,17 +819,17 @@ If the QM method is set to SemiEmp, then the QM basis should be set to the
 semi-empirical model Hamiltonian.
 Default: N/A \newline\\
 
-qm\_opt\_tolerance & : & 
-RMS deviation criteria for stoping the QM optimizations. 
-Use for QM calculations 
+qm\_opt\_tolerance & : &
+RMS deviation criteria for stoping the QM optimizations.
+Use for QM calculations
 during path optimizations.
 (\AA).\newline\\
 
-qm\_rms\_force\_tol & : & 
-Real, positive. Tolerance for RMS forces of the QM atoms 
-along the path in Hartree/Bohr. 
-Default value is 5e-3 Hartree/Bohr. 
-Use for QM calculations 
+qm\_rms\_force\_tol & : &
+Real, positive. Tolerance for RMS forces of the QM atoms
+along the path in Hartree/Bohr.
+Default value is 5e-3 Hartree/Bohr.
+Use for QM calculations
 during path optimizations.\newline \\
 
 qm\_spin & : & Multiplicity of the QM region.
@@ -840,7 +841,7 @@ Default: Angstrom \newline\\
 
 solv\_model & : & Type of implicit solvation model.
 As a general note, solvation models should be chosen carefully.
-Default: N/A 
+Default: N/A
 \end{longtable}
 \end{center}
 \vspace{-48pt}
@@ -855,7 +856,7 @@ boundary\_atoms & : & Nbound [list of ids] \newline\\
 
 frozen\_atoms& : & Ninact [list of ids] \newline \\
 
-neb\_atoms & : & Nneb [list of ids] 
+neb\_atoms & : & Nneb [list of ids]
 \end{longtable}
 \end{center}
 \vspace{-12pt}
@@ -869,11 +870,11 @@ systems.
 NEB atoms are the atoms included in the definition of the nudged-elastic band
 tangents.
 If no NEB atoms are defined, all QM pseudobond atoms are used to define the
-tangents. 
+tangents.
 In case of the QSM, active atoms (defined by \texttt{neb\_atoms})
- are used in tangent 
-calculation, and for spacing out when necessary. 
-Any atoms that is not an active atom will be disregarded during the 
+ are used in tangent
+calculation, and for spacing out when necessary.
+Any atoms that is not an active atom will be disregarded during the
 tangent calculations and spacing out.\\
 
 Note that in pure QM and pure MM simulations, \{Nqm,Npseudo,Nbound\} can all
@@ -886,93 +887,93 @@ or newlines.\newpage
 \subsubsection{Debugging \& printing}
 \begin{center}
 \begin{longtable}[c]{ p{4cm} c p{12.5cm}}
-debug & : & 
-String (yes/no). 
-Keyword for debugging. 
+debug & : &
+String (yes/no).
+Keyword for debugging.
 If it is set to \textsl{yes},
-four different text files (\*.txt) 
+four different text files (\*.txt)
 are kept per QM optimization step;\newline
 
 \begin{itemize}
-\item p0file\_N.txt : Coordinates of QM and 
-pseudobond atoms within all beads at the 
+\item p0file\_N.txt : Coordinates of QM and
+pseudobond atoms within all beads at the
 begining of $N^{th}$ optimization step.
-\item grad\_N\_n.txt : Gradients (xyz components) 
-of each QM and pseudobond atom within all beads 
-for $N^{th}$ optimization step, and $n^{th}$ QM step. 
-\item Initialpath\_N\_n.txt : Coordinates of QM and 
-pseudobond atoms within all beads before each integration 
+\item grad\_N\_n.txt : Gradients (xyz components)
+of each QM and pseudobond atom within all beads
+for $N^{th}$ optimization step, and $n^{th}$ QM step.
+\item Initialpath\_N\_n.txt : Coordinates of QM and
+pseudobond atoms within all beads before each integration
 step for $N^{th}$ optimization step, and $n^{th}$ QM step.
-\item Wholepath\_N\_n.txt : Coordinates of QM and 
-pseudobond atoms within all beads after each integration 
+\item Wholepath\_N\_n.txt : Coordinates of QM and
+pseudobond atoms within all beads after each integration
 step at $N^{th}$ optimization step, and $n^{th}$ QM step.
-\item Hessian\_N\_n.txt : Global Hessian that involves 
-Hessians of all beads 
+\item Hessian\_N\_n.txt : Global Hessian that involves
+Hessians of all beads
 at $N^{th}$ optimization step, and $n^{th}$ QM step.\newline
-\end{itemize} 
-All of the text files are kept under 
-the corresponding debug\_N directory 
+\end{itemize}
+All of the text files are kept under
+the corresponding debug\_N directory
 where N is the optimization step.
-If it is set to \textsl{yes}, 
-then keep\_files 
-is set to \textsl{yes} and 
-outputs from QM and MM wrappers 
-are saved for the first and the last 
+If it is set to \textsl{yes},
+then keep\_files
+is set to \textsl{yes} and
+outputs from QM and MM wrappers
+are saved for the first and the last
 optimization steps.
 Default option is \textsl{no}.\newline\\
 %-------------------------------------
 
-keep\_files & : &   
-String (yes/no). 
-LICHEM does not keep outputs 
-from QM and MM wrappers by default. 
-However, all outputs 
-from QM and MM wrappers can be 
-kept by setting this keyword 
-to \textsl{yes}. 
-If it is set to \textsl{yes}, 
-outputs from first and the last 
-optimization steps are 
+keep\_files & : &
+String (yes/no).
+LICHEM does not keep outputs
+from QM and MM wrappers by default.
+However, all outputs
+from QM and MM wrappers can be
+kept by setting this keyword
+to \textsl{yes}.
+If it is set to \textsl{yes},
+outputs from first and the last
+optimization steps are
 always kept.\newline \\
 %-------------------------------------
 
-per\_opt\_step & : &   
-Integer. 
-This keyword is used if \texttt{keep\_files} 
-option is set to 
-yes. 
-Outputs from QM and MM wrappers 
-are stored under the directory named as 
-LICHM\_QSM\_Opt\_N  per 
-optimization step defined by this keyword 
-("N" indicates the optimization step). 
-Each LICHM\_QSM\_Opt\_N directory 
-involve the subdirectories 
+per\_opt\_step & : &
+Integer.
+This keyword is used if \texttt{keep\_files}
+option is set to
+yes.
+Outputs from QM and MM wrappers
+are stored under the directory named as
+LICHM\_QSM\_Opt\_N  per
+optimization step defined by this keyword
+("N" indicates the optimization step).
+Each LICHM\_QSM\_Opt\_N directory
+involve the subdirectories
 \begin{itemize}
-\item LICHM\_MM: Outputs from MM wrappers 
+\item LICHM\_MM: Outputs from MM wrappers
 for the corresponding optimization step.
-\item  LICHM\_QM\_n: Outputs from 
+\item  LICHM\_QM\_n: Outputs from
 QM wrappers (see \texttt{per\_qm\_step})
 for the corresponding optimization step
 \end{itemize}
-Default value is the maximum number of optimization 
+Default value is the maximum number of optimization
 steps. \newline \\
 
-per\_qm\_step & : &   
-Integer. 
-This keyword is used if \texttt{keep\_files} 
-option is set to 
-yes. Outputs from QM wrappers 
-are stored under the directory named as 
-LICHM\_QM\_n  per 
-QM optimization step defined by this keyword 
-("n" indicates the QM step). 
-Default value is the maximum number of QM 
+per\_qm\_step & : &
+Integer.
+This keyword is used if \texttt{keep\_files}
+option is set to
+yes. Outputs from QM wrappers
+are stored under the directory named as
+LICHM\_QM\_n  per
+QM optimization step defined by this keyword
+("n" indicates the QM step).
+Default value is the maximum number of QM
 steps.\newline \\
 %-------------------------------------
 
 print\_normal\_modes & : & Causes LICHEM to print normal modes for pure QM
-frequency calculations and imaginary frequencies for QM/MM frequency 
+frequency calculations and imaginary frequencies for QM/MM frequency
 calculations (Yes/No).
 Default: No \newline\\
 
@@ -999,8 +1000,8 @@ MM optimizers.
 This option is available for pure QM and MM optimizations.
 Synonyms: Optimize, opt \\
 
-Steepest descent: LICHEM has steepest descent 
-optimizer \textcolor{red}{\cite{Press2007}} 
+Steepest descent: LICHEM has steepest descent
+optimizer \textcolor{red}{\cite{Press2007}}
 for the QM
 atoms.
 The stepsize (recommended: 0.0125) is adjusted to improve convergence.
@@ -1008,8 +1009,8 @@ When using this optimizer, the MM regions are optimized with the MM wrapper
 using a modified force field.
 Synonyms: Steep, SD \\
 
-Davidon-Fletcher-Powell: LICHEM has DFP 
-optimizer \textcolor{red}{\cite{Press2007,Sheppard2008_DFP}} 
+Davidon-Fletcher-Powell: LICHEM has DFP
+optimizer \textcolor{red}{\cite{Press2007,Sheppard2008_DFP}}
 for the QM atoms.
 The DFP algorithm is similar to the BGFS method.
 The stepsize (recommended: 1.0) is adjusted to improve convergence.
@@ -1020,10 +1021,10 @@ Synonyms: DFP
 \subsection{Reaction Paths and Restrained MM Optimization}
 
 Two "chain--of--replica" algorithms are available
-for reaction path optimization in LICHEM 
-climbing image nudged elastic band (CI--NEB) 
+for reaction path optimization in LICHEM
+climbing image nudged elastic band (CI--NEB)
 \textcolor{red}{\cite{NEB2000_A,NEB2000_B}}
-and quadratic string method (QSM) \cite{Burger2006} 
+and quadratic string method (QSM) \cite{Burger2006}
 in both methods the path is represented by a string of beads
 that are optimized in parallel to the minimum energy path (MEP).
 
@@ -1043,7 +1044,7 @@ A global DFP optimizer is to used to update the positions of the entire path
 simultaneously.
 The stepsize (recommended: 1.0) is adjusted to improve convergence.
 
-The QSM algorithms is designed to be used with frozen ends; 
+The QSM algorithms is designed to be used with frozen ends;
 only the beads between reactant and product bead are optimized. The flowchart
 for the QSM algorithm as implemented in LICHEM, with or without
 restrained MM environment, is given in Figure \ref{fig:qsm}.
@@ -1055,10 +1056,10 @@ restrained MM environment, is given in Figure \ref{fig:qsm}.
 \caption{QSM algorithm that is implemented within LICHEM.}
 \label{fig:qsm}
 \end{figure}
-\end{center} 
+\end{center}
 NEB methods are insensitive to the spring constant (recommended: 1.0).
 When using this optimizer, the MM regions are optimized with the MM wrapper
-using a modified force field. 
+using a modified force field.
 Synonyms: NEB, CINEB, CI-NEB \\
 
 \subsection{Ensemble sampling}
@@ -1143,7 +1144,7 @@ A file called "tinkxyz.xyz" will be produced from this conversion. \\
 The -GlobalPoles flag reads the force field and initial structure, then prints
 the multipoles in the global reference frame. \\
 
-\texttt{user:\$ lichem -GlobalPoles -n Ncpus 
+\texttt{user:\$ lichem -GlobalPoles -n Ncpus
 -x xyzfile.xyz -r regions.inp
  -c connect.inp} \\
 
@@ -1370,7 +1371,7 @@ enthalpy of freezing, or other experimentally determined properties.
 
 \subsection{Multipolar/polarizable force fields}
 
-The electron density and nuclei in a molecule create a continuous, and often, 
+The electron density and nuclei in a molecule create a continuous, and often,
 anisotropic electrostatic potential.
 In classical simulations, interactions due to the diffuse electron density are
 generally approximated by a set of pair-wise electrostatic potentials.
@@ -1378,11 +1379,11 @@ One of the simplest methods for modeling the molecular electrostatic field is
 to place point--charges (monopoles) on the atomic centers.
 Atomic monopoles are often inadequate \cite{Cisneros2014,Kramer2014}, and
 some models augment the field by adding massless charged dummy atoms to the
-molecule \cite{Jorgensen1983,Mahoney2000}. 
+molecule \cite{Jorgensen1983,Mahoney2000}.
 However, the dummy atoms can complicate the potential/dynamics during
 molecular simulations. \\
 
-An alternative approach is to add higher--order moments (multipoles) of the 
+An alternative approach is to add higher--order moments (multipoles) of the
 electrostatic potential to the model
 \cite{Cisneros2014,Laury2015,Shi2013,Stone2013}.
 A multipole expansion is a Taylor series representation of the continuous
@@ -1390,13 +1391,13 @@ electrostatic potential ($V_{elst}$) \cite{Stone2013},
 \begin{equation}
  V_{elst}(r) \approx \sum_n^\infty \frac{d}{n!dr^n} V_{elst}(r)r^n \; ,
 \end{equation}
-where $r$ is the distance from the point of interest (e.g. nucleus, center of 
+where $r$ is the distance from the point of interest (e.g. nucleus, center of
 mass, etc) and $n$ is the order of the moment.
-Typically, MM force fields truncate the Taylor series at the second order 
-\cite{Cisneros2014,Laury2015,Shi2013}, and the moments can be determined 
+Typically, MM force fields truncate the Taylor series at the second order
+\cite{Cisneros2014,Laury2015,Shi2013}, and the moments can be determined
 from an analysis of the electron density or electrostatic potential. \\
 
-The zeroth moment of the electrostatic potential is the monopole, which is 
+The zeroth moment of the electrostatic potential is the monopole, which is
 equivalent to a point--charge.
 The first and second moments are referred to as the dipole and quadrupole,
 respectively. Multipole moments can produce an anisotropic electrostatic
@@ -1521,7 +1522,7 @@ path, however, the beads still want to slide down to the minima. \\
 
 The forces can be further modified by subtracting the forces parallel to the
 reaction path.
-The forces are then given 
+The forces are then given
 by \cite{NEB2000_A,NEB2000_B}
 \begin{equation}
  F'_{p,n} = F_{p,n}-F_{p,n}\cdot\tau_{p,n}\tau_{p,n}
@@ -1534,10 +1535,10 @@ the literature \cite{NEB2000_A,NEB2000_B}. \\
 
 The nudged elastic band method (NEB) is relatively insensitive to the
 magnitude of the spring constant.
-Unfortunately, the NEB method 
+Unfortunately, the NEB method
 is still unlikely to locate a transition state.
-The climbing image (CI) 
-NEB method \cite{NEB2000_A} 
+The climbing image (CI)
+NEB method \cite{NEB2000_A}
 further modifies the forces of the
 highest energy.
 The CI travels upwards along the tangent to find a transition
@@ -1546,10 +1547,10 @@ Transition state forces on the CI (replica $c$) are now given by
 \begin{equation}
  F'_{c,n} = F_{c,n}-2F_{c,n}\cdot\tau_{c,n}\tau_{c,n} \; ,
 \end{equation}
-where the forces are inverted along the 
+where the forces are inverted along the
 tangent \cite{NEB2000_A}. \\
 
-The tangent vectors are given 
+The tangent vectors are given
 by \cite{NEB2000_A}
 \begin{equation}
  \tau_{p,n} = \tau_{p,n}^{+}
@@ -1594,33 +1595,33 @@ nearly converged end points from influencing the GDFP step size.
 
 \subsection{Quadradic string method}
 
-The method eliminates the need for an artificial spring constant, 
-and does not require a predetermined step size. 
-Instead,  the surface and 
-the trust radius of the approximate Hessians are updated 
+The method eliminates the need for an artificial spring constant,
+and does not require a predetermined step size.
+Instead,  the surface and
+the trust radius of the approximate Hessians are updated
 at the end of each iteration. \\
 
-The details of the QSM 
-algorithm can be found in the 
-work of Burger and Yang \cite{Burger2006}. 
-In our implementation, 
-the QSM algorithm starts with the calculation of  
-energies and gradients of all beads 
-that are provided by the user.  
-The approximate Hessians ($H_{k}$) that were 
-constructed with the gradients in the initial step 
+The details of the QSM
+algorithm can be found in the
+work of Burger and Yang \cite{Burger2006}.
+In our implementation,
+the QSM algorithm starts with the calculation of
+energies and gradients of all beads
+that are provided by the user.
+The approximate Hessians ($H_{k}$) that were
+constructed with the gradients in the initial step
 are then updated with the
-damped Broyden-Fletcher-Goldfarb-Shanno (DBFGS) algorithm; 
+damped Broyden-Fletcher-Goldfarb-Shanno (DBFGS) algorithm;
 \begin{equation}
-H^{i+1} = H^{i} - 
+H^{i+1} = H^{i} -
 \dfrac{H^{i}\delta^{i}(\delta^{i})^{T}H^{i}}
-{(\delta^{i})^{T}H^{i}\delta^{i}} + 
+{(\delta^{i})^{T}H^{i}\delta^{i}} +
 \dfrac{r^{i}(r^{i})^{T}}
 {(r^{i})^{T}\delta^{i}}
 \label{eq.hess}
 \end{equation}
-where $i$ represents the iteration number. 
-The $\delta^{i}$ and $r^{i}$ in Eqn. \ref{eq.hess} 
+where $i$ represents the iteration number.
+The $\delta^{i}$ and $r^{i}$ in Eqn. \ref{eq.hess}
 are defined as;
 \begin{equation}
 \delta^{i} = x^{i+1} - g^{i}
@@ -1637,40 +1638,40 @@ with $\gamma^{i}$ and $\theta^{i}$ as;
 \theta^{i}=
 \begin{cases}
 \qquad \qquad 1, & \text{if} (\delta^{i})^{T}\gamma^{i} > 0.2(\delta^{i})^{T}H^{i}\delta^{i} \\
-\dfrac{0.8(\delta^{i})^{T} H^{i} \delta^{i}} 
-{(\delta^{i})^{T} H^{i} \delta^{i} - 
+\dfrac{0.8(\delta^{i})^{T} H^{i} \delta^{i}}
+{(\delta^{i})^{T} H^{i} \delta^{i} -
 (\delta^{i})^{T} \gamma^{i}}, & \text{otherwise}
 \end{cases}
 \end{equation}
-The update of $H^{k}$ is followed by 
-the update of the trust radii 
+The update of $H^{k}$ is followed by
+the update of the trust radii
 using the energy as a merit function;
 \begin{equation}
 \rho = \dfrac{E_{k}^{i+1} - E_{k}^{i}}
-{\quad \dfrac{1}{2} dx_{k}^{T} H_{k}^{i} dx_{k} 
+{\quad \dfrac{1}{2} dx_{k}^{T} H_{k}^{i} dx_{k}
 +
 dx_{k}^{T}g_{k}^{i} \quad}
 \end{equation}
 %what do you mean here "k represents the point"? what point?
-% HATI: I did mean bead actually. I am also mentioning 
-%them as points at the beginning. So I replaced every 
+% HATI: I did mean bead actually. I am also mentioning
+%them as points at the beginning. So I replaced every
 %"point" to "bead"
-where $k$ represents the respective bead 
-and $\rho$ is used 
-to compute how close the merit function is to the expected value. 
-After the computation of new trust radii, the path is integrated 
-by using Runge--Kutta explicit 4/5 integration scheme 
-with Cash--Karp parameters. The integration is performed 
-until a bead  
-reaches its trust radius, or the calculation is converged. 
-The beads are redistributed if necessary by using 
-a polynomial interpolation scheme. 
-In our QSM implementation, 
-the projection of the gradients, and the 
-redistribution of the beads are performed 
-by taking only the reacting atoms into consideration (see below). 
-If the reacting atoms are not specified, 
-all atoms are considered as active. 
+where $k$ represents the respective bead
+and $\rho$ is used
+to compute how close the merit function is to the expected value.
+After the computation of new trust radii, the path is integrated
+by using Runge--Kutta explicit 4/5 integration scheme
+with Cash--Karp parameters. The integration is performed
+until a bead
+reaches its trust radius, or the calculation is converged.
+The beads are redistributed if necessary by using
+a polynomial interpolation scheme.
+In our QSM implementation,
+the projection of the gradients, and the
+redistribution of the beads are performed
+by taking only the reacting atoms into consideration (see below).
+If the reacting atoms are not specified,
+all atoms are considered as active.
 
 \section{Quantum methods}
 

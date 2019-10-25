@@ -1,0 +1,54 @@
+#Build testing for LICHEM
+
+#NB: Currently the OSX build skips the documentation
+
+#Email settings
+# notifications:
+#   email:
+#     on_success: change
+#     on_failure: always
+
+#Compiler settings
+language: cpp
+compiler:
+  - gcc
+  - clang
+
+#OS settings
+sudo: required
+dist: trusty
+os:
+  - linux
+  - osx
+
+#Install required packages
+before_install:
+  #Linux options
+  - if [ ${TRAVIS_OS_NAME} == linux ]; then sudo apt-get update -qq; fi
+  - if [ ${TRAVIS_OS_NAME} == linux ]; then sudo apt-get install -qq texlive; fi
+  - if [ ${TRAVIS_OS_NAME} == linux ]; then if [ ${CXX} == clang++ ]; then sed -i 's/CXX=/CXX=clan/g' Makefile; fi; fi
+  - if [ ${TRAVIS_OS_NAME} == linux ]; then if [ ${CC} == clang ]; then sed -i 's/CC=/CC=clan/g' Makefile; fi; fi
+  #OSX options
+  - if [ ${TRAVIS_OS_NAME} == osx ]; then brew update; fi
+  - if [ ${TRAVIS_OS_NAME} == osx ]; then if [ ${CXX} == clang++ ]; then sed -i "" 's/CXX=/CXX=clan/g' Makefile; fi; fi
+  - if [ ${TRAVIS_OS_NAME} == osx ]; then if [ ${CC} == clang ]; then sed -i "" 's/CC=/CC=clan/g' Makefile; fi; fi
+  - if [ ${TRAVIS_OS_NAME} == osx ]; then sed -i "" 's/-static//g' Makefile; fi
+  - if [ ${TRAVIS_OS_NAME} == osx ]; then sed -i "" 's/-fopenmp//g' Makefile; fi
+  - if [ ${TRAVIS_OS_NAME} == osx ]; then sed -i "" 's/SEDI=-i/SEDI=-i \"\"/g' Makefile; fi
+
+#Run tests
+script:
+  - make install && make clean
+  - if [ ${TRAVIS_OS_NAME} == linux ]; then apt-get moo; fi
+
+# Make documentation
+# From https://tex.stackexchange.com/questions/398830/how-to-build-my-latex-automatically-using-travis-ci
+services: docker
+
+script:
+  # We use the docker image from https://hub.docker.com/r/dxjoke/tectonic-docker/
+  - docker pull dxjoke/tectonic-docker
+  # Compiling only main.tex:
+  # - docker run --mount src=$TRAVIS_BUILD_DIR/src,target=/usr/src/tex,type=bind dxjoke/tectonic-docker /bin/sh -c "tectonic manual.tex"
+  # Compiling multiple files as well as using biber:
+ - docker run --mount src=$TRAVIS_BUILD_DIR/src,target=/usr/src/tex,type=bind dxjoke/tectonic-docker /bin/sh -c "tectonic --keep-intermediates --reruns 0 manual.tex; biber manual; tectonic manual.tex; tectonic manual.tex"
