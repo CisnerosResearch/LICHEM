@@ -36,19 +36,15 @@ before_install:
   - if [ ${TRAVIS_OS_NAME} == osx ]; then sed -i "" 's/-fopenmp//g' Makefile; fi
   - if [ ${TRAVIS_OS_NAME} == osx ]; then sed -i "" 's/SEDI=-i/SEDI=-i \"\"/g' Makefile; fi
 
-#Run tests
+#Run tests and make documentation
+# From https://tex.stackexchange.com/questions/398830/how-to-build-my-latex-automatically-using-travis-ci
+services: docker
 script:
   - make install && make clean
   - if [ ${TRAVIS_OS_NAME} == linux ]; then apt-get moo; fi
-
-# Make documentation
-# From https://tex.stackexchange.com/questions/398830/how-to-build-my-latex-automatically-using-travis-ci
-services: docker
-
-script:
   # We use the docker image from https://hub.docker.com/r/dxjoke/tectonic-docker/
   - docker pull dxjoke/tectonic-docker
   # Compiling only main.tex:
   # - docker run --mount src=$TRAVIS_BUILD_DIR/src,target=/usr/src/tex,type=bind dxjoke/tectonic-docker /bin/sh -c "tectonic manual.tex"
   # Compiling multiple files as well as using biber:
- - docker run --mount src=$TRAVIS_BUILD_DIR/src,target=/usr/src/tex,type=bind dxjoke/tectonic-docker /bin/sh -c "tectonic --keep-intermediates --reruns 0 manual.tex; biber manual; tectonic manual.tex; tectonic manual.tex"
+  - docker run --mount src=$TRAVIS_BUILD_DIR/src,target=/usr/src/tex,type=bind dxjoke/tectonic-docker /bin/sh -c "tectonic --keep-intermediates --reruns 0 manual.tex; biber manual; tectonic manual.tex; tectonic manual.tex"
