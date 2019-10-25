@@ -15,6 +15,8 @@ LICHEM: Layered Interacting CHEmical Models
 
 [![GPL license](https://img.shields.io/badge/license-GPLv3-blue.svg?style=flat)](https://github.com/CisnerosResearch/LICHEM/blob/master/src/GPL_LICENSE)
 
+[![Build Status](https://travis-ci.org/emleddin/LICHEM.svg?branch=master)](https://travis-ci.org/emleddin/LICHEM)
+
 ### Automated tests
 
 
