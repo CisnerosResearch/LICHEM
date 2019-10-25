@@ -16,7 +16,7 @@ compiler:
 
 #OS settings
 sudo: required
-dist: trusty
+dist: xenial
 os:
   - linux
   - osx
