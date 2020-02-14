@@ -44,6 +44,8 @@ before_install:
   - if [ ${TRAVIS_OS_NAME} == osx ]; then sed -i "" 's/-static//g' Makefile; fi
   - if [ ${TRAVIS_OS_NAME} == osx ]; then sed -i "" 's/-fopenmp//g' Makefile; fi
   - if [ ${TRAVIS_OS_NAME} == osx ]; then sed -i "" 's/SEDI=-i/SEDI=-i \"\"/g' Makefile; fi
+  # Link to OpenMP library for clang
+  - export LD_LIBRARY_PATH=$(if [[ $CC == "clang" ]]; then echo -n '/usr/local/clang/lib'; fi)
 
 script:
   - if [ ${TRAVIS_OS_NAME} == linux ]; then sudo ldconfig; fi
