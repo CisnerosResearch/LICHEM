@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
         //Print progress
         logFile.flush();
         // Add kcal
-        logfile << "  QM energy: " << LICHEMFormFloat(Eqm/kcal2eV,16) << " kcal";
+        logFile << "  QM energy: " << LICHEMFormFloat(Eqm/kcal2eV,16) << " kcal";
         logFile << '\n';
         //Print progress
         logFile.flush();
@@ -205,7 +205,7 @@ int main(int argc, char* argv[])
         logFile << "  MM energy: " << LICHEMFormFloat(Emm,16) << " eV";
         logFile << '\n';
         // Add kcal
-        logfile << "  MM energy: " << LICHEMFormFloat(Emm/kcal2eV,16) << " kcal";
+        logFile << "  MM energy: " << LICHEMFormFloat(Emm/kcal2eV,16) << " kcal";
         logFile << '\n';
         // End kcal
       }
