@@ -178,6 +178,12 @@ int main(int argc, char* argv[])
         logFile << '\n';
         //Print progress
         logFile.flush();
+        // Add kcal
+        logfile << "  QM energy: " << LICHEMFormFloat(Eqm/kcal2eV,16) << " kcal";
+        logFile << '\n';
+        //Print progress
+        logFile.flush();
+        // End kcal
       }
       //Calculate MM energy
       if (TINKER)
@@ -198,6 +204,10 @@ int main(int argc, char* argv[])
         //Print MM partial energy
         logFile << "  MM energy: " << LICHEMFormFloat(Emm,16) << " eV";
         logFile << '\n';
+        // Add kcal
+        logfile << "  MM energy: " << LICHEMFormFloat(Emm/kcal2eV,16) << " kcal";
+        logFile << '\n';
+        // End kcal
       }
       sumE = Eqm+Emm; //Total energy
       if (QMMM)
@@ -208,6 +218,13 @@ int main(int argc, char* argv[])
         logFile << " ";
         logFile << LICHEMFormFloat(sumE/har2eV,16) << " a.u.";
         logFile << '\n';
+        // Add kcal
+        logFile << "  QMMM energy: ";
+        logFile << LICHEMFormFloat(sumE/kcal2eV,16) << " kcal";
+        logFile << " ";
+        logFile << LICHEMFormFloat(sumE/har2eV,16) << " a.u.";
+        logFile << '\n';
+        // End kcal
       }
       logFile << '\n';
       logFile.flush(); //Print output
@@ -368,6 +385,11 @@ int main(int argc, char* argv[])
     logFile << LICHEMFormFloat(sumE,16) << " eV";
     logFile << '\n';
     logFile.flush(); //Print progress
+    // Add kcal
+    logFile << LICHEMFormFloat(sumE/kcal2eV,16) << " kcal";
+    logFile << '\n';
+    logFile.flush(); //Print progress
+    // End add kcal
     //Run optimization
     bool optDone = 0;
     if (QMMMOpts.maxOptSteps == 0)
@@ -486,6 +508,11 @@ int main(int argc, char* argv[])
     logFile << LICHEMFormFloat(sumE,16) << " eV";
     logFile << '\n';
     logFile.flush(); //Print progress
+    // Add kcal
+    logFile << LICHEMFormFloat(sumE/kcal2eV,16) << " kcal";
+    logFile << '\n';
+    logFile.flush(); //Print progress
+    //
     //Run optimization
     bool optDone = 0;
     while (!optDone)
@@ -592,6 +619,11 @@ int main(int argc, char* argv[])
     logFile << LICHEMFormFloat(sumE,16) << " eV";
     logFile << '\n';
     logFile.flush(); //Print progress
+    // Add kcal
+    logFile << LICHEMFormFloat(sumE/kcal2eV,16) << " kcal";
+    logFile << '\n';
+    logFile.flush(); //Print progress
+    //
     //Run optimization
     bool optDone = 0;
     while (!optDone)
@@ -772,6 +804,10 @@ int main(int argc, char* argv[])
     logFile << " | Step: " << setw(simCharLen) << 0;
     logFile << " | Energy: " << LICHEMFormFloat(Et,12);
     logFile << " eV";
+    // Add kcal
+    logFile << " | Energy: " << LICHEMFormFloat(Et/kcal2eV,12);
+    logFile << " kcal";
+    // end add kcal
     if (QMMMOpts.ensemble == "NPT")
     {
       double rho;
@@ -811,6 +847,10 @@ int main(int argc, char* argv[])
           logFile << " | Step: " << setw(simCharLen) << Nct;
           logFile << " | Energy: " << LICHEMFormFloat(Et,12);
           logFile << " eV";
+          // add kcal
+          logFile << " | Energy: " << LICHEMFormFloat(Et/kcal2eV,12);
+          logFile << " kcal";
+          // end add kcal
           if (QMMMOpts.ensemble == "NPT")
           {
             double rho;
@@ -1098,7 +1138,7 @@ int main(int argc, char* argv[])
     }
     //Start: Hatice
     //logFile << " | Opt. step: 0 | Bead energies:";
-    logFile << " | Initial Energies" << '\n'; 
+    logFile << " | Initial Energies" << '\n';
     //logFile << "     | Bead energies: " << '\n';
     //End: Hatice
     logFile << '\n';
@@ -1288,7 +1328,7 @@ int main(int argc, char* argv[])
       OldQMMMData = QMMMData;
       //Start: Hatice
       logFile << " | Opt. step    : " << optCt+1;
-      logFile << '\n'; 
+      logFile << '\n';
       //End: Hatice
       //Run MM optimization
       for (int p=pathStart;p<pathEnd;p++)
@@ -1468,27 +1508,27 @@ int main(int argc, char* argv[])
     bool dostep=true;
     bool PathDone = 0;
     bool QMDone = false;//will be used if only QM region
-    bool before_qsm = true;//in order to compute react and prod  
- 
+    bool before_qsm = true;//in order to compute react and prod
+
     int optct = 0; //Counter for optimization steps
-    //int macroiter=15;   
+    //int macroiter=15;
     int Nimages = QMMMOpts.NBeads;//Nimages: number of images
-    int QMdim=Nqm+Npseudo; 
-    int Ndof = QMdim*3; 
-    int beadsize = Ndof;  
-    
+    int QMdim=Nqm+Npseudo;
+    int Ndof = QMdim*3;
+    int beadsize = Ndof;
+
     int wholesize = QMMMOpts.NBeads*beadsize; //number of elements
     //QSM is frozen ends
     int PathStart = 1;
     int PathEnd = QMMMOpts.NBeads-1;
     double restr = QMMMOpts.restrConst; //default value=0.0
-    double spaceout_dist=0.0; 
-    
+    double spaceout_dist=0.0;
+
     //Initialize stats variables
     double RMSdiff = 0;
     double RMSforce = 0;
-    double MAXforce = 0; 
-     
+    double MAXforce = 0;
+
     //for convergence check
     VectorXd RMSGrad = VectorXd::Zero(QMMMOpts.NBeads);
     VectorXd oldRMSGrad = VectorXd::Zero(QMMMOpts.NBeads);
@@ -1496,7 +1536,7 @@ int main(int argc, char* argv[])
     VectorXd Gradconv = VectorXd::Zero(QMMMOpts.NBeads);
 
     //path between reactant and product (includes react and prod),
-    VectorXd wholepath(wholesize); 
+    VectorXd wholepath(wholesize);
     if (QMMMOpts.frznEnds)
     {
       Nimages = QMMMOpts.NBeads-2;
@@ -1507,7 +1547,7 @@ int main(int argc, char* argv[])
     VectorXd Emm_images(Nimages+2);
     VectorXd Eqm_images(Nimages+2);
     VectorXd Eqmmm_images(Nimages+2);
-    
+
     //FORCES AND GRADIENTS
     VectorXd Forces(Ndof); //Local forces
     VectorXd force((Nimages+2)*beadsize); //Forces of all images
@@ -1517,7 +1557,7 @@ int main(int argc, char* argv[])
     force.setZero();
     gradient.setZero();
     ForceStatsQM.setZero();
-    
+
     double SavedQMOptTol = QMMMOpts.QMOptTol; //Save value from input
     double SavedMMOptTol = QMMMOpts.MMOptTol; //Save value from input
     double SavedOptTol2 =  QMMMOpts.QMRMSForceTol;
@@ -1543,8 +1583,8 @@ int main(int argc, char* argv[])
     VectorXd rpath(beadsize);
     VectorXd ppath(beadsize);
     VectorXd spaceout_path(beadsize);
-    
-    
+
+
     rpath.segment(0,beadsize)=wholepath.segment(0,beadsize);
     ppath.segment(0,beadsize)=wholepath.segment((Nimages+1)*beadsize,beadsize);
     spaceout_path=rpath-ppath;
@@ -1552,22 +1592,22 @@ int main(int argc, char* argv[])
 
     logFile << '\n';
     logFile << "   -----------------------------";
-    logFile << "-----------------------------------"<< '\n'; 
+    logFile << "-----------------------------------"<< '\n';
     logFile << "                              ";
     logFile << "QSM OPTIMIZATION " << '\n';
     logFile << "   ---------------------------------";
-    logFile << "-------------------------------"<< '\n'; 
+    logFile << "-------------------------------"<< '\n';
     logFile.flush(); //Print progress
-    
+
     logFile << '\n';
-    logFile << "     Max. number of QSM Macro iterations  \n"; 
+    logFile << "     Max. number of QSM Macro iterations  \n";
     logFile << "     is set to ";
     logFile << QMMMOpts.maxOptSteps << '\n' << endl;
- 
+
     logFile << "     ";
     logFile << "  Points are spaced out: ";
     logFile << spaceout_dist << "\n" << endl;
-    
+
     logFile << "     > Calculating initial ";
     logFile << "energies and forces. < " << '\n' << endl;
     logFile << '\n';
@@ -1588,13 +1628,13 @@ int main(int argc, char* argv[])
     //print bead energies
     print_progress(QMMMOpts, 0,Eqmmm_images,
                    RMSdiff, MAXforce, RMSforce,reactCoord,logFile);
-    
+
     //print TS React and Prod and barriers
     print_progress(QMMMOpts, 1,Eqmmm_images,
                    RMSdiff, MAXforce, RMSforce,reactCoord,logFile);
-    
+
     gradient = -1*force;//convert it to gradient
-    
+
 
     //Run optimization
     if(QMMMOpts.KeepFiles){
@@ -1603,22 +1643,22 @@ int main(int argc, char* argv[])
     }
 
     logFile << '\n' << endl;
-    logFile << "     > Optimization Steps < " << endl; 
-  
-    
+    logFile << "     > Optimization Steps < " << endl;
+
+
     while ( (!PathDone) and (iter <= QMMMOpts.maxOptSteps)) //macroiter))
     {
-          logFile << "\n"; 
+          logFile << "\n";
           logFile << "       ";
           logFile << "| Opt. step : ";
           logFile << iter;
           logFile << '\n';
           logFile.flush(); //Print progress
-          
+
           //Copy structure
           OldQMMMData = QMMMData;
 
- 
+
           if(iter==1){
               logFile << "\n";
               logFile << "         ";
@@ -1643,10 +1683,10 @@ int main(int argc, char* argv[])
              QMMMOpts.MMOptTol = SavedMMOptTol;
              QMMMOpts.QMRMSForceTol = SavedOptTol2;
              QMMMOpts.QMMaxForceTol = SavedOptTol3;
-          }   
+          }
 
 
-          LICHEMQSM(QMMMData,QMMMOpts, wholepath, Nimages, QMdim, 
+          LICHEMQSM(QMMMData,QMMMOpts, wholepath, Nimages, QMdim,
                     QMDone,gradient,spaceout_dist,Eqmmm_images,iter,logFile);
           //---------------------------------------------------------------------
 
@@ -1657,14 +1697,14 @@ int main(int argc, char* argv[])
             //      works only for TINKER at the moment
             //
             if(QMMMOpts.restrMM)
-            {    
+            {
                //Start: do if restrain is > 2
                if (restr>=2.0)
                {
                    runRestrMMopt(QMMMData,QMMMOpts,restr,logFile);
 
                    restr=restr/2;/*update restr for the next iteration*/
-                   PathDone=0; 
+                   PathDone=0;
                }
                //End: do if restrain is > 2
                //Start: do if restrain is < 2
@@ -1673,23 +1713,23 @@ int main(int argc, char* argv[])
                    QMMMOpts.restrMM=false;//if restr<2
                    PathDone=0;
                }//Start: do if restrain is < 2
-       
-               if(QMMMOpts.KeepFiles and 
+
+               if(QMMMOpts.KeepFiles and
                   ((iter%QMMMOpts.perOpt)==0) or
                   iter==1 )
                {
                  //save MM files
                  save_files(1,iter,logFile);
                }
-       
+
             }//END: restrain
             //START: if !QMMMOpts.restrMM
-            //       QMMMOpts.restrMM became false 
+            //       QMMMOpts.restrMM became false
             //       when restrain is < 2
             else{
                //counter for MM without restraints
                //mmstep starts from 0
-               mmstep = mmstep+1; 
+               mmstep = mmstep+1;
 
                runMMopt(QMMMData,QMMMOpts,logFile);
 
@@ -1701,17 +1741,17 @@ int main(int argc, char* argv[])
                getTSbead(QMMMOpts,Eqmmm_images);
                print_progress(QMMMOpts, 0,Eqmmm_images,
                               RMSdiff, MAXforce, RMSforce,reactCoord,logFile);
-       
+
                // to ensure there is at least
                // 2 mm runs without restraints
                if(mmstep<2){
                   PathDone = 0; //Not converged
                }
-              
-               if(QMMMOpts.KeepFiles  and 
-                  (((iter%QMMMOpts.perOpt)==0) or 
-                   PathDone or 
-                   iter==QMMMOpts.maxOptSteps or 
+
+               if(QMMMOpts.KeepFiles  and
+                  (((iter%QMMMOpts.perOpt)==0) or
+                   PathDone or
+                   iter==QMMMOpts.maxOptSteps or
                    iter==1))
                {
                  //save MM files
@@ -1719,17 +1759,17 @@ int main(int argc, char* argv[])
                }
             }//END: if !QMMMOpts.restrMM
 
- 
-         }//end: if QMMM 
-       
+
+         }//end: if QMMM
+
          else{//if only QM
             PathDone = QMDone;
             if(iter==1){
               QMDone=0;
               PathDone=0;
-            }  
+            }
          }//end: if only QM
-         
+
          //Print optimized geometry
          Print_traj(QMMMData,outFile,QMMMOpts);
 
@@ -1738,16 +1778,16 @@ int main(int argc, char* argv[])
          print_progress(QMMMOpts, 1,Eqmmm_images,
                         RMSdiff, MAXforce, RMSforce,reactCoord,logFile);
 
-         if(QMMMOpts.KeepFiles  and 
-            (((iter%QMMMOpts.perOpt)==0) or 
-             PathDone or 
+         if(QMMMOpts.KeepFiles  and
+            (((iter%QMMMOpts.perOpt)==0) or
+             PathDone or
              iter==QMMMOpts.maxOptSteps or
              iter==1))
          {
-             //save optimization step directories    
+             //save optimization step directories
              save_files(2,iter,logFile);
          }
-      
+
          iter = iter+1;
 
          if(PathDone and QMMM)
@@ -1757,7 +1797,7 @@ int main(int argc, char* argv[])
              logFile << "QMMM relaxation satisfactory.";
              logFile << '\n';
          }
-         
+
        }
 
 
@@ -1767,7 +1807,7 @@ int main(int argc, char* argv[])
       logFile << "     > Optimization Complete <" << '\n' << endl;
       logFile << '\n' << '\n';
       logFile.flush();
-  
+
       /*Start: Aug 28 2018 */
       if (QMMMOpts.NEBFreq)
       {
@@ -1777,7 +1817,7 @@ int main(int argc, char* argv[])
          call << "mkdir Freq";
          globalSys = system(call.str().c_str());
 
-         call.str(""); 
+         call.str("");
          call << "mv LICHM_*.* ";
          call << "Freq/ ";
          globalSys = system(call.str().c_str());
@@ -1788,7 +1828,7 @@ int main(int argc, char* argv[])
          globalSys = system(call.str().c_str());
       }
       /*End: Aug 28 2018 */
-  
+
   //End of section
 
   }
@@ -1805,7 +1845,7 @@ int main(int argc, char* argv[])
     logFile.flush();
   }
   //End of section
-//Start: HATICE 
+//Start: HATICE
 
     //Clean up
 
@@ -1814,7 +1854,7 @@ int main(int argc, char* argv[])
       if(!QMMMOpts.KeepFiles){
         stringstream call;
         call.str("");
-        call << "rm -f LICHM*"; 
+        call << "rm -f LICHM*";
         globalSys = system(call.str().c_str());
       }
     }
@@ -1894,7 +1934,7 @@ int main(int argc, char* argv[])
     logFile << '\n';
     logFile.flush();
     //End of section
-  
+
     //Print a quote
     if (JOKES)
     {
@@ -1931,4 +1971,3 @@ int main(int argc, char* argv[])
   return 0;//retValue;
 //};
 }
-
