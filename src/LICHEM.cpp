@@ -174,12 +174,12 @@ int main(int argc, char* argv[])
       if (QMMM or QMonly)
       {
         //Print QM partial energy
-        logFile << "  QM energy: " << LICHEMFormFloat(Eqm,16) << " eV";
-        logFile << '\n';
-        //Print progress
-        logFile.flush();
-        // Add kcal
-        logFile << "  QM energy: " << LICHEMFormFloat(Eqm/kcal2eV,16) << " kcal";
+        // logFile << "  QM energy: " << LICHEMFormFloat(Eqm,16) << " eV";
+        // logFile << '\n';
+        // //Print progress
+        // logFile.flush();
+        // Hartree (a.u.)
+        logFile << "  QM energy: " << LICHEMFormFloat(Eqm/har2eV,16) << " a.u.";
         logFile << '\n';
         //Print progress
         logFile.flush();
@@ -202,29 +202,23 @@ int main(int argc, char* argv[])
       if (QMMM or MMonly)
       {
         //Print MM partial energy
-        logFile << "  MM energy: " << LICHEMFormFloat(Emm,16) << " eV";
+        // logFile << "  MM energy: " << LICHEMFormFloat(Emm,16) << " eV";
+        // logFile << '\n';
+        // Hartree (a.u.)
+        logFile << "  MM energy: " << LICHEMFormFloat(Emm/har2eV,16) << " a.u.";
         logFile << '\n';
-        // Add kcal
-        logFile << "  MM energy: " << LICHEMFormFloat(Emm/kcal2eV,16) << " kcal";
-        logFile << '\n';
-        // End kcal
       }
       sumE = Eqm+Emm; //Total energy
       if (QMMM)
       {
         //Print total energy
         logFile << "  QMMM energy: ";
-        logFile << LICHEMFormFloat(sumE,16) << " eV";
-        logFile << " ";
+        // logFile << LICHEMFormFloat(sumE,16) << " eV";
+        // logFile << " ";
         logFile << LICHEMFormFloat(sumE/har2eV,16) << " a.u.";
-        logFile << '\n';
-        // Add kcal
-        logFile << "  QMMM energy: ";
+        logFile << " | ";
         logFile << LICHEMFormFloat(sumE/kcal2eV,16) << " kcal";
-        logFile << " ";
-        logFile << LICHEMFormFloat(sumE/har2eV,16) << " a.u.";
         logFile << '\n';
-        // End kcal
       }
       logFile << '\n';
       logFile.flush(); //Print output
@@ -382,14 +376,10 @@ int main(int argc, char* argv[])
     }
     logFile << " | Opt. step: ";
     logFile << optCt << " | Energy: ";
-    logFile << LICHEMFormFloat(sumE,16) << " eV";
+    // logFile << LICHEMFormFloat(sumE,16) << " eV";
+    logFile << LICHEMFormFloat(sumE/har2eV,16) << " a.u.";
     logFile << '\n';
     logFile.flush(); //Print progress
-    // Add kcal
-    logFile << LICHEMFormFloat(sumE/kcal2eV,16) << " kcal";
-    logFile << '\n';
-    logFile.flush(); //Print progress
-    // End add kcal
     //Run optimization
     bool optDone = 0;
     if (QMMMOpts.maxOptSteps == 0)
@@ -505,14 +495,10 @@ int main(int argc, char* argv[])
     }
     logFile << " | Opt. step: ";
     logFile << optCt << " | Energy: ";
-    logFile << LICHEMFormFloat(sumE,16) << " eV";
+    // logFile << LICHEMFormFloat(sumE,16) << " eV";
+    logFile << LICHEMFormFloat(sumE/har2eV,16) << " a.u.";
     logFile << '\n';
     logFile.flush(); //Print progress
-    // Add kcal
-    logFile << LICHEMFormFloat(sumE/kcal2eV,16) << " kcal";
-    logFile << '\n';
-    logFile.flush(); //Print progress
-    //
     //Run optimization
     bool optDone = 0;
     while (!optDone)
@@ -616,14 +602,10 @@ int main(int argc, char* argv[])
     }
     logFile << " | Opt. step: ";
     logFile << optCt << " | Energy: ";
-    logFile << LICHEMFormFloat(sumE,16) << " eV";
+    // logFile << LICHEMFormFloat(sumE,16) << " eV";
+    logFile << LICHEMFormFloat(sumE/har2eV,16) << " a.u.";
     logFile << '\n';
     logFile.flush(); //Print progress
-    // Add kcal
-    logFile << LICHEMFormFloat(sumE/kcal2eV,16) << " kcal";
-    logFile << '\n';
-    logFile.flush(); //Print progress
-    //
     //Run optimization
     bool optDone = 0;
     while (!optDone)
@@ -802,12 +784,10 @@ int main(int argc, char* argv[])
     Et = Ek+Emc; //Calculate total energy using previous saved energy
     Et -= 2*Get_PI_Espring(QMMMData,QMMMOpts);
     logFile << " | Step: " << setw(simCharLen) << 0;
-    logFile << " | Energy: " << LICHEMFormFloat(Et,12);
-    logFile << " eV";
-    // Add kcal
-    logFile << " | Energy: " << LICHEMFormFloat(Et/kcal2eV,12);
-    logFile << " kcal";
-    // end add kcal
+    // logFile << " | Energy: " << LICHEMFormFloat(Et,12);
+    // logFile << " eV";
+    logFile << " | Energy: " << LICHEMFormFloat(Et/har2eV,12);
+    logFile << " a.u.";
     if (QMMMOpts.ensemble == "NPT")
     {
       double rho;
@@ -845,12 +825,10 @@ int main(int argc, char* argv[])
           //Print progress
           Print_traj(QMMMData,outFile,QMMMOpts);
           logFile << " | Step: " << setw(simCharLen) << Nct;
-          logFile << " | Energy: " << LICHEMFormFloat(Et,12);
-          logFile << " eV";
-          // add kcal
-          logFile << " | Energy: " << LICHEMFormFloat(Et/kcal2eV,12);
-          logFile << " kcal";
-          // end add kcal
+          // logFile << " | Energy: " << LICHEMFormFloat(Et,12);
+          // logFile << " eV";
+          logFile << " | Energy: " << LICHEMFormFloat(Et/har2eV,12);
+          logFile << " a.u.";
           if (QMMMOpts.ensemble == "NPT")
           {
             double rho;
@@ -900,10 +878,14 @@ int main(int argc, char* argv[])
       logFile << '\n';
     }
     logFile << " | Average energy: ";
-    logFile << LICHEMFormFloat(sumE,16);
-    logFile << " eV | Variance: ";
-    logFile << LICHEMFormFloat((sumE2-(sumE*sumE)),12);
-    logFile << " eV\u00B2";
+    // logFile << LICHEMFormFloat(sumE,16);
+    // logFile << " eV | Variance: ";
+    // logFile << LICHEMFormFloat((sumE2-(sumE*sumE)),12);
+    // logFile << " eV\u00B2";
+    logFile << LICHEMFormFloat(sumE/har2eV,16);
+    logFile << " a.u. | Variance: ";
+    logFile << LICHEMFormFloat((sumE2-(sumE*sumE))/har2eV,12);
+    logFile << " a.u.\u00B2";
     logFile << '\n';
     logFile << " | Acceptance ratio: ";
     logFile << LICHEMFormFloat((Nacc/(Nrej+Nacc)),6);
@@ -1024,7 +1006,8 @@ int main(int argc, char* argv[])
     {
       logFile << "    Bead: ";
       logFile << setw(3) << p << " | Energy: ";
-      logFile << LICHEMFormFloat(Emc(p),16) << " eV" << '\n';
+      // logFile << LICHEMFormFloat(Emc(p),16) << " eV" << '\n';
+      logFile << LICHEMFormFloat(Emc(p)/har2eV,16) << " a.u." << '\n';
     }
     logFile.flush(); //Print results
     //Continue simulation
@@ -1055,7 +1038,8 @@ int main(int argc, char* argv[])
         {
           logFile << "    Bead: ";
           logFile << setw(3) << p << " | Energy: ";
-          logFile << LICHEMFormFloat(Emc(p),16) << " eV" << '\n';
+          // logFile << LICHEMFormFloat(Emc(p),16) << " eV" << '\n';
+          logFile << LICHEMFormFloat(Emc(p)/har2eV,16) << " a.u." << '\n';
         }
         logFile.flush(); //Print results
       }
@@ -1091,8 +1075,10 @@ int main(int argc, char* argv[])
       logFile << "    Bead: ";
       logFile << setw(3) << p << " | Energy: ";
       logFile << LICHEMFormFloat(sumE(p),16);
-      logFile << " +/- " << LICHEMFormFloat(sumE2(p),16);
-      logFile << " eV" << '\n';
+      // logFile << " +/- " << LICHEMFormFloat(sumE2(p),16);
+      // logFile << " eV" << '\n';
+      logFile << " +/- " << LICHEMFormFloat(sumE2(p)/har2eV,16);
+      logFile << " a.u." << '\n';
     }
     logFile << '\n';
     logFile.flush();
