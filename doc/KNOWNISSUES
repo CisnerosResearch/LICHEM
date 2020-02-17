@@ -1,0 +1,29 @@
+General:
+-Post-HF methods are currently only implemented in PSI4 and semiempirical
+methods are currently only implemented in Gaussian.
+
+NWChem interface:
+-NWChem calculations can only be performed with DFT. Wavefunction based
+methods are not implemented.
+-Optimizations with the native NWChem optimizer (Calculation_type: Opt) cannot
+be performed. However, optimizations can be performed with the LICHEM
+optimizers. Pure QM optimizations within NWChem will be implemented in the
+future.
+
+TINKER interface:
+-Chiral atoms with multipoles have not been thoroughly tested in QMMM
+simulations.
+
+LAMMPS interface:
+-The LAMMPS wrapper is still in the early stages of development.
+
+PIMC:
+-NPT Monte Carlo has a volume change bug. This is being investigated, but
+NPT MC is low priority.
+
+Manual:
+-The theory sections need citations.
+-Better descriptions of the simulations methods should be given (i.e. DFP vs
+Opt).
+-The theory for path-integral calculations needs to be documented.
+

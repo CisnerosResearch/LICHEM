@@ -1,0 +1,36 @@
+potential_type: qmmm
+qm_type: g16
+qm_method: HF
+qm_basis: GEN
+qm_memory: 80 GB
+qm_charge: 0
+qm_spin: 1
+mm_type: TINKER
+electrostatics: AMOEBA
+calculation_type: qsm
+beads: 7
+nqsm: 0
+frozen_ends: yes
+qm_opt_tolerance: 1e-2
+qm_rms_force_tol: 0.025
+qm_max_force_tol: 0.05
+mm_opt_tolerance: 1e-1
+max_opt_steps: 10
+max_qm_steps: 10
+pbc: no
+keep_files: yes
+debug: yes
+ts_freq: yes
+neb_atoms: 6
+14 15 16 39 40 41
+qm_atoms: 14
+10 11 12 13 14 15 16 35 36 37
+38 39 40 41
+pseudobond_atoms: 2
+8 33
+boundary_atoms: 10
+6 7 9 17 18 31 32 34 42 43
+frozen_atoms: 24
+0  1  2  3  4  5  19 20 21 22
+23 24 25 26 27 28 29 30 44 45
+46 47 48 49
