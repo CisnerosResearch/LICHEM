@@ -37,18 +37,18 @@ matrix:
     #   env:
     #      - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
 
-    # Clang Linux: works on Trusty
+    # Clang Linux: works on Precise and Trusty
     - os: linux
       addons:
         apt:
           sources:
-            - llvm-toolchain-trusty-5.0
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.8
           packages:
-            - clang-5.0
+            - clang-3.8
             - texlive
-            # - libiomp-dev
       env:
-        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+        - MATRIX_EVAL="CC=clang-3.8 && CXX=clang++-3.8"
 
 # WORKS!
     # ## OSX GCC
