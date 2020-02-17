@@ -24,17 +24,18 @@ language: cpp
 matrix:
     include:
 
-    # GCC Linux: works on Precise and Trusty
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-5
-            - texlive
-      env:
-         - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+# WORKS!
+    # # GCC Linux: works on Precise and Trusty
+    # - os: linux
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #       packages:
+    #         - g++-5
+    #         - texlive
+    #   env:
+    #      - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
 
     # Clang Linux: works on Trusty
     - os: linux
@@ -45,22 +46,24 @@ matrix:
           packages:
             - clang-5.0
             - texlive
-            - libiomp-dev
+            # - libiomp-dev
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
 
-    ## OSX GCC
-    - os: osx
-      osx_image: xcode8
-      env:
-        - MATRIX_EVAL="brew install gcc5 && CC=gcc-5 && CXX=g++-5"
-
-    ## OSX clang
-    - os: osx
-      osx_image: xcode9.4
+# WORKS!
+    # ## OSX GCC
+    # - os: osx
+    #   osx_image: xcode8
+    #   env:
+    #     - MATRIX_EVAL="brew install gcc5 && CC=gcc-5 && CXX=g++-5"
+    #
+    # ## OSX clang
+    # - os: osx
+    #   osx_image: xcode9.4
 
 #Install required packages
 before_install:
+  - eval "${MATRIX_EVAL}"
   ### Linux options
   # - if [ ${TRAVIS_OS_NAME} == linux ]; then sudo apt-get install -qq texlive; fi
   ## Find the missing library (Travis Ubuntu -L issue). Need -qq for all installs
