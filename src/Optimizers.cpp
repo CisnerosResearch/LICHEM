@@ -77,9 +77,12 @@ bool OptConverged(vector<QMMMAtom>& QMMMData, vector<QMMMAtom>& oldQMMMData,
     logFile << "    QM step: " << stepCt;
     logFile << " | RMS dev: " << LICHEMFormFloat(RMSDiff,12);
     logFile << " \u212B" << '\n';
-    logFile << "    Max. force: " << LICHEMFormFloat(maxForce,12);
-    logFile << " eV/\u212B | RMS force: " << LICHEMFormFloat(RMSForce,12);
-    logFile << " eV/\u212B" << '\n';
+    // logFile << "    Max. force: " << LICHEMFormFloat(maxForce,12);
+    // logFile << " eV/\u212B | RMS force: " << LICHEMFormFloat(RMSForce,12);
+    // logFile << " eV/\u212B" << '\n';
+    logFile << "    Max. force: " << LICHEMFormFloat(maxForce/har2eV,12);
+    logFile << " a.u./\u212B | RMS force: " << LICHEMFormFloat(RMSForce/har2eV,12);
+    logFile << " a.u./\u212B" << '\n';
     //Check convergence criteria
     if ((RMSDiff <= QMMMOpts.QMOptTol) and (RMSForce <= RMSFTol) and
        (maxForce <= maxFTol))
@@ -400,8 +403,10 @@ void LICHEMDFP(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,fstr
   vecMax = sqrt(vecMax/Ndof);
   logFile << "    Performing a steepest descent step..." << '\n';
   logFile << "    QM step: 0";
-  logFile << " | RMS force: " << LICHEMFormFloat(vecMax,12);
-  logFile << " eV/\u212B";
+  // logFile << " | RMS force: " << LICHEMFormFloat(vecMax,12);
+  // logFile << " eV/\u212B";
+  logFile << " | RMS force: " << LICHEMFormFloat(vecMax/har2eV,12);
+  logFile << " a.u./\u212B";
   logFile << '\n' << '\n';
   logFile.flush();
   //Optimize structure
@@ -623,4 +628,3 @@ void LICHEMDFP(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,fstr
   //Finish and return
   return;
 };
-
