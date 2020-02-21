@@ -157,7 +157,8 @@ bool OptConverged(vector<QMMMAtom>& QMMMData, vector<QMMMAtom>& oldQMMMData,
     //Print progress
     logFile << " | Opt. step: ";
     logFile << stepCt << " | Energy: ";
-    logFile << LICHEMFormFloat(sumE,16) << " eV ";
+    // logFile << LICHEMFormFloat(sumE,16) << " eV ";
+    logFile << LICHEMFormFloat(sumE/har2eV,16) << " a.u. ";
     logFile << " | RMS dev: " << LICHEMFormFloat(RMSDiff,12);
     logFile << " \u212B" << '\n';
     //Check convergence
