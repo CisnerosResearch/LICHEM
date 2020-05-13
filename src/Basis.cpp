@@ -166,7 +166,8 @@ void LICHEM2BASIS(int& argc,char**& argv)
       atomList.push_back(inQMregion);
     }
     //Write BASIS file
-    if ((wrapperName == "gaussian") or (wrapperName == "g09"))
+    if ((wrapperName == "gaussian") or (wrapperName == "g09") or
+       (wrapperName == "g16"))
     {
       //Write Gaussian BASIS file for GEN input
       int ct; //Generic counter
@@ -303,4 +304,3 @@ void LICHEM2BASIS(int& argc,char**& argv)
   exit(0);
   return;
 };
-
