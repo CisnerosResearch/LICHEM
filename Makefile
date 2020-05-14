@@ -11,8 +11,13 @@
 CXX= g++
 CXXFLAGS= -static -O3 -fopenmp
 
+UNAME := $(shell uname)
+ifeq ($(UNAME), Darwin)
+CXXFLAGS= -O3 -fopenmp
+endif 
+
 ### Install directory ### 
-INSTALLBIN=/tmp/LICHEM1.1/bin
+INSTALLBIN=${HOME}/Codes/LICHEM/dev-bin
 
 ### Libarary settings ###
 
