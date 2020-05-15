@@ -17,7 +17,7 @@ CXXFLAGS= -O3 -fopenmp
 endif 
 
 ### Install directory ### 
-INSTALLBIN=${HOME}/Codes/LICHEM/dev-bin
+INSTALLBIN=${HOME}/Codes/LICHEM/bin
 
 ### Libarary settings ###
 
