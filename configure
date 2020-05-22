@@ -77,6 +77,11 @@ else
     echo '   CXXFLAGS= -static -O3 -fopenmp'
     echo 'CXX= g++' >>Makefile
     echo 'CXXFLAGS= -static -O3 -fopenmp' >>Makefile
+    echo '' >>Makefile
+    echo 'UNAME := $(shell uname)' >>Makefile
+    echo 'ifeq ($(UNAME), Darwin)' >>Makefile
+    echo 'CXXFLAGS= -O3 -fopenmp' >>Makefile
+    echo 'endif' >>Makefile
     #update header file
     sed -i 's/LICHEM_QSM_MPI\.h/LICHEM_QSM\.h/g' include/LICHEM_headers.h
     #if mpi.h exists remove it

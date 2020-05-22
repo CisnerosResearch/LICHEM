@@ -14,10 +14,10 @@ CXXFLAGS= -static -O3 -fopenmp
 UNAME := $(shell uname)
 ifeq ($(UNAME), Darwin)
 CXXFLAGS= -O3 -fopenmp
-endif 
+endif
 
 ### Install directory ### 
-INSTALLBIN=${HOME}/Codes/LICHEM/bin
+INSTALLBIN=/Users/jnochebuena/Codes/dev-LICHEM/bin
 
 ### Libarary settings ###
 
