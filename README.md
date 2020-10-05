@@ -43,12 +43,11 @@ MM wrappers in development: LAMMPS
 If you use LICHEM in your research, please cite the following papers:
 
 ```
-Kratz, E.G.; Walker, A.R.; Lagardere, L; Lipparini, F; Piquemal, J.-P.; and
+-Kratz, E.G.; Walker, A.R.; Lagardere, L; Lipparini, F; Piquemal, J.-P.; and
 Cisneros, G.A.; "LICHEM: A QM/MM Program for Simulations with Multipolar and
 Polarizable Force Fields", J. Comput. Chem., 37, 11, 1019, (2016)
-```
-```
-Gokcan H., Vazquez-Montelongo E.A., Cisneros G.A., “LICHEM 1.1: Recent Improvements and New Capabilities”, J. Chem. Theo. Comput., 15, 3056, (2019).
+
+-Gokcan H., Vazquez-Montelongo E.A., Cisneros G.A., “LICHEM 1.1: Recent Improvements and New Capabilities”, J. Chem. Theo. Comput., 15, 3056, (2019).
 ```
 
 
