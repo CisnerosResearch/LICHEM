@@ -50,7 +50,7 @@ void PSI4Charges(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead)
   WritePSI4Input(QMMMData,call.str(),QMMMOpts,bead);
   //Call PSI4
   call.str("");
-  call << "psi4 -n " << Ncpus << "-i ";
+  call << "psi4 -n " << Ncpus << " -i ";
   call << "LICHM_" << bead << ".dat -o ";
   call << "LICHM_" << bead << ".out > ";
   call << "LICHM_" << bead << ".log";
