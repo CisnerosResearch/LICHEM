@@ -56,7 +56,7 @@ jobs:
 
         if [ ${{ runner.os }} == macOS ]; then sed -i "" 's/SEDI=-i/SEDI=-i \"\"/g' Makefile; fi
 
-        if [ ${{ runner.os }} == Linux ]; then if [ ${{ matrix.config.cc }} == clang ]; then sudo apt install llvm-toolchain-3.8; fi; fi
+        if [ ${{ runner.os }} == Linux ]; then if [ ${{ matrix.config.cc }} == clang ]; then sudo apt install llvm-toolchain-trusty-3.9; fi; fi
 
         if [ ${{ runner.os }} == Linux ]; then apt-get moo; fi
 
