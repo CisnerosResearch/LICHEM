@@ -21,17 +21,17 @@ jobs:
         - {
             name: "Ubuntu Latest GCC", artifact: "Linux.tar.xz",
             os: ubuntu-latest,
-            build_type: "Release", cc: "gcc", cxx: "g++"
+            build_type: "Release", cc: "gcc-5", cxx: "g++-5"
           }
         - {
             name: "Ubuntu Latest Clang", artifact: "Linux.tar.xz",
             os: ubuntu-latest,
-            build_type: "Release", cc: "clang", cxx: "clang++"
+            build_type: "Release", cc: "clang-3.8", cxx: "clang++-3.8"
           }
         - {
             name: "macOS Latest Clang", artifact: "macOS.tar.xz",
             os: macos-latest,
-            build_type: "Release", cc: "clang", cxx: "clang++"
+            build_type: "Release", cc: "clang-3.8", cxx: "clang++-3.8"
           }
 
     steps:
@@ -56,7 +56,11 @@ jobs:
 
         if [ ${{ runner.os }} == macOS ]; then sed -i "" 's/SEDI=-i/SEDI=-i \"\"/g' Makefile; fi
 
+        if [ ${{ runner.os }} == Linux ]; then locate *libomp*; fi
+
         if [ ${{ runner.os }} == Linux ]; then if [ ${{ matrix.config.cc }} == clang ]; then sudo apt install libomp5 libomp-dev; fi; fi
+
+        if [ ${{ runner.os }} == Linux ]; then locate *libomp*; fi
 
         if [ ${{ runner.os }} == Linux ]; then apt-get moo; fi
 
