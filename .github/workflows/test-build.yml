@@ -38,29 +38,29 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Fix install script and run
-      shell: bash
+      shell: bash {0}
       run: |
-        if [ ${{ runner.os }} == ubuntu ]; then if [ ${{ matrix.config.cxx }} == clang++ ]; then sed -i 's/CXX= /CXX=clan/g' Makefile; fi; fi
+        if [ ${{ runner.os }} == Linux ]; then if [ ${{ matrix.config.cxx }} == clang++ ]; then sed -i 's/CXX= /CXX=clan/g' Makefile; fi; fi
 
-        if [ ${{ runner.os }} == ubuntu ]; then if [ ${{ matrix.config.cc }} == clang ]; then sed -i 's/CC=/CC=clan/g' Makefile; fi; fi
+        if [ ${{ runner.os }} == Linux ]; then if [ ${{ matrix.config.cc }} == clang ]; then sed -i 's/CC=/CC=clan/g' Makefile; fi; fi
 
-        if [ ${{ runner.os }} == ubuntu ]; then if [ ${{ matrix.config.cc }} == clang ] || [ ${{ matrix.config.cxx }} == clang++ ]; then sed -i 's/-fopenmp/-I\/usr\/include -fopenmp/g' Makefile; fi; fi
+        if [ ${{ runner.os }} == Linux ]; then if [ ${{ matrix.config.cc }} == clang ] || [ ${{ matrix.config.cxx }} == clang++ ]; then sed -i 's/-fopenmp/-I\/usr\/include -fopenmp/g' Makefile; fi; fi
 
-        if [ ${{ runner.os }} == osx ]; then if [ {{ matrix.config.cxx }} == clang++ ]; then sed -i "" 's/CXX= /CXX=clan/g' Makefile; fi; fi
+        if [ ${{ runner.os }} == macOS ]; then if [ {{ matrix.config.cxx }} == clang++ ]; then sed -i "" 's/CXX= /CXX=clan/g' Makefile; fi; fi
 
-        if [ ${{ runner.os }} == osx ]; then if [ {{ matrix.config.cc }} == clang ]; then sed -i "" 's/CC=/CC=clan/g' Makefile; fi; fi
+        if [ ${{ runner.os }} == macOS ]; then if [ {{ matrix.config.cc }} == clang ]; then sed -i "" 's/CC=/CC=clan/g' Makefile; fi; fi
 
-        if [ ${{ runner.os }} == osx ]; then sed -i "" 's/-static//g' Makefile; fi
+        if [ ${{ runner.os }} == macOS ]; then sed -i "" 's/-static//g' Makefile; fi
 
-        if [ ${{ runner.os }} == osx ]; then sed -i "" 's/-fopenmp//g' Makefile; fi
+        if [ ${{ runner.os }} == macOS ]; then sed -i "" 's/-fopenmp//g' Makefile; fi
 
-        if [ ${{ runner.os }} == osx ]; then sed -i "" 's/SEDI=-i/SEDI=-i \"\"/g' Makefile; fi
+        if [ ${{ runner.os }} == macOS ]; then sed -i "" 's/SEDI=-i/SEDI=-i \"\"/g' Makefile; fi
 
-        if [ ${{ runner.os }} == ubuntu ]; then sudo ldconfig; fi
+        if [ ${{ runner.os }} == Linux ]; then sudo ldconfig; fi
 
         make install && make clean
 
-        if [ ${{ runner.os }} == ubuntu ]; then apt-get moo; fi
+        if [ ${{ runner.os }} == Linux ]; then apt-get moo; fi
 #
 # name: Build LaTeX document
 # on: [push]
