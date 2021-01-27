@@ -1,20 +1,22 @@
-name: Build LaTeX document
-on: [push]
-jobs:
-  build_latex:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Git repository
-        uses: actions/checkout@v2
-
-      - name: Compile LaTeX document
-        uses: xu-cheng/latex-action@v2
-        with:
-          working_directory: src/
-          root_file: manual.tex
-
-      - name: Upload LaTex Document
-        uses: actions/upload-artifact@v2
-        with:
-          name: manual
-          path: doc/LICHEM_manual.pdf
+## This would become a build artifact, not on true repository
+## Also takes like 3 minutes???
+# name: Build LaTeX document
+# on: [push]
+# jobs:
+#   build_latex:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Set up Git repository
+#         uses: actions/checkout@v2
+#
+#       - name: Compile LaTeX document
+#         uses: xu-cheng/latex-action@v2
+#         with:
+#           working_directory: src/
+#           root_file: manual.tex
+#
+#       - name: Upload LaTex Document
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: manual
+#           path: src/manual.pdf
