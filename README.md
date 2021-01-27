@@ -15,7 +15,8 @@ LICHEM: Layered Interacting CHEmical Models
 
 [![GPL license](https://img.shields.io/badge/license-GPLv3-blue.svg?style=flat)](https://github.com/CisnerosResearch/LICHEM/blob/master/src/GPL_LICENSE)
 
-[![Build Status](https://travis-ci.org/CisnerosResearch/LICHEM.svg?branch=master)](https://travis-ci.org/CisnerosResearch/LICHEM)
+[![Build Status](https://github.com/CisnerosResearch/LICHEM/workflows/LICHEM-Build/badge.svg)](https://github.com/CisnerosResearch/LICHEM/actions)
+
 
 ### Automated tests
 
@@ -49,7 +50,7 @@ Polarizable Force Fields", J. Comput. Chem., 37, 11, 1019, (2016).
 
 ```
 ```
-Gokcan H., Vazquez-Montelongo E.A., Cisneros G.A., “LICHEM 1.1: Recent Improvements 
+Gokcan H., Vazquez-Montelongo E.A., Cisneros G.A., “LICHEM 1.1: Recent Improvements
 and New Capabilities”, J. Chem. Theo. Comput., 15, 3056, (2019).
 ```
 ### Installation

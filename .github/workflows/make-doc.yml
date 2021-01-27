@@ -10,7 +10,8 @@ jobs:
       - name: Compile LaTeX document
         uses: xu-cheng/latex-action@v2
         with:
-          root_file: src/manual.tex
+          working_directory: src/
+          root_file: manual.tex
 
       - name: Upload LaTex Document
         uses: actions/upload-artifact@v2
