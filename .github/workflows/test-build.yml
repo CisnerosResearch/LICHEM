@@ -58,6 +58,8 @@ jobs:
 
         if [ ${{ runner.os }} == Linux ]; then sudo ldconfig; fi
 
+        if [ ${{ runner.os }} == Linux ]; then if [ ${{ matrix.config.cc }} == clang ]; then sudo apt install libomp-dev; fi; fi
+
         if [ ${{ runner.os }} == Linux ]; then apt-get moo; fi
 
 
