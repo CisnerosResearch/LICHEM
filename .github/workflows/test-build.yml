@@ -21,17 +21,17 @@ jobs:
         - {
             name: "Ubuntu Latest GCC", artifact: "Linux.tar.xz",
             os: ubuntu-latest,
-            build_type: "Release", cc: "gcc-5", cxx: "g++-5"
+            build_type: "Release", cc: "gcc", cxx: "g++"
           }
         - {
             name: "Ubuntu Latest Clang", artifact: "Linux.tar.xz",
             os: ubuntu-latest,
-            build_type: "Release", cc: "clang-3.8", cxx: "clang++-3.8"
+            build_type: "Release", cc: "clang", cxx: "clang++"
           }
         - {
             name: "macOS Latest Clang", artifact: "macOS.tar.xz",
             os: macos-latest,
-            build_type: "Release", cc: "clang-3.8", cxx: "clang++-3.8"
+            build_type: "Release", cc: "clang", cxx: "clang++"
           }
 
     steps:
