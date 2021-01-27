@@ -64,23 +64,23 @@ jobs:
         make install && make clean
 
         if [ ${{ runner.os }} == ubuntu ]; then apt-get moo; fi
-
-name: Build LaTeX document
-on: [push]
-jobs:
-  build_latex:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Git repository
-        uses: actions/checkout@v2
-      - name: Compile LaTeX document
-        uses: xu-cheng/latex-action@v2
-        with: src/
-          root_file: manual.tex
-          post_compile: |
-           latexmk -c
-      - name: Upload LaTex Document
-        uses: actions/upload-artifact@v2
-        with:
-          name: manual
-          path: src/manual.pdf
+#
+# name: Build LaTeX document
+# on: [push]
+# jobs:
+#   build_latex:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Set up Git repository
+#         uses: actions/checkout@v2
+#       - name: Compile LaTeX document
+#         uses: xu-cheng/latex-action@v2
+#         with: src/
+#           root_file: manual.tex
+#           post_compile: |
+#            latexmk -c
+#       - name: Upload LaTex Document
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: manual
+#           path: src/manual.pdf
