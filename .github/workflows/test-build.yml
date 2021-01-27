@@ -77,4 +77,10 @@ jobs:
         uses: xu-cheng/latex-action@v2
         with: src/
           root_file: manual.tex
-        post_compile: "latexmk -c"
+          post_compile: |
+           latexmk -c
+      - name: Upload LaTex Document
+        uses: actions/upload-artifact@v2
+        with:
+          name: manual
+          path: src/manual.pdf
