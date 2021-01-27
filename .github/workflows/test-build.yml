@@ -56,7 +56,7 @@ jobs:
 
         if [ ${{ runner.os }} == macOS ]; then sed -i "" 's/SEDI=-i/SEDI=-i \"\"/g' Makefile; fi
 
-        if [ ${{ runner.os }} == Linux ]; then if [ ${{ matrix.config.cc }} == clang ]; then sudo apt install llvm-toolchain-bionic-10; fi; fi
+        if [ ${{ runner.os }} == Linux ]; then if [ ${{ matrix.config.cc }} == clang ]; then bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"; fi; fi
 
         if [ ${{ runner.os }} == Linux ]; then apt-get moo; fi
 
