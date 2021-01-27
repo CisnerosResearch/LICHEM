@@ -1,0 +1,12 @@
+# Ignore tex build files
+src/manual.aux
+src/manual.log
+src/manual.out
+src/manual.synctex.gz
+src/manual.toc
+
+# Ignore PDF (might want later)
+src/manual.pdf
+
+# Ignore MacOS extra file
+.DS_Store
