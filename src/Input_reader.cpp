@@ -1115,6 +1115,9 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
       {
         //Print warning if the XYZ file has incorrect dimensions
         logFile << "Error: Restart file does not have the correct format!";
+        logFile << '\n' << "Because ";
+        logFile << AtTest << " != " << Natoms << " * " << QMMMOpts.Nqsm;
+        logFile << " = " << Natoms*QMMMOpts.Nqsm;
         logFile << '\n' << '\n';
         logFile.flush();
         //Quit
@@ -1180,6 +1183,9 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
       {
         //Print warning if the XYZ file has incorrect dimensions
         logFile << "Error: Restart file does not have the correct format!";
+        logFile << '\n' << "Because ";
+        logFile << atTest << " != " << Natoms << " * " << QMMMOpts.NBeads;
+        logFile << " = " << Natoms*QMMMOpts.NBeads;
         logFile << '\n' << '\n';
         logFile.flush();
         //Quit
