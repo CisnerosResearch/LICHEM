@@ -57,9 +57,9 @@ jobs:
         if [ ${{ runner.os }} == macOS ]; then sed -i "" 's/-fopenmp//g' Makefile; fi
 
         if [ ${{ runner.os }} == macOS ]; then sed -i "" 's/SEDI=-i/SEDI=-i \"\"/g' Makefile; fi
-
-        if [ ${{ runner.os }} == Linux ]; then if [ ${{ matrix.config.cc }} == clang ]; then sudo apt install libomp5 libomp-dev libiomp-dev; fi; fi
-
+        
+        if [ ${{ runner.os }} == Linux ]; then if [ ${{ matrix.config.cc }} == clang ]; then sudo apt install openmprtl; fi; fi
+        
         if [ ${{ runner.os }} == Linux ]; then apt-get moo; fi
 
 
