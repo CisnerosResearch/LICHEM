@@ -162,5 +162,5 @@ research group at University of North Texas.
 
 Developers:
 <ul>
-  <li>Cisneros group, University of North Texas
+  <li>Cisneros group, University of Texas at Dallas
 </ul>
