@@ -69,7 +69,7 @@ if $mpi; then
         sed -i '/#include <algorithm>/a #include <mpi\.h>' include/LICHEM_clibs.h
         #echo '#endif' >> include/LICHEM_clibs.h
     fi
- 
+
 else
     echo '   Configuring for serial LICHEM'
     echo '   Installation directory: ' $prefix
@@ -77,6 +77,11 @@ else
     echo '   CXXFLAGS= -static -O3 -fopenmp'
     echo 'CXX= g++' >>Makefile
     echo 'CXXFLAGS= -static -O3 -fopenmp' >>Makefile
+    echo '' >>Makefile
+    echo 'UNAME := $(shell uname)' >>Makefile
+    echo 'ifeq ($(UNAME), Darwin)' >>Makefile
+    echo 'CXXFLAGS= -O3 -fopenmp' >>Makefile
+    echo 'endif' >>Makefile
     #update header file
     sed -i 's/LICHEM_QSM_MPI\.h/LICHEM_QSM\.h/g' include/LICHEM_headers.h
     #if mpi.h exists remove it
@@ -85,7 +90,7 @@ else
         sed -i '/#include <mpi\.h>/d' include/LICHEM_clibs.h
     fi
 
-    
+
 fi
 
 #INSTALL DIRECTORY
@@ -120,8 +125,7 @@ echo''
 echo 'CONFIGURATION COMPLETE.'
 echo 'TO BUILD, TYPE;'
 echo ''
-echo '   make install' 
+echo '   make install'
 echo ''
 
 echo ''
-
