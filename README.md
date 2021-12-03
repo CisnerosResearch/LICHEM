@@ -156,10 +156,10 @@ section.
 
 ### Development
 
-The development of LICHEM is supported by funding from the NIH (Grant No.
-R01GM108583). Initial funding support from Wayne State University is gratefully
-acknowledged. LICHEM is maintained by the Cisneros research group at the 
-University of Texas at Dallas.
+The development of LICHEM is supported by funding from NIGMS/NIH (Grant No.
+R01GM108583) and NSF (Grant No. CHE-1856162). Initial funding support from 
+Wayne State University is gratefully acknowledged. LICHEM is maintained by 
+the Cisneros research group at the University of Texas at Dallas.
 
 Developers:
 <ul>
