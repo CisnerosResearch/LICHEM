@@ -250,11 +250,11 @@ QMMMSettings::QMMMSettings()
   backDir = "Old_files";
   //QMMM long-range electrostatics settings
   useLREC = 0;
-  LRECCut = 1000.0; //Effectively infinite
+  LRECCut = 22.0; 
   LRECPow = 3;
   //MM wrapper settings
   useMMCut = 0;
-  MMOptCut = 1000.0; //Effectively infinite
+  MMOptCut = 15.0;
   useEwald = 0;
   useImpSolv = 0;
   solvModel = "N/A";
@@ -269,9 +269,9 @@ QMMMSettings::QMMMSettings()
   accRatio = 0.5;
   NPrint = 5000;
   //Optimization settings
-  maxOptSteps = 200;
-  MMOptTol = 1e-2;
-  QMOptTol = 5e-4;
+  maxOptSteps = 25;
+  MMOptTol = 5e-2;
+  QMOptTol = 1e-3;
   stepScale = 1.0;
   maxStep = 0.1;
   //Additional RP settings
@@ -294,7 +294,7 @@ QMMMSettings::QMMMSettings()
   QMRMSForceTol= 5e-3; //Hartrees/Ang //10*QMMMOpts.QMOptTol;
   QMMaxForceTol= 1e-2;//Hartrees/Ang  //20*QMMMOpts.QMOptTol;
   MaxQMSteps=50;
-  KeepFiles=false;
+  KeepFiles=true; //User must choose to remove files.
   debug=false;
   perOpt=maxOptSteps;
   perQM=MaxQMSteps;
