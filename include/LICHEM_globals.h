@@ -26,6 +26,10 @@ namespace LICHEMGlobal
   string xyzFilename; //Saves a filename given in the arguments
   string conFilename; //Saves a filename given in the arguments
   string regFilename; //Saves a filename given in the arguments
+  //Start: EML
+  string keyFilename;
+  // string keyFilename = "tinker.key"; //Sets the expected tinker.key filename
+  //End: EML
   int Nthreads = 1; //Total number of threads available
   int Ncpus = 1; //Number of processors for QM calculations
   int Nfreeze = 0; //Number of frozen atoms
@@ -65,6 +69,9 @@ namespace LICHEMGlobal
   bool QSMSim = 0; //Flag for QSM path optimization in LICHEM
   bool g09 = 0; //Wrapper flag
   //End: Hatice
+  //Start: EML
+  string TinkVers; // What Tinker version
+  //End: EML
 
   //Timers
   int startTime = 0; //Time the calculation starts
@@ -74,4 +81,3 @@ namespace LICHEMGlobal
 };
 
 #endif
-

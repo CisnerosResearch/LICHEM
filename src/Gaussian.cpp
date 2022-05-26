@@ -159,17 +159,8 @@ void GaussianCharges(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   else{
     call.str("");
-    call << "rm -f ";
-    call << "LICHM_" << bead;
-    call << ".com";
-    call << "; mv LICHM_" << bead;
-    call << ".chk tmp_" << bead;
-    call << ".chk ";
-    call << "; mv LICHM_" << bead << ".log ";
-    call << " LICHM_GaussianCharges_" << bead << ".log ";
-    call << "; mv tmp_" << bead;
-    call << ".chk LICHM_" << bead;
-    call << ".chk";
+    call << "mv LICHM_" << bead << ".log";
+    call << " LICHM_GaussianCharges_" << bead << ".log;";
     globalSys = system(call.str().c_str());
   }
 
@@ -364,12 +355,8 @@ double GaussianEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   else{
     call.str("");
-    call << "rm -f ";
-    call << "LICHM_" << bead;
-    call << ".com ";
-    call << "; mv ";
-    call << "LICHM_" << bead << ".log ";
-    call << "LICHM_GaussEnergy_" << bead << ".log ";
+    call << "mv LICHM_" << bead << ".log";
+    call << " LICHM_GaussEnergy_" << bead << ".log;";
     globalSys = system(call.str().c_str());
   }
 
@@ -583,12 +570,8 @@ double GaussianForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   }
   else{
     call.str("");
-    call << "rm -f ";
-    call << "LICHM_" << bead;
-    call << ".com ";
-    call << "; mv ";
-    call << "LICHM_" << bead << ".log ";
-    call << "LICHM_GaussForce_" << bead << ".log ";
+    call << "mv LICHM_" << bead << ".log";
+    call << " LICHM_GaussForce_" << bead << ".log;";
     globalSys = system(call.str().c_str());
   }
 
@@ -759,18 +742,8 @@ MatrixXd GaussianHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   else{
     call.str("");
-    call << "rm -f ";
-    call << "LICHM_" << bead;
-    call << ".com ";
-    call << " ";
-    call << "LICHM_" << bead;
-    call << ".fchk ";
-    call << "; mv ";
-    call << "LICHM_" << bead;
-    call << ".log ";
-    call << "LICHM_GaussHess_" << bead;
-    call << ".log ";
-
+    call << "mv LICHM_" << bead << ".log";
+    call << " LICHM_GaussHess_" << bead << ".log;";
   }
   //Return
   return QMHess;
@@ -903,14 +876,8 @@ double GaussianOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   else{
     call.str("");
-    call << "rm -f ";
-    call << "LICHM_" << bead;
-    call << ".com ";
-    call << "; mv ";
-    call << "LICHM_" << bead;
-    call << ".log ";
-    call << "LICHM_GaussOpt_" << bead;
-    call << ".log ";
+    call << "mv LICHM_" << bead << ".log";
+    call << " LICHM_GaussOpt_" << bead << ".log;";
 
     globalSys = system(call.str().c_str());
 
@@ -919,4 +886,3 @@ double GaussianOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   //Return
   return E;
 };
-

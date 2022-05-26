@@ -41,7 +41,8 @@ int main(int argc, char* argv[])
   //End of section
   int stat=0;
   //Read arguments and look for errors
-  ReadArgs(argc,argv,xyzFile,connectFile,regionFile,outFile,logFile,errFile,stat);
+  ReadArgs(argc,argv,xyzFile,connectFile,regionFile,outFile,logFile,errFile,
+    stat);//,keyFilename);
   if(stat!=0){
     logFile.close();
     errFile.close();

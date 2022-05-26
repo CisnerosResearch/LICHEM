@@ -52,7 +52,7 @@ fstream& logFile)
       double SumE = 0; //Current total energy
       double relAU = 0.0;
       double relkcal = 0.0;
-     
+
       //Forces
       VectorXd Forces(QMdim*3); //Local forces
 
@@ -156,7 +156,7 @@ fstream& logFile)
         SumE += E;
 
         Emm_images[p]=Emm;
-        
+
         Eqmmm_images[p]=Eqm+Emm;
 
         if (p == 0)
@@ -174,16 +174,16 @@ fstream& logFile)
         //get the forces of all images from local Forces
         //#pragma omp parallel for schedule(dynamic)
         Forces = Forces/har2eV;
-        for(int i=0;i<QMdim;i++){   
+        for(int i=0;i<QMdim;i++){
            force[(p*beadsize)+(i*3)] = Forces(3*i);
-           force[(p*beadsize)+(i*3)+1] = Forces(3*i+1); 
+           force[(p*beadsize)+(i*3)+1] = Forces(3*i+1);
            force[(p*beadsize)+(i*3)+2] = Forces(3*i+2);
         }
         //#pragma omp barrier
 
 
       }//runOPT of images is finished
-} 
+}
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 double CalcEnergy(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
@@ -192,7 +192,7 @@ double CalcEnergy(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
 {
 
     double SumE,SumEeV,SumEau, Eqm, Emm;
-    
+
     QMMMOpts.ETrans = -1*hugeNum; //Locate the initial transition state
     for (int p=0;p<QMMMOpts.NBeads;p++)
     {
@@ -227,9 +227,9 @@ double CalcEnergy(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
         Eqm = Eqm/har2eV;
         QMTime += (unsigned)time(0)-tstart;
       }
-    
+
       Eqm_images[p]=Eqm;
- 
+
       //Calculate MM energy
       if (TINKER)
       {
@@ -367,7 +367,7 @@ double runMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,fstream& logFi
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 double runRestrMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,double restr,fstream& logFile)
 {
- 
+
     logFile << '\n';
     logFile << "             ";
     logFile << "Starting MM optimization ";
@@ -396,7 +396,7 @@ double runRestrMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,double re
        MMTime += (unsigned)time(0)-tstart;
     }
     logFile << '\n';
-    logFile << "             "; 
+    logFile << "             ";
     logFile << "MM optimizations with ";
     logFile << "restraints are complete. \n";
     logFile << "             ";
@@ -405,7 +405,7 @@ double runRestrMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,double re
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 double TINKEROptRestr(vector<QMMMAtom>& QMMMData,
-                      QMMMSettings& QMMMOpts, 
+                      QMMMSettings& QMMMOpts,
                       int Bead, double restr,fstream& logFile,int& mystat)
 {
   //Runs TINKER MM optimization
@@ -418,7 +418,10 @@ double TINKEROptRestr(vector<QMMMAtom>& QMMMData,
   call.str("");
   //Copy the original key file and make changes
   call.str("");
-  call << "cp tinker.key LICHM_";
+  // EML allow uniquely named tinker.key
+  // call << "cp tinker.key LICHM_";
+  call << "cp " << keyFilename << " LICHM_";
+  // End EML
   call << Bead << ".key";
 
   globalSys = system(call.str().c_str());
@@ -497,7 +500,7 @@ double TINKEROptRestr(vector<QMMMAtom>& QMMMData,
       //Add active atoms
       if (QMMMData[i].MMRegion or QMMMData[i].BARegion)
       {
-       
+
        /*Start:Hatice GOKCAN*/
        /*if( (Nmm + Nbound) != Nfreeze ){
            logFile << "             ";
@@ -650,7 +653,7 @@ double TINKEROptRestr(vector<QMMMAtom>& QMMMData,
       }
     }
 
-  }  
+  }
 
 //End: Hatice
   ofile.flush();
@@ -836,10 +839,10 @@ void CalcFreq(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,fstream& logFile
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 bool QSMConverged(vector<QMMMAtom>& QMMMData,
                   vector<QMMMAtom>& OldQMMMData,
-                  int stepct, QMMMSettings& QMMMOpts, 
+                  int stepct, QMMMSettings& QMMMOpts,
                   VectorXd& Eqmmm_images,fstream& logFile)
 {
-  
+
   //Check convergence of QMMM optimizations
   stringstream call; //Stream for system calls and reading/writing files
   string dummy; //Generic string
@@ -853,7 +856,7 @@ bool QSMConverged(vector<QMMMAtom>& QMMMData,
   double Eqm = 0;
   double Emm = 0;
   int Ndof = 3*(Nqm+Npseudo); //Number of QM and PB degrees of freedom
- 
+
     //Check if the MM region changed and gather statistics
     for (int p=0;p<QMMMOpts.NBeads;p++)
     {
@@ -979,7 +982,7 @@ bool QSMConverged(vector<QMMMAtom>& QMMMData,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //Convergence test functions
 bool QMConverged(vector<QMMMAtom>& QMMMData, vector<QMMMAtom>& OldQMMMData,
-     MatrixXd& ForceStats, int stepct, QMMMSettings& QMMMOpts, 
+     MatrixXd& ForceStats, int stepct, QMMMSettings& QMMMOpts,
      double &rmsdiff, double &rmsforce, double &maxforce)
 {
   //Check convergence of QMMM optimizations
@@ -1006,7 +1009,7 @@ bool QMConverged(vector<QMMMAtom>& QMMMData, vector<QMMMAtom>& OldQMMMData,
         MAXforce = ForceStats(p,0);
       }
       RMSforce += ForceStats(p,1);
-      
+
       //Find RMS deviation for the whole path
       #pragma omp parallel for schedule(dynamic) reduction(+:RMSdiff)
       for (int i=0;i<Natoms;i++)
@@ -1034,7 +1037,7 @@ bool QMConverged(vector<QMMMAtom>& QMMMData, vector<QMMMAtom>& OldQMMMData,
         RMSdiff += RMStmp;
       }
       #pragma omp barrier
-   
+
     }
     int AdjustedBeads; //Number of moving beads
     if (QMMMOpts.frznEnds)
@@ -1066,7 +1069,7 @@ bool QMConverged(vector<QMMMAtom>& QMMMData, vector<QMMMAtom>& OldQMMMData,
     {
         //Finish the optimization
         PathDone = 1;
-     
+
     }
     rmsdiff = RMSdiff;
     rmsforce = RMSforce;
@@ -1075,4 +1078,3 @@ bool QMConverged(vector<QMMMAtom>& QMMMData, vector<QMMMAtom>& OldQMMMData,
   return PathDone;
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-

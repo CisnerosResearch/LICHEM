@@ -592,4 +592,3 @@ void LICHEM2TINK(int& argc, char**& argv)
   exit(0); //Quit
   return;
 };
-

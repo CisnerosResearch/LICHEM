@@ -25,11 +25,13 @@ void FindTINKERClasses(vector<QMMMAtom>& QMMMData,fstream& logFile)
   string dummy; //Generic string
   int ct; //Generic counter
   //Open generic key file
-  inFile.open("tinker.key",ios_base::in);
+//  inFile.open("tinker.key",ios_base::in);
+  inFile.open(keyFilename,ios_base::in);
   if (!inFile.good())
   {
     //Exit if files do not exist
-    logFile << "Error: Missing tinker.key file.";
+    logFile << "Error: Missing TINKER key file." << '\n';
+    logFile << "Expected file " << keyFilename << " for TINKER key." << '\n';
     logFile << '\n';
     logFile.flush();
     exit(0);
@@ -153,7 +155,10 @@ void TINKERInduced(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   outFile.close();
   //Create new TINKER key file
   call.str("");
-  call << "cp tinker.key LICHM_";
+  // EML allow uniquely named tinker.key
+  //call << "cp tinker.key LICHM_";
+  call << "cp " << keyFilename << " LICHM_";
+  // EML end
   call << bead << ".key";
   globalSys = system(call.str().c_str());
   //Update key file
@@ -255,7 +260,7 @@ void TINKERInduced(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       int mystat=0;
       boundaries = TraceBoundary(QMMMData,i,mystat,logFile);
       if(mystat!=0){
-        exit(0); 
+        exit(0);
       }
       double qNew = qi;
       for (unsigned int j=0;j<boundaries.size();j++)
@@ -309,7 +314,7 @@ void TINKERInduced(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   inFile.close();
   //Delete junk files
-  if(!QMMMOpts.KeepFiles){ 
+  if(!QMMMOpts.KeepFiles){
     call.str("");
     call << "rm -f";
     call << " LICHM_" << bead << ".xyz";
@@ -374,7 +379,10 @@ double TINKERPolEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   outFile.close();
   //Create new TINKER key file
   call.str("");
-  call << "cp tinker.key LICHM_";
+  // EML allow uniquely named tinker.key
+  //call << "cp tinker.key LICHM_";
+  call << "cp " << keyFilename << " LICHM_";
+  // EML end
   call << bead << ".key";
   globalSys = system(call.str().c_str());
   //Update key file
@@ -511,7 +519,14 @@ double TINKERPolEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   outFile.close();
   //Calculate QMMM energy
   call.str("");
-  call << "analyze LICHM_";
+  //Fix for Tinker9
+  if (TinkVers == "tinker9")
+  {
+    call << "tinker9 analyze LICHM_";
+  } else {
+    call << "analyze LICHM_";
+  }
+  //call << "analyze LICHM_";
   call << bead << ".xyz E > LICHM_";
   call << bead << ".log";
   globalSys = system(call.str().c_str());
@@ -558,7 +573,7 @@ double TINKERPolEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   inFile.close();
   //Clean up files
-  
+
 
   if(!QMMMOpts.KeepFiles){
     call.str("");
@@ -570,11 +585,7 @@ double TINKERPolEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   else{
     call.str("");
-    call << "rm -f";
-    call << " LICHM_" << bead << ".xyz";
-    call << " LICHM_" << bead << ".key";
-    call << " LICHM_" << bead << ".err";
-    call << "; mv ";
+    call << "mv ";
     call << "LICHM_" << bead << ".log ";
     call << "LICHM_TINKERPolEnergy_" << bead << ".log ";
     globalSys = system(call.str().c_str());
@@ -595,7 +606,10 @@ double TINKERForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   int ct; //Generic counter
   //Construct MM forces input for TINKER
   call.str("");
-  call << "cp tinker.key LICHM_";
+  // EML allow uniquely named tinker.key
+  //call << "cp tinker.key LICHM_";
+  call << "cp " << keyFilename << " LICHM_";
+  // EML end
   call << bead << ".key";
   globalSys = system(call.str().c_str());
   //Update key file
@@ -850,18 +864,14 @@ double TINKERForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   }
   else{
     call.str("");
-    call << "rm -f";
-    call << " LICHM_" << bead << ".xyz";
-    call << " LICHM_" << bead << ".key";
-    call << " LICHM_" << bead << ".err";
-    call << "; mv ";
+    call << "mv ";
     call << "LICHM_" << bead << ".grad ";
     call << "LICHM_TINKERForces_" << bead << ".grad ";
     globalSys = system(call.str().c_str());
   }
   //Return
   Emm *= kcal2eV;
- 
+
   return Emm;
 };
 
@@ -878,7 +888,10 @@ double TINKERMMForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   int ct; //Generic counter
   //Construct MM forces input for TINKER
   call.str("");
-  call << "cp tinker.key LICHM_";
+  // EML allow uniquely named tinker.key
+  //call << "cp tinker.key LICHM_";
+  call << "cp " << keyFilename << " LICHM_";
+  // EML end
   call << bead << ".key";
   globalSys = system(call.str().c_str());
   //Update key file
@@ -1125,11 +1138,7 @@ double TINKERMMForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   }
   else{
     call.str("");
-    call << "rm -f";
-    call << " LICHM_" << bead << ".xyz";
-    call << " LICHM_" << bead << ".key";
-    call << " LICHM_" << bead << ".err";
-    call << "; mv ";
+    call << "mv ";
     call << "LICHM_" << bead << ".grad ";
     call << "LICHM_TINKERMMForces_" << bead << ".grad ";
     globalSys = system(call.str().c_str());
@@ -1151,7 +1160,10 @@ double TINKERPolForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   int ct; //Generic counter
   //Construct MM forces input for TINKER
   call.str("");
-  call << "cp tinker.key LICHM_";
+  // EML allow uniquely named tinker.key
+  //call << "cp tinker.key LICHM_";
+  call << "cp " << keyFilename << " LICHM_";
+  // EML end
   call << bead << ".key";
   globalSys = system(call.str().c_str());
   //Update key file
@@ -1395,11 +1407,7 @@ double TINKERPolForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   }
   else{
     call.str("");
-    call << "rm -f";
-    call << " LICHM_" << bead << ".xyz";
-    call << " LICHM_" << bead << ".key";
-    call << " LICHM_" << bead << ".err";
-    call << "; mv ";
+    call << "mv ";
     call << "LICHM_" << bead << ".grad ";
     call << "LICHM_TINKERPolForces_" << bead << ".grad ";
     globalSys = system(call.str().c_str());
@@ -1423,7 +1431,10 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   call.str("");
   //Copy the original key file and make changes
   call.str("");
-  call << "cp tinker.key LICHM_";
+  // EML allow uniquely named tinker.key
+  //call << "cp tinker.key LICHM_";
+  call << "cp " << keyFilename << " LICHM_";
+  // EML end
   call << bead << ".key";
   globalSys = system(call.str().c_str());
   //Update key file
@@ -1590,7 +1601,14 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   outFile.close();
   //Calculate MM potential energy
   call.str("");
-  call << "analyze LICHM_";
+  //Fix for Tinker9
+  if (TinkVers == "tinker9")
+  {
+    call << "tinker9 analyze LICHM_";
+  } else {
+    call << "analyze LICHM_";
+  }
+  //call << "analyze LICHM_";
   call << bead << ".xyz E > LICHM_";
   call << bead << ".log";
   globalSys = system(call.str().c_str());
@@ -1635,11 +1653,7 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   else{
     call.str("");
-    call << "rm -f";
-    call << " LICHM_" << bead << ".xyz";
-    call << " LICHM_" << bead << ".key";
-    call << " LICHM_" << bead << ".err";
-    call << "; mv ";
+    call << "mv ";
     call << "LICHM_" << bead << ".log ";
     call << "LICHM_TINKEREnergy_" << bead << ".log ";
     globalSys = system(call.str().c_str());
@@ -1672,7 +1686,10 @@ MatrixXd TINKERHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   int ct; //Generic counter
   //Construct MM forces input for TINKER
   call.str("");
-  call << "cp tinker.key LICHM_";
+  // EML allow uniquely named tinker.key
+  //call << "cp tinker.key LICHM_";
+  call << "cp " << keyFilename << " LICHM_";
+  // EML end
   call << bead << ".key";
   globalSys = system(call.str().c_str());
   //Update key file
@@ -1936,11 +1953,7 @@ MatrixXd TINKERHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   else{
     call.str("");
-    call << "rm -f";
-    call << " LICHM_" << bead << ".xyz";
-    call << " LICHM_" << bead << ".key";
-    call << " LICHM_" << bead << ".err";
-    call << "; mv ";
+    call << "mv ";
     call << "LICHM_" << bead << ".grad ";
     call << "LICHM_TINKERHessian_" << bead << ".hes ";
     call << "; mv ";
@@ -1967,7 +1980,10 @@ double TINKEROpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
   call.str("");
   //Copy the original key file and make changes
   call.str("");
-  call << "cp tinker.key LICHM_";
+  // EML allow uniquely named tinker.key
+  //call << "cp tinker.key LICHM_";
+  call << "cp " << keyFilename << " LICHM_";
+  // EML end
   call << bead << ".key";
   globalSys = system(call.str().c_str());
   //Update key file
@@ -2050,12 +2066,12 @@ double TINKEROpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
 
        /*Start:Hatice GOKCAN*/
        /*if( (Nmm + Nbound) != Nfreeze ){
-           logFile << "             "; 
+           logFile << "             ";
            logFile << "Error:\n";
            logFile << "             ";
            logFile << "Total number of MM atoms and boundary atoms\n";
            logFile << "             ";
-           logFile << "are not equal to the number of frozen atoms.\n"; 
+           logFile << "are not equal to the number of frozen atoms.\n";
            mystat=1;
            return 0;
        }*/
@@ -2249,12 +2265,7 @@ double TINKEROpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
   }
   else{
     call.str("");
-    call << "rm -f";
-    call << " LICHM_" << bead << ".xyz";
-    call << " LICHM_" << bead << ".xyz_*";
-    call << " LICHM_" << bead << ".key";
-    call << " LICHM_" << bead << ".err";
-    call << "; mv ";
+    call << "mv ";
     call << "LICHM_" << bead << ".log ";
     call << "LICHM_TINKEROpt_" << bead << ".log ";
     globalSys = system(call.str().c_str());
@@ -2263,4 +2274,3 @@ double TINKEROpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
   E *= kcal2eV;
   return E;
 };
-

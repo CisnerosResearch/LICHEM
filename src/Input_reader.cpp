@@ -17,13 +17,29 @@
 
 //Various input and error checking functions
 void ReadArgs(int& argc, char**& argv, fstream& xyzFile,
-              fstream& connectFile, fstream& regionFile, fstream& outFile,
+              fstream& connectFile,
+              fstream& regionFile, fstream& outFile,
               fstream& logFile,fstream& errFile,int& stat)
+              // string keyFilename)
 {
   //Function to read arguments
   string dummy; //Generic string
   stringstream call; //Stream for system calls and reading/writing files
   //fstream errFile;
+  // Set given tinker key name as False (assume file named `tinker.key` if 0)
+  bool tkeysetBool=0;
+  // Set up basic error message
+  const char * base_err =
+   "Error occurred while executing LICHEM.\n"
+   "Check the LICHEM.err file for further explanation.\n";
+   /* Set up usage instructions separately from help_instructions so you
+      can have different information in the help section */
+   string usage_instructions =
+    "Usage: lichem -n Ncpus -x Input.xyz -c Connectivity.inp\n"
+    "       -k Tinker.key -r Regions.inp -o Output.xyz -l Logfile.log\n\n";
+   // Additional usage instructions for using help
+   string help_instructions =
+    "Use `lichem -h` or `lichem --help` for detailed instructions.\n";
   call.str("");
   call << "LICHEM" << ".err";
   errFile.open(call.str().c_str(),ios_base::out);
@@ -32,16 +48,14 @@ void ReadArgs(int& argc, char**& argv, fstream& xyzFile,
   if (argc == 1)
   {
     //Escape if there are no arguments
-    logFile << "Error occured due to the missing/wrong arguments.\n";
-    logFile << "Check LICHEM.err for more explanation.\n";
+    // Use std::cout instead of logFile because logFile is not yet defined!
+    std::cout << "It seems like `lichem` was invoked without any arguments.\n";
+    std::cout << "LICHEM requires arguments to run.\n";
+    std::cout << "Check the LICHEM.err file for detailed instructions.\n\n";
 
     errFile << '\n';
     errFile << "Missing arguments..." << '\n' << '\n';
-    errFile << "Usage: lichem -n Ncpus -x Input.xyz -c Connectivity.inp ";
-    errFile << "-r Regions.inp -o Output.xyz" << '\n';
-    errFile << '\n';
-    errFile << "Use -h or --help for detailed instructions.";
-    errFile << '\n' << '\n';
+    errFile << usage_instructions << '\n' << help_instructions << '\n';
     errFile.flush();
     stat=1;
     return;
@@ -74,8 +88,8 @@ void ReadArgs(int& argc, char**& argv, fstream& xyzFile,
     else
     {
       //Bad arguments
-      logFile << "Error occured while executing LICHEM\n";
-      logFile << "Check LICHEM.err for more explanation.\n";
+      // Use std::cout instead of logFile because logFile may not be defined!
+      std::cout << base_err;
 
       errFile << '\n';
       errFile << "Unrecognized file format.";
@@ -111,16 +125,13 @@ void ReadArgs(int& argc, char**& argv, fstream& xyzFile,
     if ((dummy != "-h") and (dummy != "--help"))
     {
       //Escape if there are missing arguments
-      logFile << "Error occured while executing LICHEM\n";
-      logFile << "Check LICHEM.err for more explanation.\n";
+      // Use std::cout instead of logFile because logFile may not be defined!
+      std::cout << base_err;
 
       errFile << '\n';
       errFile << "Odd number of arguments..." << '\n' << '\n';
-      errFile << "Usage: lichem -n Ncpus -x Input.xyz -c Connectivity.inp ";
-      errFile << "-r Regions.inp -o Output.xyz" << '\n';
-      errFile << '\n';
-      errFile << "Use -h or --help for detailed instructions.";
-      errFile << '\n' << '\n';
+      // Print usage instructions
+      errFile << usage_instructions << '\n' << help_instructions << '\n';
       errFile.flush();
       stat=1;
       return;
@@ -132,22 +143,60 @@ void ReadArgs(int& argc, char**& argv, fstream& xyzFile,
     dummy = string(argv[i]);
     if ((dummy == "-h") or (dummy == "--help"))
     {
-      //Print helpful information and exit
-      logFile << "Check LICHEM.err for explanation.\n";
+      // Print helpful information and exit
+      // Use std::cout instead of logFile because logFile may not be defined!
+      std::cout << "Check LICHEM.err file for help information.\n\n";
 
       errFile << '\n';
-      errFile << "Usage: lichem -n Ncpus -x Input.xyz -c Connectivity.inp ";
-      errFile << "-r Regions.inp -o Output.xyz" << '\n';
+      errFile << "Printing LICHEM Help\n";
+      errFile << "====================\n\n";
+      errFile << "   $ lichem -h\n" << "        or\n";
+      errFile << "   $ lichem --help\n\n";
+      // Specify conversion information from manual
+      errFile << "When using LICHEM for Conversions\n";
+      errFile << "=================================\n\n";
+      errFile << "--- General QM ---\n";
+      errFile << " > Create connectivity for pure QM\n";
+      errFile << "   $ lichem -convert -b Regions.inp\n\n";
+      errFile << "--- Multi-Replica Trajectories ---\n";
+      errFile << " > Create merged trajectory for reaction path simulations\n";
+      errFile << "   $ lichem -path -b Nbeads -r Reactant.xyz -t TS.xyz ";
+      errFile << "-p Product.xyz\n\n";
+      errFile << " > Split merged trajectory for reaction path simulations\n";
+      errFile << "   $ lichem -splitpath -b Nbeads -f FrameID -p Path.xyz\n\n";
+      errFile << "--- TINKER ---\n";
+      errFile << " > Convert TINKER XYZ files to LICHEM format (w/o lattice)\n";
+      errFile << "   $ lichem -convert -t Tinker.xyz -k Tinker.key\n\n";
+      errFile << " > Convert TINKER XYZ files to LICHEM format (w/ lattice)\n";
+      errFile << "   $ lichem -convert -t Tinker.xyz -k Tinker.key -p Yes\n\n";
+      errFile << " > Create TINKER XYZ files\n";
+      errFile << "   $ lichem -tinker -x xyzfile.xyz -c Connectivity.inp\n\n";
+      // errFile << "--- LAMMPS ---\n";
       errFile << '\n';
-      errFile << "Command line arguments:" << '\n' << '\n';
+      errFile << "When using LICHEM for Calculations\n";
+      errFile << "==================================\n\n";
+      // Write usage instructions
+      errFile << usage_instructions << '\n';
+      // Write detailed help information
+      errFile << "Command-line arguments:" << '\n' << '\n';
       errFile << "  -n    Number of CPUs used for the QM calculation." << '\n';
       errFile << '\n';
       errFile << "  -x    Input xyz file." << '\n' << '\n';
       errFile << "  -c    Connectivity and force field input file." << '\n';
       errFile << '\n';
+      errFile << "  -k    Input TINKER key file (optional)." << '\n' << '\n';
       errFile << "  -r    Information about how the system is subdivided" << '\n';
       errFile << "        into QM, MM, and pseudo-atom regions." << '\n' << '\n';
       errFile << "  -o    Output xyz file for the optimized structures.";
+      errFile << '\n' << '\n';
+      errFile << "  -l    Name of the output logfile.";
+      errFile << '\n' << '\n';
+      errFile << "Notes:" << '\n' << '\n';
+      errFile << " > Flags cannot be combined (e.g., `-ol output`)";
+      errFile << '\n' << '\n';
+      errFile << " > An error will occur if `-h` or `--help` is included ";
+      errFile << "with other arguments." << '\n' << '\n';
+      errFile << " > All arguments described in Usage are required except `-k`";
       errFile << '\n' << '\n';
       errFile.flush();
       stat=1;
@@ -176,6 +225,14 @@ void ReadArgs(int& argc, char**& argv, fstream& xyzFile,
       regFilename = string(argv[i+1]);
       regionFile.open(argv[i+1],ios_base::in);
     }
+    /* EML Add */
+    if (dummy == "-k")
+    {
+      // Read the tinker key filename
+      keyFilename = string(argv[i+1]);
+      tkeysetBool = 1;
+    }
+    /* End EML */
     if (dummy == "-o")
     {
       //Read the output XYZ filename
@@ -196,53 +253,73 @@ void ReadArgs(int& argc, char**& argv, fstream& xyzFile,
     {
       bool badArgs = 0; //Bad argument found
       if ((dummy != "-n") and (dummy != "-x") and
-      (dummy != "-c") and (dummy != "-r") and
+      (dummy != "-c") and (dummy != "-k") and
+      (dummy != "-r") and
       (dummy != "-o") and (dummy != "-l"))
       {
         badArgs = 1;
       }
       if (badArgs)
       {
-        logFile << "Error occured while executing LICHEM\n";
-        logFile << "Check LICHEM.err for more explanation.\n";
+        // Use std::cout instead of logFile because logFile may not be defined!
+        std::cout << base_err;
 
         errFile << '\n';
         errFile << "Unrecognized flag..." << '\n' << '\n';
-        errFile << "Usage: lichem -n Ncpus -x Input.xyz -c Connectivity.inp ";
-        errFile << "-r Regions.inp -o Output.xyz" << '\n';
+        // Print usage instructions
+        errFile << usage_instructions << '\n' << help_instructions << '\n';
         errFile << '\n';
-        errFile << "Use -h or --help for detailed instructions.";
-        errFile << '\n' << '\n';
         errFile.flush();
         stat=1;
         return;
       }
     }
   }
-  if (argc != 13)
-  {
-    //Escape if there are too few arguments
-    logFile << "Error occured while executing LICHEM\n";
-    logFile << "Check LICHEM.err for more explanation.\n";
+  // First, check if the `-k` flag was given. (0 = False, 1 = True)
+  if (tkeysetBool == 0) {
+    // Next, check the number of arguments, **including the LICHEM executable**
+    // For example, there are 3 argc arguments in: `lichem -n 1`
+    if (argc != 13) {
+      // Escape if wrong number of arguments when tinker.key is not set!
+      // Use std::cout instead of logFile because logFile may not be defined!
+      std::cout << base_err;
 
-    errFile << '\n';
-    errFile << "Missing arguments..." << '\n' << '\n';
-    errFile << "Usage: lichem -n Ncpus -x Input.xyz -c Connectivity.inp ";
-    errFile << "-r Regions.inp -o Output.xyz -l Logfile.log" << '\n';
-    errFile << '\n';
-    errFile << "Use -h or --help for detailed instructions.";
-    errFile << '\n' << '\n';
-    errFile.flush();
-    stat=1;
-    return;
+      errFile << '\n';
+      errFile << "LICHEM received " << argc << " arguments, but";
+      errFile << " it expected 13." << '\n';
+      errFile << '\n';
+      // Print usage instructions
+      errFile << usage_instructions << '\n' << help_instructions << '\n';
+      errFile.flush();
+      stat=1;
+      return;
+    } else {
+      // Set the expected tinker.key file name.
+      keyFilename = "tinker.key";
+    }
+  } else {
+    if (argc != 15) {
+      // Escape if there are too few arguments, assuming tinker.key is provided!
+      // Use std::cout instead of logFile because logFile may not be defined!
+      std::cout << base_err;
+
+      errFile << '\n';
+      errFile << "LICHEM received " << argc << " arguments, but";
+      errFile << " it expected 15." << '\n';
+      errFile << '\n';
+      // Print usage instructions
+      errFile << usage_instructions << '\n' << help_instructions << '\n';
+      errFile.flush();
+      stat=1;
+      return;
+    }
   }
   //Make sure input files can be read
   bool doQuit = 0;
   if (!xyzFile.good())
   {
     //Coordinate file does not exist
-    logFile << "Error occured while executing LICHEM\n";
-    logFile << "Check LICHEM.err for more explanation.\n";
+    logFile << base_err;
 
     errFile << "Error: Could not open xyz file.";
     errFile << '\n';
@@ -251,8 +328,7 @@ void ReadArgs(int& argc, char**& argv, fstream& xyzFile,
   if (!connectFile.good())
   {
     //Connectivity file does not exist
-    logFile << "Error occured while executing LICHEM\n";
-    logFile << "Check LICHEM.err for more explanation.\n";
+    logFile << base_err;
 
     errFile << "Error: Could not open connectivity file.";
     errFile << '\n';
@@ -261,8 +337,7 @@ void ReadArgs(int& argc, char**& argv, fstream& xyzFile,
   if (!regionFile.good())
   {
     //Regions file does not exist
-    logFile << "Error occured while executing LICHEM\n";
-    logFile << "Check LICHEM.err for more explanation.\n";
+    logFile << base_err;
 
     errFile << "Error: Could not open region file.";
     errFile << '\n';
@@ -271,8 +346,7 @@ void ReadArgs(int& argc, char**& argv, fstream& xyzFile,
   if (!outFile.good())
   {
     //No write permissions
-    logFile << "Error occured while executing LICHEM\n";
-    logFile << "Check LICHEM.err for more explanation.\n";
+    logFile << base_err;
 
     errFile << "Error: Could not create output file.";
     errFile << '\n';
@@ -593,10 +667,20 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
       {
         TINKER = 1;
       }
+      // EML: Call tinker9 if tinker9 requested!
+      if (dummy == "tinker9")
+      {
+        TINKER = 1;
+        TinkVers = "tinker9";
+      }
       if (dummy == "lammps")
       {
         LAMMPS = 1;
       }
+    }
+    else if (keyword == "tink_vers:")
+    {
+        regionFile >> TinkVers;
     }
     else if (keyword == "neb_atoms:")
     {
@@ -605,7 +689,7 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
         //set all atoms to false
         for (int i=0;i<Natoms;i++){
             QMMMData[i].NEBActive = false; //false
-        }      
+        }
         //Read the list of atoms to include in QSM tangents
         int numActive;
         regionFile >> numActive;
@@ -674,7 +758,7 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
     }
     else if (keyword == "force_constant:")
     {
-        //default is 100.0 
+        //default is 100.0
         regionFile >> QMMMOpts.restrConst;
     }
     else if (keyword == "qm_rms_force_tol:"){
@@ -713,7 +797,7 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
         }
     }
     //END: Hatice GOKCAN
-    
+
     else if (keyword == "potential_type:")
     {
       //Set QM, MM, and QMMM options
@@ -1045,7 +1129,7 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
     }
     //Set initial transition state for reaction pathways
     //Start: Hatice
-    //if (NEBSim) 
+    //if (NEBSim)
     if (NEBSim or QSMSim)
     //End: Hatice
     {
@@ -1093,8 +1177,8 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
       }
     }
   }
-  //START: Hatice GOKCAN 
-  //For QSM 
+  //START: Hatice GOKCAN
+  //For QSM
   //Read initial structures for all beads or create new ones if QSM simulation
   //if (CheckFile("QSMBeadStruct.xyz") and (!GauExternal))
   if (CheckFile("BeadStartStruct.xyz") and (!GauExternal))
@@ -1107,7 +1191,7 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
     //beadfile.open("QSMBeadStruct.xyz",ios_base::in);
     beadfile.open("BeadStartStruct.xyz",ios_base::in);
 
-    if(QSMSim){ 
+    if(QSMSim){
       //Read and discard number of atoms
       int AtTest = 0;
       beadfile >> AtTest;
@@ -1155,7 +1239,7 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
             beadfile >> QMMMData[i].P[p].z;
         }
       }
-     
+
       //if Nqsm=QMMMOpts.NBeads then whole path is present
       if(QMMMOpts.Nqsm==QMMMOpts.NBeads){
         //Read XYZ coordinates for beads
@@ -1201,7 +1285,7 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
           beadfile >> QMMMData[i].P[j].z;
         }
       }
-    } 
+    }
   }
   else if (NEBSim or QSMSim)
   {
@@ -1766,6 +1850,8 @@ void LICHEMPrintSettings(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     if (TINKER)
     {
       logFile << "TINKER" << '\n';
+      // EML Print key file name, too!
+      logFile << "  TINKER key file: " << keyFilename << '\n';
     }
     if (LAMMPS)
     {
@@ -1964,7 +2050,7 @@ void LICHEMPrintSettings(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       logFile << " Max. force: " << LICHEMFormFloat(QMMMOpts.QMMaxForceTol,8);
       logFile << " Hartree/bohr" << '\n';
     }
-    
+
     if (Nmm > 0)
     {
       logFile << '\n';
@@ -2011,4 +2097,3 @@ void LICHEMPrintSettings(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   logFile.flush(); //Flush for output being redirected to a file
   return;
 };
-

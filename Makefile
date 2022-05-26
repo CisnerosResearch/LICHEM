@@ -16,7 +16,7 @@ ifeq ($(UNAME), Darwin)
 CXXFLAGS= -O3 -fopenmp
 endif
 
-### Install directory ###
+### Install directory ### 
 INSTALLBIN=/tmp/LICHEM1.1/bin
 
 ### Libarary settings ###
@@ -73,19 +73,19 @@ FLAGSGPU=$(CXXFLAGS) $(DEVFLAGS) $(GPUFLAGS) $(LDFLAGS) -I./src/ -I./include/
 
 ### Rules for building various parts of the code ###
 
-devbin:
+devbin:	
 	@echo ""; \
 	echo "### Compiling the LICHEM development binary ###"; \
 	mkdir -p $(INSTALLBIN)
 	$(CXX) ./src/LICHEM.cpp -o $(INSTALLBIN)/lichem $(FLAGSDEV)
 
-gpubin:
+gpubin:	
 	@echo ""; \
 	echo "### Compiling the LICHEM GPU binary ###"; \
 	mkdir -p $(INSTALLBIN)
 	$(CXX) ./src/LICHEM.cpp -o $(INSTALLBIN)/lichem $(FLAGSGPU)
 
-testexe:
+testexe:	
 	@echo ""; \
 	echo "### Creating test suite executable ###"
 	@echo 'echo "#!$(PYPATH)" > ./tests/runtests'; \
@@ -97,7 +97,7 @@ testexe:
 	sed $(SEDI) 's/\!\!/\#\!/g' ./tests/runtests; \
 	chmod a+x ./tests/runtests
 
-devtest:
+devtest:	
 	@echo ""; \
 	echo "### Creating development test suite executable ###"
 	@echo 'echo "#!$(PYPATH)" > ./tests/runtests'; \
@@ -122,7 +122,7 @@ checksyntax:	title
 	echo "Total length of LICHEM (lines):"; \
 	cat include/* src/* | wc -l; \
 
-manual:
+manual:	
 	@echo ""; \
 	echo "### Compiling the documentation ###"; \
 	cd src/; \
@@ -143,7 +143,7 @@ manual:
 	rm -f manual.log manual.out manual.toc; \
 	rm -f doclog.txt
 
-title:
+title:	
 	@echo ""; \
 	echo "###################################################"; \
 	echo "#                                                 #"; \
@@ -153,7 +153,7 @@ title:
 	echo "#                                                 #"; \
 	echo "###################################################"
 
-stats:
+stats:	
 	@echo ""; \
         echo "### Source code statistics ###"; \
 	echo "Number of LICHEM source code files:"; \
@@ -161,18 +161,18 @@ stats:
 	echo "Total length of LICHEM (lines):"; \
 	cat include/* src/* | wc -l
 
-compdone:
+compdone:	
 	@echo ""; \
 	echo "Done."; \
 	echo ""
-	@echo ""
+	@echo "" 
 	@echo "Installation complete"
-	@echo "Please add lichem executable directory to your path;"
+	@echo "Please add lichem executable directory to your path;" 
 	@echo ""
-	@echo "     export PATH="$(INSTALLBIN)":\$$PATH"
+	@echo "     export PATH="$(INSTALLBIN)":\$$PATH"   
 	@echo ""
 
-delbin:
+delbin:	
 	@echo ""; \
 	if grep -q "JOKES = 1" include/LICHEM_options.h; then \
 	echo '     ___'; \
@@ -190,9 +190,10 @@ delbin:
  	fi; \
         echo ""; \
 	echo "Removing binary and manual..."; \
-	rm -rf lichem ./doc/LICHEM_manual.pdf ./tests/runtests $(INSTALLBIN)
+	rm -rf lichem ./doc/LICHEM_manual.pdf ./tests/runtests $(INSTALLBIN) \
+	rm -rf ./src/acs-manual.bib
 
-binary:
+binary:	
 	@echo ""; \
 	echo "### Compiling the LICHEM binary ###"; \
 	mkdir -p $(INSTALLBIN)

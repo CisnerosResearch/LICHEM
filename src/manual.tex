@@ -9,26 +9,39 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%Documentation for LICHEM copyright 2014-2016
+% Documentation for LICHEM copyright 2014-2022
 %                 Eric G. Kratz, Hatice Gokcan, Alice Walker,             %
 %                 Erik Vazquez-Montelongo, G. Andres Cisneros             %
 
-%Package settings
+% Package settings
 \documentclass[12pt]{report}
-\usepackage[hidelinks,bookmarks]{hyperref}
+\usepackage[bookmarks,linktoc=all]{hyperref}%hidelinks,
 \usepackage[margin=0.75in]{geometry}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \usepackage{color}
+\usepackage{longtable}
+\usepackage{breqn}
+\usepackage{array}
+\usepackage[biblabel=period, doi=true, articletitle=true]{achemso}
+\usepackage{doi}
+\renewcommand{\doitext}{}
+% WARNING: Adding \usepackage[english]{babel} will likely break tables!!!
+
+% Print URLs in the same font
+\urlstyle{same}
+
+% Change Font to sans serif
+\usepackage{sansmathfonts}
 \renewcommand{\familydefault}{\sfdefault}
 
-%Formatting settings
+% Formatting settings
 \setlength\parindent{0cm}
 \widowpenalty=10000
 \clubpenalty=10000
 \raggedbottom
 
-%Title page
+% Title page
 \title{{\color{blue}LICHEM:} {\color{red}L}ayered {\color{red}I}nteracting
 {\color{red}CHE}mical {\color{red}M}odels \\
 Symbiotic Computational Chemistry \\
@@ -42,16 +55,13 @@ v1.1
 \date{Eric G. Kratz, Hatice G\"{o}kcan, Alice Walker,
 Erik A. V\'azquez--Montelongo, \\
 G. Andr\'{e}s Cisneros, \\
-2018}
+2018\\
+\small{\vspace{0.1in}Documentation last generated: \today}
+}
 
-\usepackage[english]{babel}
-\usepackage{longtable}
-\usepackage{breqn}
-\usepackage{array}
-
-
-
-%Main document
+%----------------------------------------------------------------------------%
+%------------------------------ Main document -------------------------------%
+%----------------------------------------------------------------------------%
 \begin{document}
 \maketitle
 \tableofcontents
@@ -101,7 +111,12 @@ When updating the \LaTeX\ documentation, there should be a newline after each
 sentence.
 This makes the documentation files very long, but it makes tracking/merging
 changes safer and easier.
-Paragraphs are ended with a \LaTeX\ newline followed by a blank line.
+Paragraphs are ended with a \LaTeX\ newline followed by a blank line. \\
+
+Bibliography information should match the American Chemical Society style,
+with titles in Title Case, journal names given as their
+\href{https://cassi.cas.org/search.jsp}{CASSI} abbreviation,
+and DOIs for articles or URLs for software (if available). \\
 
 \subsection{Updating LICHEM}
 
@@ -118,7 +133,7 @@ and robust.
 In general we prefer to avoid adding lots of input keywords and extra input
 files, as much as possible.
 Most of the wrappers should be developed with the assumption that the QM/MM
-calculations will be large and quite difficult to simulate.
+calculations will be large and quite difficult to simulate.\\
 %A good example of this can be seen in the keywords used by the Gaussian
 %wrapper: \\
 
@@ -193,8 +208,8 @@ the configuration should be performed with; \\
 \texttt{user:\$ ./configure --parallel} \\
 
 Both OpenMP and hybrid--parallel versions of LICHEM
-(\texttt{lichem} and \texttt{lichem.MPI} respectively), will be installed in the same
-directory if a specific installation directory is not
+(\texttt{lichem} and \texttt{lichem.MPI} respectively), will be installed in
+the same directory if a specific installation directory is not
 specified during configuration; \\
 
 \texttt{user:\$ ./configure --prefix=install_directory}.\\
@@ -298,7 +313,7 @@ calculations. \\
 Dry runs are useful for checking which QM and MM packages were found in the
 path. \\
 
-Descriptsions of the tests can be found in Table \ref{tab:Tests}.
+Descriptions of the tests can be found in Table \ref{tab:Tests}.
 If tests are consistently failing, please post details on the GitHub issues
 section.
 
@@ -389,9 +404,10 @@ and MM regions are bonded.
 \section{Acknowledgements}
 
 The development of LICHEM was supported by funding from the NIH (Grant No.\
-R01GM108583), Wayne State University, and the University of North Texas.
+R01GM108583), Wayne State University, the University of North Texas,
+and the University of Texas at Dallas.
 LICHEM is maintained by the Cisneros research group at the University of
-North Texas.
+Texas at Dallas.
 
 \chapter{LICHEM Input}
 
@@ -771,7 +787,8 @@ can involve "\textsl{max\_qm\_steps}" at most;
 \\
 
 %nqsm & : &
-%Integer. Keyword to indicate the number of images in the input coordinate file BeadStartStruct.xyz.
+%Integer. Keyword to indicate the number of images in the input coordinate file
+%BeadStartStruct.xyz.
 %It should be set to "\textsl{0}" if whole path exists.
 %Default is "\textsl{0}". \textit{Currently, only Nqsm=0
 %option is available}\newline \\
@@ -1028,7 +1045,7 @@ and quadratic string method (QSM) \cite{Burger2006}
 in both methods the path is represented by a string of beads
 that are optimized in parallel to the minimum energy path (MEP).
 
-For QSM, LICHEM also has the ability to perform a {\bf Restrained
+For QSM, LICHEM also has the ability to perform a \textbf{Restrained
 MM Optimization}, where the MM environment of every bead is
 optimized in a series of iterations with diminishing restraints to
 reduce the possibility of path discontinuities (see Figure \ref{fig:qsm})
@@ -1092,8 +1109,8 @@ in the QM/MM calculations. \\
 
 \texttt{user:\$ lichem -convert -b regions.inp} \\
 
-The \texttt{-convert} flag checks for specific keywords in the region file to construct
-a BASIS file in the correct order. \\
+The \texttt{-convert} flag checks for specific keywords in the region file to
+construct a BASIS file in the correct order. \\
 
 Required keywords: \\
 'QM\_type:' \\
@@ -1114,13 +1131,13 @@ simulations. \\
 The \texttt{-path} flag will linearly interpolate between reactant and product
 structures to create an initial reaction pathway (BeadStartStruct.xyz) for
 LICHEM.
-Adding a guess of the transition state structure using the \texttt{-t} flag is optional,
-but can greatly improve the initial path. \\
+Adding a guess of the transition state structure using the \texttt{-t} flag is
+optional, but can greatly improve the initial path. \\
 
 \texttt{user:\$ lichem -splitpath -b Nbeads -f FrameID -p Path.xyz} \\
 
-The \texttt{-splitpath} flag will parse a LICHEM multi-replica output or restart file to
-create a new trajectory file with one replica per frame.
+The \texttt{-splitpath} flag will parse a LICHEM multi-replica output or
+restart file to create a new trajectory file with one replica per frame.
 Here FrameID is the frame of the merged trajectory (Path.xyz) printed by the
 multi-replica simulation. \\
 
@@ -1240,7 +1257,8 @@ Here M is the number of atoms times the number of beads, and
 (X$_{i.j}$,Y$_{i,j}$,Z$_{i,j}$) is the position of particle $i$ in replica
 $j$.
 Note that the atom types given in the XYZ file are ignored since this
-information is read from the files given by the \texttt{-x} and \texttt{-c} flags.
+information is read from the files given by the \texttt{-x} and \texttt{-c}
+flags.
 
 \subsection{Examples}
 
@@ -1637,7 +1655,8 @@ with $\gamma^{i}$ and $\theta^{i}$ as;
 \begin{equation}
 \theta^{i}=
 \begin{cases}
-\qquad \qquad 1, & \text{if} (\delta^{i})^{T}\gamma^{i} > 0.2(\delta^{i})^{T}H^{i}\delta^{i} \\
+\qquad \qquad 1, & \text{if} (\delta^{i})^{T}\gamma^{i} >
+0.2(\delta^{i})^{T}H^{i}\delta^{i} \\
 \dfrac{0.8(\delta^{i})^{T} H^{i} \delta^{i}}
 {(\delta^{i})^{T} H^{i} \delta^{i} -
 (\delta^{i})^{T} \gamma^{i}}, & \text{otherwise}
