@@ -33,19 +33,21 @@ the calculations.
 user:$ ./runtests Ncpus QMPackage MMPackage Dry
 ```
 
-If tests are consistently failing, please post details on the GitHub issues
-section.
+If tests are consistently failing, please post details on the 
+[GitHub issues](https://github.com/CisnerosResearch/LICHEM/issues)
+page.
 
 ### Notes
 
-The test suite prints run times for the tests. Since LICHEM has different
-settings for different wrappers, the times only represent the efficiency of
-the wrappers. The run times are not for the comparison of the efficiency of
-different packages.
+The test suite prints run times for the tests. 
+Since LICHEM has different settings for different wrappers, 
+the times only represent the efficiency of the wrappers. 
+The run times are not for the comparison of the efficiency of different 
+packages.
 
-The test suite is not compatable with python 3.0 or higher.
+The test suite is written for Python 3.0 or higher.
 
-###Tests
+### Tests
 
 [//]: # (Table entries cannot have newlines)
 

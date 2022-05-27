@@ -17,9 +17,9 @@ CXXFLAGS= -O3 -fopenmp
 endif
 
 ### Install directory ### 
-INSTALLBIN=/tmp/LICHEM1.1/bin
+INSTALLBIN=/home/emmett/Research/local-GH/dev-LICHEM/bin
 
-### Libarary settings ###
+### Library settings ###
 
 #The local copy of Eigen is located in ./Eigen3/
 LDFLAGS=-I./Eigen3/
@@ -55,6 +55,10 @@ install:	title binary testexe compdone
 Dev:	title devbin devtest manual stats compdone
 
 GPUDev:	title gpubin devtest manual stats compdone
+
+cleartests: title deltests
+
+testrestart: title deltests testexe
 
 clean:	title delbin compdone
 
@@ -107,8 +111,9 @@ devtest:
 	sed $(SEDI) 's/\s*$$//g' ./tests/runtests; \
 	sed $(SEDI) '/^$$/d' ./tests/runtests; \
 	sed $(SEDI) 's/\!\!/\#\!/g' ./tests/runtests; \
-	sed $(SEDI) 's/updateResults = 0/updateResults = 1/g' ./tests/runtests; \
-	sed $(SEDI) 's/forceAll = 0/forceAll = 1/g' ./tests/runtests; \
+	sed $(SEDI) 's/updateResults = False/updateResults = True/g' \
+		./tests/runtests; \
+	sed $(SEDI) 's/forceAll = False/forceAll = True/g' ./tests/runtests; \
 	chmod a+x ./tests/runtests
 
 checksyntax:	title
@@ -190,8 +195,17 @@ delbin:
  	fi; \
         echo ""; \
 	echo "Removing binary and manual..."; \
-	rm -rf lichem ./doc/LICHEM_manual.pdf ./tests/runtests $(INSTALLBIN) \
-	rm -rf ./src/acs-manual.bib
+	rm -rf lichem ./doc/LICHEM_manual.pdf ./tests/runtests $(INSTALLBIN)
+
+deltests:
+	@echo ""; \
+	echo "Deleting output from runtests."; \
+	echo ""
+	rm -rf ./tests/*/LICH* ./tests/*/trash.xyz ./tests/*/tests.out
+	rm -rf ./tests/*_TINKER/BeadStartStruct.xyz 
+	rm -rf ./tests/*_TINKER/BurstStruct.xyz
+	rm -rf ./tests/*_TINKER/tinker.key
+	@echo ""
 
 binary:	
 	@echo ""; \
