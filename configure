@@ -97,8 +97,9 @@ fi
 echo '' >> Makefile
 echo '### Install directory ### ' >> Makefile
 echo 'INSTALLBIN='$prefix >> Makefile
+echo '' >> Makefile
 
-cat ./src/makefile.in >>Makefile
+cat ./src/makefile.in >> Makefile
 
 if $mpi; then
    echo '	$(CXX) ./src/mpi/LICHEM_MPI.cpp -o $(INSTALLBIN)/lichem.MPI $(FLAGSBINMPI)'>>Makefile

@@ -17,38 +17,64 @@ CXXFLAGS= -O3 -fopenmp
 endif
 
 ### Install directory ### 
-INSTALLBIN=/home/emmett/Research/local-GH/dev-LICHEM/bin
+INSTALLBIN=/tmp/LICHEM1.1/bin
 
-### Library settings ###
+#############################
+### LICHEM Makefile Usage ###
+#############################
+### General Usage:
+### 1. make install        General LICHEM installation
+### 2. make manual         Compile the LaTeX-based documentation
+### 3. make testrestart    Clear pre-existing test output remake test source
+### 4. make clean          Clear bin and manual
+###
+### Developer Usage:
+###     ** These set additional flags in the process! **
+### 1. make Dev            CPU-based LICHEM installation
+### 2. make GPUDev         GPU-based LICHEM installation
+### 3. make cleartests     Clear pre-existing test output remake test source
+### 4. make gitclean       Clear bin and manual, generalize INSTALLBIN
+###
+###############################################################################
 
-#The local copy of Eigen is located in ./Eigen3/
+######################################################
+###  Main Environment Variables; Change as Needed  ###
+######################################################
+
+## LDFLAGS       Linker flags (for including additional libraries)
+## PYPATH        Path to Python 3 executable
+## SEDI          In-place flag for sed (GNU: -i, OSX: -i "")
+## TEX           TeX engine (doc has been tested with pdflatex only!)
+## BIB           BibTeX engine
+## DEVFLAGS      Additional compiler flags for CPU-based install
+## GPUFLAGS      Additional compiler flags for GPU-based install
+
+# The local copy of Eigen is located in ./Eigen3/
 LDFLAGS=-I./Eigen3/
 
-### Python settings ###
-
 PYPATH=$(shell which python)
-#PYPATH=/share/apps/PYTHON/2.7.12/bin/python
-#/usr/bin/python
+#PYPATH=/usr/bin/python
 
-### Sed commands ###
-
-#In-place flag (GNU: -i, OSX: -i "")
 SEDI=-i
 
 ### LaTeX settings ###
-
-#For OSX these can be replaced with dummy calls to cat
+# For OSX these can be replaced with dummy calls to cat
 TEX=pdflatex
 BIB=bibtex
 
 ### Advanced compiler settings for developers ###
-
 DEVFLAGS=-g -Wall -std=c++14
 GPUFLAGS=-fopenacc
 
-#####################################################
+############################################################
+### You Should Not Need to Change Things Below This Line ###
+############################################################
 
-### Compile rules for users and devs ###
+################################################
+###  Compile Rules for Users and Developers  ###
+################################################
+
+# NB: By definition, these are written with a tab after the colon
 
 install:	title binary testexe compdone
 
@@ -56,17 +82,19 @@ Dev:	title devbin devtest manual stats compdone
 
 GPUDev:	title gpubin devtest manual stats compdone
 
-cleartests: title deltests
+Devtests:	title devtest deltests testexe
 
-testrestart: title deltests testexe
+testrestart:	title deltests testexe
 
-clean:	title delbin compdone
+clean:	title delbin compclean
 
-#####################################################
+gitclean:	title delbin gitmk
 
-### Combine settings variables ###
+##################################
+### Combine Settings Variables ###
+##################################
 
-# NB: Do not modify this section
+# NB: Do not modify this section!
 
 FLAGSBIN=$(CXXFLAGS) $(LDFLAGS) -I./src/ -I./include/
 FLAGSBINMPI=$(CXXFLAGS) $(LDFLAGS) -I./src/ -I./src/mpi/ -I./include/
@@ -74,22 +102,22 @@ FLAGSDEV=$(CXXFLAGS) $(DEVFLAGS) $(LDFLAGS) -I./src/ -I./include/
 FLAGSGPU=$(CXXFLAGS) $(DEVFLAGS) $(GPUFLAGS) $(LDFLAGS) -I./src/ -I./include/
 
 #####################################################
-
 ### Rules for building various parts of the code ###
+#####################################################
 
-devbin:	
+devbin:
 	@echo ""; \
 	echo "### Compiling the LICHEM development binary ###"; \
 	mkdir -p $(INSTALLBIN)
 	$(CXX) ./src/LICHEM.cpp -o $(INSTALLBIN)/lichem $(FLAGSDEV)
 
-gpubin:	
+gpubin:
 	@echo ""; \
 	echo "### Compiling the LICHEM GPU binary ###"; \
 	mkdir -p $(INSTALLBIN)
 	$(CXX) ./src/LICHEM.cpp -o $(INSTALLBIN)/lichem $(FLAGSGPU)
 
-testexe:	
+testexe:
 	@echo ""; \
 	echo "### Creating test suite executable ###"
 	@echo 'echo "#!$(PYPATH)" > ./tests/runtests'; \
@@ -100,8 +128,9 @@ testexe:
 	sed $(SEDI) '/^$$/d' ./tests/runtests; \
 	sed $(SEDI) 's/\!\!/\#\!/g' ./tests/runtests; \
 	chmod a+x ./tests/runtests
+	@echo ""
 
-devtest:	
+devtest:
 	@echo ""; \
 	echo "### Creating development test suite executable ###"
 	@echo 'echo "#!$(PYPATH)" > ./tests/runtests'; \
@@ -127,7 +156,7 @@ checksyntax:	title
 	echo "Total length of LICHEM (lines):"; \
 	cat include/* src/* | wc -l; \
 
-manual:	
+manual:
 	@echo ""; \
 	echo "### Compiling the documentation ###"; \
 	cd src/; \
@@ -148,7 +177,7 @@ manual:
 	rm -f manual.log manual.out manual.toc; \
 	rm -f doclog.txt
 
-title:	
+title:
 	@echo ""; \
 	echo "###################################################"; \
 	echo "#                                                 #"; \
@@ -158,7 +187,7 @@ title:
 	echo "#                                                 #"; \
 	echo "###################################################"
 
-stats:	
+stats:
 	@echo ""; \
         echo "### Source code statistics ###"; \
 	echo "Number of LICHEM source code files:"; \
@@ -166,18 +195,29 @@ stats:
 	echo "Total length of LICHEM (lines):"; \
 	cat include/* src/* | wc -l
 
-compdone:	
+compdone:
 	@echo ""; \
 	echo "Done."; \
 	echo ""
-	@echo "" 
-	@echo "Installation complete"
-	@echo "Please add lichem executable directory to your path;" 
 	@echo ""
-	@echo "     export PATH="$(INSTALLBIN)":\$$PATH"   
+	@echo "Installation complete"
+	@echo "Please add lichem executable directory to your path:"
+	@echo ""
+	@echo "     export PATH="$(INSTALLBIN)":\$$PATH"
 	@echo ""
 
-delbin:	
+compclean:
+	@echo ""; \
+	echo "Done."; \
+	echo ""
+	@echo ""
+	@echo "LICHEM has been uninstalled."
+	@echo "Please remove the deleted executable directory from your path:"
+	@echo ""
+	@echo "     "$(INSTALLBIN)""
+	@echo ""
+
+vroom:
 	@echo ""; \
 	if grep -q "JOKES = 1" include/LICHEM_options.h; then \
 	echo '     ___'; \
@@ -193,21 +233,29 @@ delbin:
 	echo '             |__________|  ..,  ,.,. .,.,, ,..'; \
 	echo ""; \
  	fi; \
-        echo ""; \
-	echo "Removing binary and manual..."; \
+        echo "";
+
+delbin:	vroom
+	@echo "Removing binary and manual..."; \
 	rm -rf lichem ./doc/LICHEM_manual.pdf ./tests/runtests $(INSTALLBIN)
 
-deltests:
+deltests: vroom
 	@echo ""; \
-	echo "Deleting output from runtests."; \
-	echo ""
-	rm -rf ./tests/*/LICH* ./tests/*/trash.xyz ./tests/*/tests.out
-	rm -rf ./tests/*_TINKER/BeadStartStruct.xyz 
-	rm -rf ./tests/*_TINKER/BurstStruct.xyz
-	rm -rf ./tests/*_TINKER/tinker.key
-	@echo ""
+	echo "Removing any output from previous runtests."; \
+	rm -rf ./tests/*/LICH* ./tests/*/trash.xyz ./tests/*/tests.out; \
+	rm -rf ./tests/*_TINKER/BeadStartStruct.xyz; \
+	rm -rf ./tests/*_TINKER/BurstStruct.xyz; \
+	rm -rf ./tests/*_TINKER/tinker.key; \
 
-binary:	
+gitmk:
+	@echo "";\
+	echo "Preparing the directory for a git commit!"; \
+	sed $(SEDI) 's:$(INSTALLBIN):/tmp/LICHEM1.1/bin:g' ./Makefile; \
+	echo ""
+
+# NB: binary MUST be defined last because ./configure appends
+#     compiler-specific info!
+binary:
 	@echo ""; \
 	echo "### Compiling the LICHEM binary ###"; \
 	mkdir -p $(INSTALLBIN)
