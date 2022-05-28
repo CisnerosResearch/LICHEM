@@ -4,15 +4,16 @@
 ### General Usage:
 ### 1. make install        General LICHEM installation
 ### 2. make manual         Compile the LaTeX-based documentation
-### 3. make testrestart    Clear pre-existing test output remake test source
+### 3. make tests          Clear pre-existing test output, remake test source
 ### 4. make clean          Clear bin and manual
 ###
 ### Developer Usage:
 ###     ** These set additional flags in the process! **
 ### 1. make Dev            CPU-based LICHEM installation
 ### 2. make GPUDev         GPU-based LICHEM installation
-### 3. make cleartests     Clear pre-existing test output remake test source
-### 4. make gitclean       Clear bin and manual, generalize INSTALLBIN
+### 3. make Devtests       Clear pre-existing test output, set flags, remake
+### 4. make checksyntax    Check for syntax errors, print stats
+### 5. make gitclean       Clear bin and manual, generalize INSTALLBIN
 ###
 ###############################################################################
 
@@ -57,17 +58,17 @@ GPUFLAGS=-fopenacc
 
 install:	title binary testexe compdone
 
-Dev:	title devbin devtest manual stats compdone
+Dev:	title devbin devtestexe manual stats compdone
 
-GPUDev:	title gpubin devtest manual stats compdone
+GPUDev:	title gpubin devtestexe manual stats compdone
 
-Devtests:	title devtest deltests testexe
+Devtests:	title deltests devtestexe
 
-testrestart:	title deltests testexe
+tests:	title deltests testexe
 
 clean:	title delbin compclean
 
-gitclean:	title delbin gitmk
+gitclean:	title delbin deltests gitmk
 
 ##################################
 ### Combine Settings Variables ###
@@ -109,7 +110,7 @@ testexe:
 	chmod a+x ./tests/runtests
 	@echo ""
 
-devtest:
+devtestexe:
 	@echo ""; \
 	echo "### Creating development test suite executable ###"
 	@echo 'echo "#!$(PYPATH)" > ./tests/runtests'; \
@@ -122,7 +123,9 @@ devtest:
 	sed $(SEDI) 's/updateResults = False/updateResults = True/g' \
 		./tests/runtests; \
 	sed $(SEDI) 's/forceAll = False/forceAll = True/g' ./tests/runtests; \
+	sed $(SEDI) 's/debugMode = False/debugMode = True/g' ./tests/runtests; \
 	chmod a+x ./tests/runtests
+	@echo ""
 
 checksyntax:	title
 	@echo ""; \

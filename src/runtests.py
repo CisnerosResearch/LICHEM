@@ -18,11 +18,17 @@
 #    user:$ ./runtests Ncpus QMPackage MMPackage dry
 ####
 
+# TODO:
+# - Support "named test" option (aka, functionalize tests)
+# - Rework the if/if process for QM/MM engines tests (shorten code)
+# - Figure out where QSM TS tinker.key copy attempt is...
+
 # Modules
 import subprocess
 import time
 import sys
 import os
+import platform
 
 # Start timer immediately
 startTime = time.time()
@@ -35,15 +41,21 @@ skipCt = 0    # Number of tests skipped
 testCt = 0    # Current test number
 
 # Development settings
-# NB: Modified by the Makefile
+# NB: Modified by the Makefile (make devtestexe)
 updateResults = False  # Bool to print energies to update tests
 forceAll = False       # Bool to force it to do tests even if they will fail
+debugMode = False      # Bool to print LICHEM command used if test fails
 
 # Note: All round statements expect eV!
 har2eV = 27.21138505  # Convert eV to au/Hartree
 
 # Assume g09 by default
 useg16 = False
+
+# List of regions files needing to be updated with program versions
+regions_files = ["ccsdreg.inp", "freqreg.inp", "hfreg.inp", "mmreg.inp",
+                 "nebreg.inp", "pbereg.inp", "pboptreg.inp", "pchrgreg.inp",
+                 "pm6reg.inp", "polreg.inp",  "qsmreg.inp", "solvreg.inp"]
 
 # ---------------------- #
 # --- Define Classes --- #
@@ -72,17 +84,72 @@ class ClrSet:
 # --- Define functions --- #
 # ------------------------ #
 
+def PrepRegions(keyword, d_val, u_val, file):
+    """
+    Replace the current keyword argument in a region file with another.
+
+    Parameters
+    ----------
+    keyword : str
+        The keyword to search for in the LICHEM regions file.
+    d_val : str
+        The default value for the keyword.
+    u_val : str
+        The updated value for the keywork.
+    file : str
+        The name of the file to operate on.
+    """
+    # Account for difference in sed in-line between OSX and Linux
+    # ex: sed -i '' '/^QM_type/s/Gaussian/g16'
+    if platform.system() == "Darwin":
+        cmd = ("sed -i '' '/^{}/s/{}/{}/' {}".format(keyword, d_val,
+                                                         u_val, file))
+        subprocess.call(cmd, shell=True)
+    elif platform.system() == "Linux":
+        cmd = ("sed -i '/^{}/s/{}/{}/' {}".format(keyword, d_val,
+                                                     u_val, file))
+        subprocess.call(cmd, shell=True)
+    else:
+        # Print warning instead of raising error so they can correct for
+        #  future, since this prints due to an unknown platform.
+        print("WARNING: your OS doesn't seem to be either OSX or Linux.\n"
+              f"If you're using {d_val} executable, you'll need to modify\n"
+              f"  the '{keyword}' block to *reg.inp files to '{u_val}'\n"
+              "   manually.\n"
+              f"This is because the program name calls '{d_val}'.\n"
+              "These tests will likely fail!")
+    return
+
 
 def RunLICHEM(xName, rName, cName):
     """
     Call a LICHEM instance for testing.
+
+    Parameters
+    ----------
+    xName : str
+        Name of the LICHEM XYZ file.
+    rName : str
+        Name of the regions file.
+    cName : str
+        Name of the connectivity file.
+
+    Returns
+    -------
+    cmd_printed : str
+        Formatted version of the attempted LICHEM command (for printing).
     """
     global Ncpus
     # -l captures stdout, 2>&1 captures stderr
     cmd = ("lichem -n {n} -x {x} -r {r} -c {c} -o trash.xyz "
            "-l tests.out 2>&1").format(n=Ncpus, x=xName, r=rName, c=cName)
     subprocess.call(cmd, shell=True)  # Run calculations
-    return
+    # Save a terminal-formatted version of the command
+    #  \\\n escapes a printed backslash and then prints newline
+    cmd_printed = ("lichem -n {n} -x {x} -r {r} \\\n{sp:9}-c {c} "
+                   "-o trash.xyz -l tests.out 2>&1").format(n=Ncpus,
+                   x=xName, r=rName, sp=' ', c=cName)
+    return cmd_printed
 
 
 def CleanFiles():
@@ -106,8 +173,11 @@ def CleanFiles():
     cleanCmd += " *.movecs"
     # Delete the files
     subprocess.call(cleanCmd, shell=True)
-    # Wait 0.5 seconds for files to be deleted (avoid race conditions for I/O)
-    time.sleep(0.5)
+    # Wait 1 second for files to be deleted (avoid race conditions for I/O)
+    try:
+        time.sleep(1)
+    except KeyboardInterrupt:
+        print("Fine, I won't nap, gosh.")
     return
 
 
@@ -129,6 +199,8 @@ def RecoverEnergy(txtLabel, itemNum):
         If failed, the energy is set to 0.0.
     savedResult : str
         Either the unrounded finalEnergy or a crashed message.
+    units : str
+        The unit following the finalEnergy in the output.
     """
     cmd = 'grep -e "{}" tests.out | tail -1'.format(txtLabel)
     savedResult = "Crashed..."
@@ -136,13 +208,15 @@ def RecoverEnergy(txtLabel, itemNum):
         # Safely check energy
         finalEnergy = subprocess.check_output(cmd, shell=True)  # Get results
         finalEnergy = finalEnergy.decode('utf-8').split()
+        units = str(finalEnergy[itemNum+1]) # For developer mode
         finalEnergy = float(finalEnergy[itemNum])
         savedResult = "Energy: "+str(finalEnergy)  # Save it for later
         finalEnergy = round(finalEnergy, 3)
     except:
         # Calculation failed
         finalEnergy = 0.0
-    return finalEnergy, savedResult
+        units = ":("
+    return finalEnergy, savedResult, units
 
 
 def RecoverFreqs():
@@ -154,11 +228,14 @@ def RecoverFreqs():
     freqList : lst
         Frequencies from LICHEM output.
     """
+    global debugMode
     # sed commands to use for pulling frequencies
     cmd = ""
     cmd += "sed '/Usage Statistics/,$d' tests.out | "
     cmd += "sed -n '/Frequencies:/,$p' | "
     cmd += "sed '/Frequencies:/d'"
+    # Set fake units for printing in developer mode
+    units = " "
     try:
         # Safely check energy
         freqList = []
@@ -171,8 +248,10 @@ def RecoverFreqs():
     #  raised by not being able to split output...
     except:
         # Calculation failed
+        if debugMode is True:
+            print("\nFrequencies not recovered.")
         freqList = []
-    return freqList
+    return freqList, units
 
 
 def SaveFailure(calc, expected):
@@ -199,7 +278,35 @@ def SaveFailure(calc, expected):
     return saved_val
 
 
-def PrintPassFail(tName, testPass, updateResults, enVal):
+def PrintLICHEMDebug(cmd_printed):
+    """
+    Prints the LICHEM command that was run to the console.
+
+    Parameters
+    -------
+    cmd_printed : str
+        Formatted version of the attempted LICHEM command.
+    """
+    global debugMode
+    if debugMode is True:
+        print(f"\n{' ':6}Tried to execute:\n{' ':7}{cmd_printed}")
+    return
+
+def PrintCopyDebug(cmd_printed):
+    """
+    Prints the copy command that was run to the console.
+
+    Parameters
+    -------
+    cmd_printed : str
+        The attempted copy command.
+    """
+    global debugMode
+    if debugMode is True:
+        print(f"\n{' ':6}- {cmd_printed}\n")
+    return
+
+def PrintPassFail(tName, testPass, updateResults, enVal, units):
     """
     Write pass/fail message to the console with coloration and timing.
 
@@ -213,6 +320,8 @@ def PrintPassFail(tName, testPass, updateResults, enVal):
         True to print energies to update tests (for developers).
     enVal : float
         The computed energy value.
+    units : str
+        The units of the computed energy value.
     """
     global passCt
     global failCt
@@ -228,11 +337,13 @@ def PrintPassFail(tName, testPass, updateResults, enVal):
     if updateResults is True:
         if testPass is True:
             print(f"    {tName:<{TTxtLen-5}} " +
-                  f"{ClrSet.TPass}Pass{ClrSet.Reset}, {runTime}, {enVal}")
+                  f"{ClrSet.TPass}Pass{ClrSet.Reset}, {runTime}, "+
+                  f"{enVal} {units}")
             passCt += 1
         else:
-            print(f"    {tName:<{TTxtLen-5}} " +
-                  f"{ClrSet.TFail}Fail{ClrSet.Reset}, {runTime}, {enVal}")
+            print(f"{' ':4}{tName:<{TTxtLen-5}} " +
+                  f"{ClrSet.TFail}Fail{ClrSet.Reset}, {runTime}, "+
+                  f"{enVal} {units}")
             failCt += 1
     else:
         if testPass is True:
@@ -672,10 +783,10 @@ for qmTest in QMTests:
         dirPath = ""
         if (QMPack == "PSI4"):
             dirPath += "PSI4_"
-        if ((QMPack == "Gaussian") or (QMPack == "g09")):
+        if QMPack in ("Gaussian", "g09", "g16"):
             dirPath += "Gau_"
-        elif (QMPack == "g16"):
-            dirPath += "G16_"
+        # elif (QMPack == "g16"):
+        #     dirPath += "G16_"
         if (QMPack == "NWChem"):
             dirPath += "NWChem_"
         # TODO: Fix for Tinker9 (and against 8.4+ for anglep)
@@ -684,6 +795,18 @@ for qmTest in QMTests:
 
         # Change directory
         os.chdir(dirPath)
+
+        # Fix the regions files (if the specific one exits) to match program
+        #  version requested
+        for filename in regions_files:
+            # Check that the file exists for sed
+            if os.path.isfile("./"+filename):
+                # Gaussian
+                if QMPack == "g16":
+                    PrepRegions("QM_type", "Gaussian", "g16", filename)
+                # Tinker version
+                if MMPack == "TINKER9":
+                    PrepRegions("MM_type", "TINKER", "TINKER9", filename)
 
         # Start printing results
         print(f"{QMPack}/{MMPack} results:")
@@ -701,8 +824,8 @@ for qmTest in QMTests:
                 print(f"{' ':2}Test {testCt}: HF Energy")
                 # Initialize energy as failing
                 passEnergy = False
-                RunLICHEM("waterdimer.xyz", "hfreg.inp", "watercon.inp")
-                QMMMEnergy, savedEnergy = RecoverEnergy("QM energy:", 2)
+                runC = RunLICHEM("waterdimer.xyz", "hfreg.inp", "watercon.inp")
+                QMMMEnergy, savedEnergy, units = RecoverEnergy("QM energy:", 2)
                 # Check result
                 if (QMPack == "PSI4"):
                     expected_energy = round(-4136.93039814/har2eV, 3)
@@ -719,9 +842,10 @@ for qmTest in QMTests:
                     else:
                         saved_fail = SaveFailure(QMMMEnergy, expected_energy)
                 pf_printed = PrintPassFail("HF energy:", passEnergy,
-                                           updateResults, savedEnergy)
+                                           updateResults, savedEnergy, units)
                 if passEnergy is False:
                     print(saved_fail)
+                    PrintLICHEMDebug(runC)
                 CleanFiles()  # Clean up files
         except KeyboardInterrupt:
             SkipSequence("HF energy:", pf_printed)
@@ -733,8 +857,8 @@ for qmTest in QMTests:
             # Check DFT energy
             # line = ""
             passEnergy = False
-            RunLICHEM("waterdimer.xyz", "pbereg.inp", "watercon.inp")
-            QMMMEnergy, savedEnergy = RecoverEnergy("QM energy:", 2)
+            runC = RunLICHEM("waterdimer.xyz", "pbereg.inp", "watercon.inp")
+            QMMMEnergy, savedEnergy, units = RecoverEnergy("QM energy:", 2)
             # Check result
             if (QMPack == "PSI4"):
                 expected_energy = round(-4154.16836599/har2eV, 3)
@@ -758,9 +882,10 @@ for qmTest in QMTests:
                 else:
                     saved_fail = SaveFailure(QMMMEnergy, expected_energy)
             pf_printed = PrintPassFail("PBE0 energy:", passEnergy,
-                                       updateResults, savedEnergy)
+                                       updateResults, savedEnergy, units)
             if passEnergy is False:
                 print(saved_fail)
+                PrintLICHEMDebug(runC)
             CleanFiles()  # Clean up files
         except KeyboardInterrupt:
             SkipSequence("PBE0 energy:", pf_printed)
@@ -774,8 +899,9 @@ for qmTest in QMTests:
                 print(f"\n{' ':2}Test {testCt}: CCSD Energy")
                 # line = ""
                 passEnergy = False
-                RunLICHEM("waterdimer.xyz", "ccsdreg.inp", "watercon.inp")
-                QMMMEnergy, savedEnergy = RecoverEnergy("QM energy:", 2)
+                runC = RunLICHEM("waterdimer.xyz", "ccsdreg.inp",
+                                 "watercon.inp")
+                QMMMEnergy, savedEnergy, units = RecoverEnergy("QM energy:", 2)
                 # Check result
                 if (QMPack == "PSI4"):
                     expected_energy = round(-4147.7304837/har2eV, 3)
@@ -785,9 +911,10 @@ for qmTest in QMTests:
                     else:
                         saved_fail = SaveFailure(QMMMEnergy, expected_energy)
                 pf_printed = PrintPassFail("CCSD energy:", passEnergy,
-                                           updateResults, savedEnergy)
+                                           updateResults, savedEnergy, units)
                 if passEnergy is False:
                     print(saved_fail)
+                    PrintLICHEMDebug(runC)
                 CleanFiles()
         except KeyboardInterrupt:
             SkipSequence("CCSD energy:", pf_printed)
@@ -801,8 +928,9 @@ for qmTest in QMTests:
                 print(f"\n{' ':2}Test {testCt}: PM6 Energy")
                 # line = ""
                 passEnergy = False
-                RunLICHEM("waterdimer.xyz", "pm6reg.inp", "watercon.inp")
-                QMMMEnergy, savedEnergy = RecoverEnergy("QM energy:", 2)
+                runC = RunLICHEM("waterdimer.xyz", "pm6reg.inp",
+                                 "watercon.inp")
+                QMMMEnergy, savedEnergy, units = RecoverEnergy("QM energy:", 2)
                 # Check result
                 if ((QMPack == "Gaussian") or (QMPack == "g16")):
                     expected_energy = round(-4.8623027634995/har2eV, 3)
@@ -812,7 +940,10 @@ for qmTest in QMTests:
                     else:
                         saved_fail = SaveFailure(QMMMEnergy, expected_energy)
                 pf_printed = PrintPassFail("PM6 energy:", passEnergy,
-                                           updateResults, savedEnergy)
+                                           updateResults, savedEnergy, units)
+                if passEnergy is False:
+                    print(saved_fail)
+                    PrintLICHEMDebug(runC)
                 CleanFiles()
         except KeyboardInterrupt:
             SkipSequence("PM6 energy:", pf_printed)
@@ -824,17 +955,17 @@ for qmTest in QMTests:
             # Check imaginary frequencies
             # line = ""
             passEnergy = False
-            RunLICHEM("methfluor.xyz", "freqreg.inp", "methflcon.inp")
-            QMMMFreqs = RecoverFreqs()
-            QMMMEnergy = 5e100  # Huge number
-            # Sort frequencies
-            for freqVal in QMMMFreqs:
-                # Find lowest frequency
-                if (freqVal < QMMMEnergy):
-                    QMMMEnergy = freqVal
-                    savedEnergy = "Freq:   "+str(freqVal)
-            # Check for errors
-            if (QMMMEnergy > 1e100):
+            runC = RunLICHEM("methfluor.xyz", "freqreg.inp", "methflcon.inp")
+            QMMMFreqs, units = RecoverFreqs()
+            # Find lowest frequency
+            try:
+                QMMMEnergy = min(QMMMFreqs)
+                if QMMMEnergy > 1e100:
+                  savedEnergy = "Crashed..."
+                else:
+                    savedEnergy = "Freq:{:3}{}".format(" ", QMMMEnergy)
+            # If list is empty
+            except ValueError:
                 savedEnergy = "Crashed..."
             # Check results
             if (QMPack == "PSI4"):
@@ -845,7 +976,8 @@ for qmTest in QMTests:
                 else:
                     saved_fail = SaveFailure(round(QMMMEnergy, 0),
                                              expected_energy)
-            if ((QMPack == "Gaussian") or (QMPack == "g16")):
+            if (QMPack == "Gaussian"):
+                # Gaussian 09 only!
                 expected_energy = round(-31.769945, 0)
                 # Check against saved frequency
                 if (round(QMMMEnergy, 0) == expected_energy):
@@ -853,8 +985,16 @@ for qmTest in QMTests:
                 else:
                     saved_fail = SaveFailure(round(QMMMEnergy, 0),
                                              expected_energy)
+            elif (QMPack == "g16"):
+                # Gaussian 16 will produce a different result!
+                expected_energy = round(5.32988942, 0)
+                if (round(QMMMEnergy, 0) == expected_energy):
+                    passEnergy = True
+                else:
+                    saved_fail = SaveFailure(round(QMMMEnergy, 0),
+                                             expected_energy)
             if (QMPack == "NWChem"):
-                expected_energy = round(-31.769945/har2eV, 0)
+                expected_energy = round(-31.769945, 0)
                 # Check against saved frequency
                 if (round(QMMMEnergy, 0) == expected_energy):
                     passEnergy = True
@@ -862,9 +1002,10 @@ for qmTest in QMTests:
                     saved_fail = SaveFailure(round(QMMMEnergy, 0),
                                              expected_energy)
             pf_printed = PrintPassFail("Frequencies:", passEnergy,
-                                       updateResults, savedEnergy)
+                                       updateResults, savedEnergy, units)
             if passEnergy is False:
                 print(saved_fail)
+                PrintLICHEMDebug(runC)
             CleanFiles()
         except KeyboardInterrupt:
             SkipSequence("Frequencies:", pf_printed)
@@ -876,35 +1017,39 @@ for qmTest in QMTests:
             # Check NEB optimization
             passEnergy = False
             cmd = "cp methflbeads.xyz BeadStartStruct.xyz"
+            PrintCopyDebug(cmd)
             subprocess.call(cmd, shell=True)  # Copy restart file
-            RunLICHEM("methfluor.xyz", "nebreg.inp", "methflcon.inp")
-            QMMMEnergy, savedEnergy = RecoverEnergy("Forward barrier", 3)
+            runC = RunLICHEM("methfluor.xyz", "nebreg.inp", "methflcon.inp")
+            # This is searching for matching line, which is in eV units.
+            #    au and kcal/mol are reported on next line.
+            QMMMEnergy, savedEnergy, units = RecoverEnergy("Forward barrier", 3)
             # Check result
             if (QMPack == "PSI4"):
-                expected_energy = round(0.39581219003957/har2eV, 3)
+                expected_energy = round(0.39581219003957, 3)
                 # Check against saved energy
                 if (QMMMEnergy == expected_energy):
                     passEnergy = True
                 else:
                     saved_fail = SaveFailure(QMMMEnergy, expected_energy)
             if ((QMPack == "Gaussian") or (QMPack == "g16")):
-                expected_energy = round(-0.39582668467028/har2eV, 3)
+                expected_energy = round(0.39582668467028, 3)
                 # Check against saved energy
                 if (QMMMEnergy == expected_energy):
                     passEnergy = True
                 else:
                     saved_fail = SaveFailure(QMMMEnergy, expected_energy)
             if (QMPack == "NWChem"):
-                expected_energy = round(-0.39582668467028/har2eV, 3)
+                expected_energy = round(-0.39582668467028, 3)
                 # Check against saved energy
                 if (QMMMEnergy == expected_energy):
                     passEnergy = True
                 else:
                     saved_fail = SaveFailure(QMMMEnergy, expected_energy)
             pf_printed = PrintPassFail("NEB Forward barrier:", passEnergy,
-                                       updateResults, savedEnergy)
+                                       updateResults, savedEnergy, units)
             if passEnergy is False:
                 print(saved_fail)
+                PrintLICHEMDebug(runC)
             CleanFiles()
         except KeyboardInterrupt:
             SkipSequence("NEB Forward barrier:", pf_printed)
@@ -916,35 +1061,37 @@ for qmTest in QMTests:
             # Check QSM optimization
             passEnergy = False
             cmd = "cp methflbeads.xyz BeadStartStruct.xyz"
+            PrintCopyDebug(cmd)
             subprocess.call(cmd, shell=True)  # Copy restart file
-            RunLICHEM("methfluor.xyz", "qsmreg.inp", "methflcon.inp")
-            QMMMEnergy, savedEnergy = RecoverEnergy("TS Energy", 4)
+            runC = RunLICHEM("methfluor.xyz", "qsmreg.inp", "methflcon.inp")
+            QMMMEnergy, savedEnergy, units = RecoverEnergy("TS Energy", 4)
             # Check result
             if (QMPack == "PSI4"):
-                expected_energy = round(-239.27686429/har2eV, 3)
+                expected_energy = round(-239.27686429, 3)
                 # Check against saved energy
                 if (QMMMEnergy == expected_energy):
                     passEnergy = True
                 else:
                     saved_fail = SaveFailure(QMMMEnergy, expected_energy)
             if ((QMPack == "Gaussian") or (QMPack == "g16")):
-                expected_energy = round(-239.27681732/har2eV, 3)
+                expected_energy = round(-239.27681732, 3)
                 # Check against saved energy
                 if (QMMMEnergy == expected_energy):
                     passEnergy = True
                 else:
                     saved_fail = SaveFailure(QMMMEnergy, expected_energy)
             if (QMPack == "NWChem"):
-                expected_energy = round(-239.27681732/har2eV, 3)
+                expected_energy = round(-239.27681732, 3)
                 # Check against saved energy
                 if (QMMMEnergy == expected_energy):
                     passEnergy = True
                 else:
                     saved_fail = SaveFailure(QMMMEnergy, expected_energy)
             pf_printed = PrintPassFail("QSM TS energy:", passEnergy,
-                                       updateResults, savedEnergy)
+                                       updateResults, savedEnergy, units)
             if passEnergy is False:
                 print(saved_fail)
+                PrintLICHEMDebug(runC)
             CleanFiles()
         except KeyboardInterrupt:
             SkipSequence("QSM TS energy:", pf_printed)
@@ -958,9 +1105,11 @@ for qmTest in QMTests:
                 # Check MM energy
                 passEnergy = False
                 cmd = "cp pchrg.key tinker.key"
+                PrintCopyDebug(cmd)
                 subprocess.call(cmd, shell=True)  # Copy key file
-                RunLICHEM("waterdimer.xyz", "mmreg.inp", "watercon.inp")
-                QMMMEnergy, savedEnergy = RecoverEnergy("MM energy:", 2)
+                runC = RunLICHEM("waterdimer.xyz", "mmreg.inp",
+                                 "watercon.inp")
+                QMMMEnergy, savedEnergy, units = RecoverEnergy("MM energy:", 2)
                 # Expected TINKER energy
                 expected_energy = round(-0.2596903536223/har2eV, 3)
                 # Check result
@@ -970,9 +1119,10 @@ for qmTest in QMTests:
                 else:
                     saved_fail = SaveFailure(QMMMEnergy, expected_energy)
                 pf_printed = PrintPassFail("TIP3P energy:", passEnergy,
-                                           updateResults, savedEnergy)
+                                           updateResults, savedEnergy, units)
                 if passEnergy is False:
                     print(saved_fail)
+                    PrintLICHEMDebug(runC)
                 CleanFiles()
             except KeyboardInterrupt:
                 SkipSequence("TIP3P energy:", pf_printed)
@@ -986,9 +1136,11 @@ for qmTest in QMTests:
                 line = ""
                 passEnergy = False
                 cmd = "cp pol.key tinker.key"
+                PrintCopyDebug(cmd)
                 subprocess.call(cmd, shell=True)  # Copy key file
-                RunLICHEM("waterdimer.xyz", "solvreg.inp", "watercon.inp")
-                QMMMEnergy, savedEnergy = RecoverEnergy("MM energy:", 2)
+                runC = RunLICHEM("waterdimer.xyz", "solvreg.inp",
+                                 "watercon.inp")
+                QMMMEnergy, savedEnergy, units = RecoverEnergy("MM energy:", 2)
                 # Expected TINKER energy
                 expected_energy = round(-1.2549403662026/har2eV, 3)
                 # Check result
@@ -998,9 +1150,10 @@ for qmTest in QMTests:
                 else:
                     saved_fail = SaveFailure(QMMMEnergy, expected_energy)
                 pf_printed = PrintPassFail("AMOEBA/GK energy:", passEnergy,
-                                           updateResults, savedEnergy)
+                                           updateResults, savedEnergy, units)
                 if passEnergy is False:
                     print(saved_fail)
+                    PrintLICHEMDebug(runC)
                 CleanFiles()
             except KeyboardInterrupt:
                 SkipSequence("AMOEBA/GK energy:", pf_printed)
@@ -1013,9 +1166,11 @@ for qmTest in QMTests:
             # Check QMMM point-charge energy results
             passEnergy = False
             cmd = "cp pchrg.key tinker.key"
+            PrintCopyDebug(cmd)
             subprocess.call(cmd, shell=True)  # Copy key file
-            RunLICHEM("waterdimer.xyz", "pchrgreg.inp", "watercon.inp")
-            QMMMEnergy, savedEnergy = RecoverEnergy("QMMM energy:", 2)
+            runC = RunLICHEM("waterdimer.xyz", "pchrgreg.inp",
+                             "watercon.inp")
+            QMMMEnergy, savedEnergy, units = RecoverEnergy("QMMM energy:", 2)
             # Expected TINKER energy
             expected_energy = round(-2077.2021947277/har2eV, 3)
             # Check result
@@ -1040,9 +1195,10 @@ for qmTest in QMTests:
                 else:
                     saved_fail = SaveFailure(QMMMEnergy, expected_energy)
             pf_printed = PrintPassFail("PBE0/TIP3P energy:", passEnergy,
-                                       updateResults, savedEnergy)
+                                       updateResults, savedEnergy, units)
             if passEnergy is False:
                 print(saved_fail)
+                PrintLICHEMDebug(runC)
             CleanFiles()
         except KeyboardInterrupt:
             SkipSequence("PBE0/TIP3P energy:", pf_printed)
@@ -1054,9 +1210,10 @@ for qmTest in QMTests:
             # Check QMMM polarizable energy results
             passEnergy = False
             cmd = "cp pol.key tinker.key"
+            PrintCopyDebug(cmd)
             subprocess.call(cmd, shell=True)  # Copy key file
-            RunLICHEM("waterdimer.xyz", "polreg.inp", "watercon.inp")
-            QMMMEnergy, savedEnergy = RecoverEnergy("QMMM energy:", 2)
+            runC = RunLICHEM("waterdimer.xyz", "polreg.inp", "watercon.inp")
+            QMMMEnergy, savedEnergy, units = RecoverEnergy("QMMM energy:", 2)
             # Check result
             if (QMPack == "PSI4"):
                 expected_energy = round(-2077.1114201829/har2eV, 3)
@@ -1080,9 +1237,10 @@ for qmTest in QMTests:
                 else:
                     saved_fail = SaveFailure(QMMMEnergy, expected_energy)
             pf_printed = PrintPassFail("PBE0/AMOEBA energy:", passEnergy,
-                                       updateResults, savedEnergy)
+                                       updateResults, savedEnergy, units)
             if passEnergy is False:
                 print(saved_fail)
+                PrintLICHEMDebug(runC)
             CleanFiles()
         except KeyboardInterrupt:
             SkipSequence("PBE0/AMOEBA energy:", pf_printed)
@@ -1098,11 +1256,14 @@ for qmTest in QMTests:
                 # Carry out test
                 passEnergy = False
                 cmd = "cp pbopt.key tinker.key"
+                PrintCopyDebug(cmd)
                 subprocess.call(cmd, shell=True)  # Copy key file
                 cmd = "cp pbbasis.txt BASIS"
+                PrintCopyDebug(cmd)
                 subprocess.call(cmd, shell=True)  # Copy BASIS set file
-                RunLICHEM("alkyl.xyz", "pboptreg.inp", "alkcon.inp")
-                QMMMEnergy, savedEnergy = RecoverEnergy("Opt. step: 2", 6)
+                runC = RunLICHEM("alkyl.xyz", "pboptreg.inp", "alkcon.inp")
+                QMMMEnergy, savedEnergy, units = RecoverEnergy("Opt. step: 2",
+                                                                            6)
                 # Check result
                 if ((QMPack == "Gaussian") or (QMPack == "g16")):
                     expected_energy = round(-3015.0548490566/har2eV, 3)
@@ -1119,12 +1280,25 @@ for qmTest in QMTests:
                     else:
                         saved_fail = SaveFailure(QMMMEnergy, expected_energy)
                 pf_printed = PrintPassFail("DFP/Pseudobonds:", passEnergy,
-                                           updateResults, savedEnergy)
+                                           updateResults, savedEnergy, units)
                 if passEnergy is False:
                     print(saved_fail)
+                    PrintLICHEMDebug(runC)
                 CleanFiles()
         except KeyboardInterrupt:
             SkipSequence("DFP/Pseudobonds:", pf_printed)
+
+        # Revert the regions files, but only if you're not debugging!
+        if debugMode is False:
+            for filename in regions_files:
+                # Check that the file exists for sed
+                if os.path.isfile("./"+filename):
+                    # Gaussian
+                    if QMPack == "g16":
+                        PrepRegions("QM_type", "g16", "Gaussian", filename)
+                    # Tinker version
+                    if MMPack == "TINKER9":
+                        PrepRegions("MM_type", "TINKER9", "TINKER", filename)
 
         # Print blank line and change directory
         print()
