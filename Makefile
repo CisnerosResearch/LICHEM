@@ -34,7 +34,9 @@ INSTALLBIN=/tmp/LICHEM1.1/bin
 ### 2. make GPUDev         GPU-based LICHEM installation
 ### 3. make Devtests       Clear pre-existing test output, set flags, remake
 ### 4. make checksyntax    Check for syntax errors, print stats
-### 5. make gitclean       Clear bin and manual, generalize INSTALLBIN
+### 5. make mantest        Only compile the manual
+### 6. make mandel         Only remove the manual
+### 7. make gitclean       Clear bin, tests, & manual, generalize INSTALLBIN
 ###
 ###############################################################################
 
@@ -157,7 +159,8 @@ checksyntax:	title
 	echo "Number of LICHEM source code files:"; \
 	ls -al include/* src/* | wc -l; \
 	echo "Total length of LICHEM (lines):"; \
-	cat include/* src/* | wc -l; \
+	grep '' -aR ./src ./include | wc -l; \
+	echo ""
 
 manual:
 	@echo ""; \
@@ -178,7 +181,34 @@ manual:
 	mv manual.pdf ../doc/LICHEM_manual.pdf; \
 	rm -f manual.aux manual.bbl manual.blg; \
 	rm -f manual.log manual.out manual.toc; \
-	rm -f doclog.txt
+	rm -f doclog.txt manual.synctex.gz acs-manual.bib
+
+mantest:
+	@echo ""; \
+	echo "### Compiling the documentation ###"; \
+	cd src/; \
+	echo "$(TEX) manual"; \
+	$(TEX) manual > doclog.txt; \
+	$(BIB) manual > doclog.txt; \
+	$(TEX) manual > doclog.txt; \
+	$(TEX) manual > doclog.txt; \
+	$(TEX) manual > doclog.txt; \
+	$(TEX) manual > doclog.txt; \
+	echo "$(BIB) manual"; \
+	$(BIB) manual > doclog.txt; \
+	$(TEX) manual > doclog.txt; \
+	$(TEX) manual > doclog.txt; \
+	$(TEX) manual > doclog.txt; \
+	mv manual.pdf ../doc/LICHEM_manual.pdf
+
+mandel:
+	@echo ""; \
+	echo "### Removing the LICHEM documentation ###"; \
+	echo ""; \
+	rm -rf ./src/manual.pdf ./doc/LICHEM_manual.pdf; \
+	rm -f ./src/manual.aux ./src/manual.bbl ./src/manual.blg; \
+	rm -f ./src/manual.log ./src/manual.out ./src/manual.toc; \
+	rm -f ./src/doclog.txt ./src/manual.synctex.gz ./src/acs-manual.bib
 
 title:
 	@echo ""; \
@@ -196,7 +226,8 @@ stats:
 	echo "Number of LICHEM source code files:"; \
 	ls -al include/* src/* | wc -l; \
 	echo "Total length of LICHEM (lines):"; \
-	cat include/* src/* | wc -l
+	grep '' -aR ./src ./include | wc -l; \
+	echo "";
 
 compdone:
 	@echo ""; \

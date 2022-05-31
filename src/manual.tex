@@ -118,6 +118,9 @@ with titles in Title Case, journal names given as their
 \href{https://cassi.cas.org/search.jsp}{CASSI} abbreviation,
 and DOIs for articles or URLs for software (if available). \\
 
+When updating the Python-based test suite, verify that it is within the PEP8
+standard with an external checker, such as autopep8 or pycodestyle.
+
 \subsection{Updating LICHEM}
 
 Most of the development of LICHEM should be done though git (or other version
@@ -295,7 +298,8 @@ QM/MM calculations.
 Test calculations can be performed with the runtests script in the tests
 directory.
 The test suite is semi-automated and will search the user's path for QM and
-MM packages. \\
+MM packages.
+It is written to be compatible with Python 3.6+. \\
 
 Tests can be performed for pairs of QM and MM wrappers, \\
 
@@ -416,7 +420,7 @@ Texas at Dallas.
 LICHEM can only be invoked from a command line interface. \\
 
 \texttt{user:\$ lichem -n Ncpus -x xyzfile.xyz -c confile.inp
--r regfile.inp -o output.xyz} \\
+-r regfile.inp -o output.xyz -l logfile.log -k system.key} \\
 
 -n: Number of CPUs used in the calculations.
 Note that during PIMC and reaction path calculations each replica uses this
@@ -436,6 +440,8 @@ and general simulation options. \\
 
 -l: File name for output of LICHEM.\\
 
+-k: Name of the KEY file when using TINKER as the MM wrapper (optional).\\
+
 Currently, LICHEM can be executed in hybrid--parallel only for QSM.
 For hybrid--parallel execution of LICHEM;\\
 
@@ -446,8 +452,9 @@ lichem.MPI \\
 \hspace*{1.1in} -x react.xyz \\
 \hspace*{1.1in} -c connect.inp \\
 \hspace*{1.1in} -r regions.inp \\
-\hspace*{1.1in} -o Output.xyz \\
-\hspace*{1.1in} -l Logfile.log
+\hspace*{1.1in} -o output.xyz \\
+\hspace*{1.1in} -l logfile.log \\
+\hspace*{1.1in} -k system.key
 }\\
 
 \noindent where \texttt{Nprocs}
@@ -1112,14 +1119,16 @@ in the QM/MM calculations. \\
 The \texttt{-convert} flag checks for specific keywords in the region file to
 construct a BASIS file in the correct order. \\
 
-Required keywords: \\
-'QM\_type:' \\
-'QM\_basis:' \\
-'QM\_atoms:' \\
-'Pseudobond\_atoms:' \\
+Required keywords:
+\begin{itemize}
+\item \texttt{QM\_type:}
+\item \texttt{QM\_basis:}
+\item \texttt{QM\_atoms:}
+\item \texttt{Pseudobond\_atoms:}\\
+\end{itemize}
 
 Currently, these keywords must be spelled and formatted exactly as given
-above. \\
+above, including the colon (\texttt{:}) but without the bullet point. \\
 
 {\textbf{Multi-replica trajectories:}} \\
 
