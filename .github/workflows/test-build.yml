@@ -60,7 +60,7 @@ jobs:
 
         if [ ${{ runner.os }} == macOS ]; then sed -i "" 's/SEDI=-i/SEDI=-i \"\"/g' Makefile; fi
 
-        if [ ${{ runner.os }} == Linux ]; then if [ ${{ matrix.config.cc }} == clang ]; then sudo apt install libomp-dev; fi; fi
+        if [ ${{ runner.os }} == Linux ]; then if [ ${{ matrix.config.cc }} == clang ]; then sudo apt install libomp-dev clang-10 libstdc++-10-dev libomp-10-dev; fi; fi
 
 ## Moo is not a findable package for Ubuntu 22
 ##        if [ ${{ runner.os }} == Linux ]; then apt-get moo; fi
