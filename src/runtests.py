@@ -9,19 +9,65 @@
 # LICHEM semi-automated test suite
 
 ###
-#  Usage:
+# usage: ./runtests [-h] [-v] [-n [NCPUS]] [-d] [-t TESTS [TESTS ...]] [-a]
+#                   [-q [QM]] [-m [MM]]
 #
-#    user:$ ./runtests Ncpus All
-#      or
-#    user:$ ./runtests Ncpus QMPackage MMPackage
-#     or
-#    user:$ ./runtests Ncpus QMPackage MMPackage dry
-####
+# Run the LICHEM test suite.
+#
+# optional arguments:
+#   -h, --help            show this help message and exit
+#   -v, --verbose         Use developer options and print debugging
+#                         information (default: False)
+#
+# Job Settings (optional):
+#   Define conditions for running tests.
+#
+#   -n [NCPUS], --ncpus [NCPUS]
+#                         Number of CPUs (default: 1)
+#   -d, --dry             Perform a dry run of all tests (default: False)
+#   -t TESTS [TESTS ...], --tests TESTS [TESTS ...]
+#                         Explicit tests to run. Options: ['HF', 'PBE0',
+#                         'CCSD', 'PM6', 'Frequencies', 'NEB_TS', 'QSM_TS',
+#                         'TIP3P', 'AMOEBA/GK', 'PBE0/TIP3P', 'PBE0/AMOEBA',
+#                         'DFP/Pseudobonds'] (default: all)
+#
+# Wrappers (optional):
+#   Specify QM and MM Wrappers for tests. Use (-a|--all) to search for
+#   multiple versions of the same program (ex., g09 and g16). Only 1
+#   executable of each name will be tested. (So two foo2 executables
+#   wouldn't be tested, but foo2 and foo3 would be.)
+#
+#   -a, --all             Auto-run all tests for each available wrapper.
+#                         (default: False)
+#   -q [QM], --qm [QM]    The QM wrapper to test. Options: ['gaussian',
+#                         'g09', 'g16', 'nwchem', 'psi4'] Note: Gaussian and
+#                         g09 are equivalent. (default: all)
+#   -m [MM], --mm [MM]    The MM wrapper to test. Options: ['tinker',
+#                         'tinker9', 'lammps'] (default: all)
+###
 
 # TODO:
-# - Support "named test" option (aka, functionalize tests)
 # - Rework the if/if process for QM/MM engines tests (shorten code)
 # - Figure out where QSM TS tinker.key copy attempt is...
+
+# DevNote:
+# > The comments are removed to make this an executable. Docstrings will be
+#    printed, however. Because this is "private" code, PEP8 does not actually
+#    require docstrings. For the best of both worlds, write function
+#    info in the Numpy docstring style, and then comment each line out
+#    with '# '.
+
+"""
+NOTE: See ../src/runtests.py for commented code!
+
+Requires Python 3.6+ to run. Update the path as necessary!
+
+Usage and help information printed with:
+
+    user:$ ./runtests -h
+      or
+    user:$ ./runtests --h
+"""
 
 # Modules
 import argparse
@@ -41,7 +87,7 @@ failCt = 0    # Number of tests failed
 skipCt = 0    # Number of tests skipped
 testCt = 0    # Current test number
 
-# Development settings
+# Development settings -- can be forced to True with `-v` option!
 # NB: Modified by the Makefile (make devtestexe)
 updateResults = False  # Bool to print energies to update tests
 forceAll = False       # Bool to force it to do tests even if they will fail
@@ -63,8 +109,9 @@ QM_wrappers = ['gaussian', 'g09', 'g16', 'nwchem', 'psi4']
 # List of possible MM wrappers
 MM_wrappers = ['tinker', 'tinker9', 'lammps']
 # List of possible tests to run
-test_opts = ["HF", "PBE0", "CCSD", "PM6", "Frequencies", "NEB_TS", "TIP3P",
-             "AMOEBA/GK", "PBE0/TIP3P", "PBE0/AMOEBA", "DFP/Pseudobonds"]
+test_opts = ["HF", "PBE0", "CCSD", "PM6", "Frequencies", "NEB_TS", "QSM_TS",
+             "TIP3P", "AMOEBA/GK", "PBE0/TIP3P", "PBE0/AMOEBA",
+             "DFP/Pseudobonds"]
 
 
 # ---------------------- #
@@ -73,9 +120,9 @@ test_opts = ["HF", "PBE0", "CCSD", "PM6", "Frequencies", "NEB_TS", "TIP3P",
 
 
 class ClrSet:
-    """
-    Define the colors for messages printed to the console.
-    """
+    # """
+    # Define the colors for messages printed to the console.
+    # """
     # Unicode colors
     Norm = '\033[0m'
     Red = '\033[91m'
@@ -95,14 +142,14 @@ class ClrSet:
 # ------------------------ #
 
 def get_args():
-    """
-    Read in provided arguments and define command-line usage.
-
-    Returns
-    -------
-    parser.parse_args() : argparse.Namespace
-        Program details specified by command-line arguments.
-    """
+    # """
+    # Read in provided arguments and define command-line usage.
+    #
+    # Returns
+    # -------
+    # parser.parse_args() : argparse.Namespace
+    #     Program details specified by command-line arguments.
+    # """
     global QM_wrappers
     global MM_wrappers
     global test_opts
@@ -119,13 +166,14 @@ def get_args():
                 description="Define conditions for running tests.")
     # nargs = ? saves only 1 value
     job.add_argument("-n", "--ncpus", nargs='?', default=1, type=int,
-                        help="Number of CPUs")
+                     help="Number of CPUs")
     # store_true will only set to True if argument given!
     job.add_argument("-d", "--dry", action='store_true',
-                        help="Perform a dry run of all tests")
+                     help="Perform a dry run of all tests")
+    # nargs = + saves list of values
     job.add_argument("-t", "--tests", nargs="+", default="all",
-                        type=str.lower,
-                        help=f"Explicit tests to run. Options: {test_opts}")
+                     type=str.lower,
+                     help=f"Explicit tests to run. Options: {test_opts}")
     # Create a group of wrappers to lists together in help!
     wrappers = parser.add_argument_group(
                 title="Wrappers (optional)",
@@ -151,14 +199,14 @@ def get_args():
 
 
 def LocateLICHEM():
-    """
-    Check that the LICHEM binary is in the user's PATH.
-
-    Returns
-    -------
-    saved_lichem_bin : str
-        The path to the LICHEM binary.
-    """
+    # """
+    # Check that the LICHEM binary is in the user's PATH.
+    #
+    # Returns
+    # -------
+    # saved_lichem_bin : str
+    #     The path to the LICHEM binary.
+    # """
     global allTests
     cmd = "which lichem"
     # Find the binary and save the colored and uncolored output
@@ -180,14 +228,14 @@ def LocateLICHEM():
 
 
 def LocateProgram(executable):
-    """
-    Check that the program binary is in the user's PATH.
-
-    Returns
-    -------
-    saved_bin : str
-        The path to the program binary.
-    """
+    # """
+    # Check that the program binary is in the user's PATH.
+    #
+    # Returns
+    # -------
+    # saved_bin : str
+    #     The path to the program binary.
+    # """
     global allTests
     global useg16
     cmd = "which {}".format(executable)
@@ -204,7 +252,7 @@ def LocateProgram(executable):
                 prog_bin = subprocess.check_output(cmd, shell=True)
                 saved_bin = prog_bin.decode('utf-8').strip()  # Uncolored
                 prog_bin = (ClrSet.TPass+prog_bin.decode('utf-8').strip() +
-                           ClrSet.Reset)
+                            ClrSet.Reset)
                 useg16 = True  # Use Gaussian 16 for tests
             except subprocess.CalledProcessError:
                 prog_bin = ClrSet.TFail+"N/A"+ClrSet.Reset
@@ -218,29 +266,29 @@ def LocateProgram(executable):
 
 
 def PrepRegions(keyword, d_val, u_val, file):
-    """
-    Replace the current keyword argument in a region file with another.
-
-    Parameters
-    ----------
-    keyword : str
-        The keyword to search for in the LICHEM regions file.
-    d_val : str
-        The default value for the keyword.
-    u_val : str
-        The updated value for the keywork.
-    file : str
-        The name of the file to operate on.
-    """
+    # """
+    # Replace the current keyword argument in a region file with another.
+    #
+    # Parameters
+    # ----------
+    # keyword : str
+    #     The keyword to search for in the LICHEM regions file.
+    # d_val : str
+    #     The default value for the keyword.
+    # u_val : str
+    #     The updated value for the keywork.
+    # file : str
+    #     The name of the file to operate on.
+    # """
     # Account for difference in sed in-line between OSX and Linux
     # ex: sed -i '' '/^QM_type/s/Gaussian/g16'
     if platform.system() == "Darwin":
         cmd = ("sed -i '' '/^{}/s/{}/{}/' {}".format(keyword, d_val,
-                                                         u_val, file))
+                                                     u_val, file))
         subprocess.call(cmd, shell=True)
     elif platform.system() == "Linux":
         cmd = ("sed -i '/^{}/s/{}/{}/' {}".format(keyword, d_val,
-                                                     u_val, file))
+                                                  u_val, file))
         subprocess.call(cmd, shell=True)
     else:
         # Print warning instead of raising error so they can correct for
@@ -255,23 +303,23 @@ def PrepRegions(keyword, d_val, u_val, file):
 
 
 def RunLICHEM(xName, rName, cName):
-    """
-    Call a LICHEM instance for testing.
-
-    Parameters
-    ----------
-    xName : str
-        Name of the LICHEM XYZ file.
-    rName : str
-        Name of the regions file.
-    cName : str
-        Name of the connectivity file.
-
-    Returns
-    -------
-    cmd_printed : str
-        Formatted version of the attempted LICHEM command (for printing).
-    """
+    # """
+    # Call a LICHEM instance for testing.
+    #
+    # Parameters
+    # ----------
+    # xName : str
+    #     Name of the LICHEM XYZ file.
+    # rName : str
+    #     Name of the regions file.
+    # cName : str
+    #     Name of the connectivity file.
+    #
+    # Returns
+    # -------
+    # cmd_printed : str
+    #     Formatted version of the attempted LICHEM command (for printing).
+    # """
     global Ncpus
     # -l captures stdout, 2>&1 captures stderr
     cmd = ("lichem -n {n} -x {x} -r {r} -c {c} -o trash.xyz "
@@ -280,15 +328,15 @@ def RunLICHEM(xName, rName, cName):
     # Save a terminal-formatted version of the command
     #  \\\n escapes a printed backslash and then prints newline
     cmd_printed = ("lichem -n {n} -x {x} -r {r} \\\n{sp:9}-c {c} "
-                   "-o trash.xyz -l tests.out 2>&1").format(n=Ncpus,
-                   x=xName, r=rName, sp=' ', c=cName)
+                   "-o trash.xyz -l tests.out 2>&1").format(
+                        n=Ncpus, x=xName, r=rName, sp=' ', c=cName)
     return cmd_printed
 
 
 def CleanFiles():
-    """
-    Clean out various files after tests are performed.
-    """
+    # """
+    # Clean out various files after tests are performed.
+    # """
     # Delete junk files
     cleanCmd = "rm -f"
     # Remove LICHEM files
@@ -315,26 +363,26 @@ def CleanFiles():
 
 
 def RecoverEnergy(txtLabel, itemNum):
-    """
-    Recover the energy from the LICHEM output.
-
-    Parameters
-    ----------
-    txtLabel : str
-        Descriptive label in the LICHEM output used to identify energy line.
-    itemNum : int
-        The split index in the identified line to pull the energy from.
-
-    Returns
-    -------
-    finalEnergy : float
-        The energy from the LICHEM output, rounded to 3 decimal places.
-        If failed, the energy is set to 0.0.
-    savedResult : str
-        Either the unrounded finalEnergy or a crashed message.
-    units : str
-        The unit following the finalEnergy in the output.
-    """
+    # """
+    # Recover the energy from the LICHEM output.
+    #
+    # Parameters
+    # ----------
+    # txtLabel : str
+    #     Descriptive label in the LICHEM output used to identify energy line.
+    # itemNum : int
+    #     The split index in the identified line to pull the energy from.
+    #
+    # Returns
+    # -------
+    # finalEnergy : float
+    #     The energy from the LICHEM output, rounded to 3 decimal places.
+    #     If failed, the energy is set to 0.0.
+    # savedResult : str
+    #     Either the unrounded finalEnergy or a crashed message.
+    # units : str
+    #     The unit following the finalEnergy in the output.
+    # """
     cmd = 'grep -e "{}" tests.out | tail -1'.format(txtLabel)
     savedResult = "Crashed..."
     try:
@@ -355,14 +403,14 @@ def RecoverEnergy(txtLabel, itemNum):
 
 
 def RecoverFreqs():
-    """
-    Recover a list of frequencies from the LICHEM output.
-
-    Returns
-    -------
-    freqList : lst
-        Frequencies from LICHEM output.
-    """
+    # """
+    # Recover a list of frequencies from the LICHEM output.
+    #
+    # Returns
+    # -------
+    # freqList : lst
+    #     Frequencies from LICHEM output.
+    # """
     global debugMode
     # sed commands to use for pulling frequencies
     cmd = ""
@@ -390,20 +438,20 @@ def RecoverFreqs():
 
 
 def CompareEnergy(QMMMPack, QMMMEnergy, known, known_units=None):
-    """
-    Checks the calculated energy against a known value.
-
-    Parameters
-    ----------
-    QMMMPack : str
-        Name of the package being tested.
-    QMMMEnergy : float
-        Value from the LICHEM log file.
-    known : float
-        Expected value for the program.
-    known_units : str
-        Units for the expected value.
-    """
+    # """
+    # Checks the calculated energy against a known value.
+    #
+    # Parameters
+    # ----------
+    # QMMMPack : str
+    #     Name of the package being tested.
+    # QMMMEnergy : float
+    #     Value from the LICHEM log file.
+    # known : float
+    #     Expected value for the program.
+    # known_units : str
+    #     Units for the expected value.
+    # """
     expected_energy = known
     if (QMMMEnergy == expected_energy):
         passEnergy = True
@@ -414,21 +462,21 @@ def CompareEnergy(QMMMPack, QMMMEnergy, known, known_units=None):
 
 
 def SaveFailure(calc, expected):
-    """
-    Print the expected and test-calculated energies.
-
-    Parameters
-    ----------
-    calc : float
-        QM/MM/QMMM energy from the test LICHEM output.
-    expected : float
-        Energy expected from output.
-
-    Returns
-    -------
-    saved_val : str
-        Expected and calculated values formatted for console printing.
-    """
+    # """
+    # Print the expected and test-calculated energies.
+    #
+    # Parameters
+    # ----------
+    # calc : float
+    #     QM/MM/QMMM energy from the test LICHEM output.
+    # expected : float
+    #     Energy expected from output.
+    #
+    # Returns
+    # -------
+    # saved_val : str
+    #     Expected and calculated values formatted for console printing.
+    # """
     # The function input order matches the if statements!!!
     # Note: You don't need to add saved values because all tests of a pairing
     #       will run, so the if statements are independent.
@@ -438,14 +486,14 @@ def SaveFailure(calc, expected):
 
 
 def PrintLICHEMDebug(cmd_printed):
-    """
-    Prints the LICHEM command that was run to the console.
-
-    Parameters
-    -------
-    cmd_printed : str
-        Formatted version of the attempted LICHEM command.
-    """
+    # """
+    # Prints the LICHEM command that was run to the console.
+    #
+    # Parameters
+    # -------
+    # cmd_printed : str
+    #     Formatted version of the attempted LICHEM command.
+    # """
     global debugMode
     if debugMode is True:
         print(f"\n{' ':6}Tried to execute:\n{' ':7}{cmd_printed}")
@@ -453,22 +501,22 @@ def PrintLICHEMDebug(cmd_printed):
 
 
 def PrintPassFail(tName, testPass, updateResults, enVal, units):
-    """
-    Write pass/fail message to the console with coloration and timing.
-
-    Parameters
-    ----------
-    tName: str
-        Name of the test being run.
-    testPass : bool
-        True if test passed.
-    updateResults : bool
-        True to print energies to update tests (for developers).
-    enVal : float
-        The computed energy value.
-    units : str
-        The units of the computed energy value.
-    """
+    # """
+    # Write pass/fail message to the console with coloration and timing.
+    #
+    # Parameters
+    # ----------
+    # tName: str
+    #     Name of the test being run.
+    # testPass : bool
+    #     True if test passed.
+    # updateResults : bool
+    #     True to print energies to update tests (for developers).
+    # enVal : float
+    #     The computed energy value.
+    # units : str
+    #     The units of the computed energy value.
+    # """
     global passCt
     global failCt
     global TTxtLen
@@ -483,12 +531,12 @@ def PrintPassFail(tName, testPass, updateResults, enVal, units):
     if updateResults is True:
         if testPass is True:
             print(f"    {tName:<{TTxtLen-5}} " +
-                  f"{ClrSet.TPass}Pass{ClrSet.Reset}, {runTime}, "+
+                  f"{ClrSet.TPass}Pass{ClrSet.Reset}, {runTime}, " +
                   f"{enVal} {units}")
             passCt += 1
         else:
             print(f"{' ':4}{tName:<{TTxtLen-5}} " +
-                  f"{ClrSet.TFail}Fail{ClrSet.Reset}, {runTime}, "+
+                  f"{ClrSet.TFail}Fail{ClrSet.Reset}, {runTime}, " +
                   f"{enVal} {units}")
             failCt += 1
     else:
@@ -505,18 +553,18 @@ def PrintPassFail(tName, testPass, updateResults, enVal, units):
 
 
 def SkipPass(tName, pf_printed):
-    """
-    Color the skip message printed to the console.
-
-    Parameters
-    ----------
-    tName: str
-        Name of the test being run.
-    pf_printed : bool
-        True if pass/fail has already been printed. This is intended to help
-         avoid race conditions with SkipSequence() after a KeyboardInterrupt,
-         resulting in the skip being printed after a test has passed.
-    """
+    # """
+    # Color the skip message printed to the console.
+    #
+    # Parameters
+    # ----------
+    # tName: str
+    #     Name of the test being run.
+    # pf_printed : bool
+    #     True if pass/fail has already been printed. This is intended to help
+    #      avoid race conditions with SkipSequence() after a KeyboardInterrupt,
+    #      resulting in the skip being printed after a test has passed.
+    # """
     global TTxtLen
     global skipCt
     if pf_printed is False:
@@ -529,18 +577,18 @@ def SkipPass(tName, pf_printed):
 
 
 def SkipSequence(tName, pf_printed):
-    """
-    Either skip or quit a test based off user input.
-
-    Parameters
-    ----------
-    tName: str
-        Name of the test being run.
-    pf_printed : bool
-        True if pass/fail has already been printed. This is intended to help
-         avoid race conditions with SkipSequence() after a KeyboardInterrupt,
-         resulting in the skip being printed after a test has passed.
-    """
+    # """
+    # Either skip or quit a test based off user input.
+    #
+    # Parameters
+    # ----------
+    # tName: str
+    #     Name of the test being run.
+    # pf_printed : bool
+    #     True if pass/fail has already been printed. This is intended to help
+    #      avoid race conditions with SkipSequence() after a KeyboardInterrupt,
+    #      resulting in the skip being printed after a test has passed.
+    # """
     print(f"\n{' ':6}Do you want to...")
     print(f"{' ':7}1. Skip this test only? (s|skip) [default]")
     print(f"{' ':7}2. Quit all? (q|quit|e|exit)")
@@ -587,214 +635,86 @@ def SkipSequence(tName, pf_printed):
 # --------------------------------- #
 
 def CopyRequired(ifile, ofile):
-    """
-    Copies files required for LICHEM job.
-
-    Parameters
-    -------
-    ifile : str
-        Name of the original file.
-    ofile : str
-        Name of the copied file.
-    Returns
-    -------
-    cmd_printed : str
-        Formatted version of the attempted copy command (for printing).
-    """
+    # """
+    # Copies files required for LICHEM job.
+    #
+    # Parameters
+    # -------
+    # ifile : str
+    #     Name of the original file.
+    # ofile : str
+    #     Name of the copied file.
+    # Returns
+    # -------
+    # cmd_printed : str
+    #     Formatted version of the attempted copy command (for printing).
+    # """
     cmd = "cp {} {}".format(ifile, ofile)
     cmd_printed = "\n{:6}- {}\n".format(' ', cmd)
     subprocess.call(cmd, shell=True)
     return cmd_printed
 
 
-# Parameters
-# ----------
-# name : str
-#     Name of the test being run.
-# QMMMPack : str
-#     Name of the package being tested.
-# pf_printed : bool
-#     True if pass/fail has already been printed. This is intended to help
-#      avoid race conditions with SkipSequence() after a KeyboardInterrupt,
-#      resulting in the skip being printed after a test has passed.
-# Returns
-# -------
-# pf_printed: bool
-
-# def Test1(name, QMMMPack, pf_printed):
-#     """
-#     Test for HF energy.
-#     """
-#     global testCt
-#     testCt += 1
-#     print(f"{' ':2}Test {testCt}: {name}")
-#     # Initialize energy as failing
-#     passEnergy = False
-#     runC = RunLICHEM("waterdimer.xyz", "hfreg.inp", "watercon.inp")
-#     QMMMEnergy, savedEnergy, units = RecoverEnergy("QM energy:", 2)
-#     if QMMMPack == "PSI4":
-#         comparison = CompareEnergy(
-#                             QMMMPack=QMPack, QMMMEnergy=QMMMEnergy,
-#                             known=round(-4136.93039814/har2eV, 3),
-#                             known_units='a.u.')
-#     if QMMMPack in ("Gaussian", "Gaussian09", "g09"):
-#         comparison = CompareEnergy(
-#                             QMMMPack=QMPack, QMMMEnergy=QMMMEnergy,
-#                             known=round(-4136.9317704519/har2eV, 3),
-#                             known_units='a.u.')
-#     if QMMMPack in ("Gaussian16", "g16"):
-#         comparison = CompareEnergy(
-#                             QMMMPack=QMPack, QMMMEnergy=QMMMEnergy,
-#                             known=round(-4136.9317704519/har2eV, 3),
-#                             known_units='a.u.')
-#     # Check if comparsion == passEnergy == True, or if it's saved_fail
-#     if comparison is True:
-#         # CompareEnergy resaves passEnergy as comparison
-#         pf_printed = PrintPassFail(name+":", comparison,
-#                                    updateResults, savedEnergy, units)
-#     else:
-#         pf_printed = PrintPassFail(name+":", passEnergy,
-#                                    updateResults, savedEnergy, units)
-#         print(comparison)
-#         PrintLICHEMDebug(runC)
-#     CleanFiles()  # Clean up files
-#     return pf_printed
-#
-#
-# def Test2(name, QMMMPack, pf_printed):
-#     """
-#     Test for PBE0 energy.
-#     """
-#     global testCt
-#     testCt += 1
-#     print(f"\n{' ':2}Test {testCt}: {name}")
-#     # Initialize energy as failing
-#     passEnergy = False
-#     runC = RunLICHEM("waterdimer.xyz", "pbereg.inp", "watercon.inp")
-#     QMMMEnergy, savedEnergy, units = RecoverEnergy("QM energy:", 2)
-#     if QMMMPack == "PSI4":
-#         comparison = CompareEnergy(
-#                             QMMMPack=QMPack, QMMMEnergy=QMMMEnergy,
-#                             known=round(-4154.16836599/har2eV, 3),
-#                             known_units='a.u.')
-#     if QMMMPack in ("Gaussian", "Gaussian09", "g09"):
-#         comparison = CompareEnergy(
-#                             QMMMPack=QMPack, QMMMEnergy=QMMMEnergy,
-#                             known=round(-4154.1676114324/har2eV, 3),
-#                             known_units='a.u.')
-#     if QMMMPack in ("Gaussian16", "g16"):
-#         comparison = CompareEnergy(
-#                             QMMMPack=QMPack, QMMMEnergy=QMMMEnergy,
-#                             known=round(-4154.1676114324/har2eV, 3),
-#                             known_units='a.u.')
-#     if QMMMPack == "NWChem":
-#         comparison = CompareEnergy(
-#                             QMMMPack=QMPack, QMMMEnergy=QMMMEnergy,
-#                             known=round(-4154.1683939169/har2eV, 3),
-#                             known_units='a.u.')
-#     # Check if comparsion == passEnergy == True, or if it's saved_fail
-#     if comparison is True:
-#         # CompareEnergy resaves passEnergy as comparison
-#         pf_printed = PrintPassFail(name+":", comparison,
-#                                    updateResults, savedEnergy, units)
-#     else:
-#         pf_printed = PrintPassFail(name+":", passEnergy,
-#                                    updateResults, savedEnergy, units)
-#         print(comparison)
-#         PrintLICHEMDebug(runC)
-#     CleanFiles()  # Clean up files
-#     return pf_printed
-
-# pf_printed = QMMMWrapperTest(
-#     name="DFP/Pseudobonds", QMMMPack=QMPack,
-#     # Copy two files!
-#     copy_command=[CopyRequired(ifile="pol.key",
-#                            ofile="tinker.key"),
-#                   CopyRequired(ifile="pbbasis.txt",
-#                            ofile="BASIS")],
-#     xName="alkyl.xyz", rName="pboptreg.inp",
-#     cName="alkcon.inp",
-#     energy_str="Opt. step: 2", energy_loc=6,
-#     psi4_e=None, psi4_u=None,
-#     g09_e=round(-3015.0548490566/har2eV, 3), g09_u="a.u.",
-#     g16_e=round(-3015.0548490566/har2eV, 3), g16_u="a.u.",
-#     nwchem_e=round(-3015.2278310975/har2eV, 3), nwchem_u="a.u.",
-#     pf_printed=pf_printed)
-
-# Parameters
-# ----------
-# name : str
-#     Name of the test being run.
-# QMMMPack : str
-#     Name of the package being tested.
-# pf_printed : bool
-#     True if pass/fail has already been printed. This is intended to help
-#      avoid race conditions with SkipSequence() after a KeyboardInterrupt,
-#      resulting in the skip being printed after a test has passed.
-# Returns
-# -------
-# pf_printed: bool
-
 def QMMMWrapperTest(name, psi4_e, psi4_u, g09_e, g09_u, g16_e, g16_u,
-                 nwchem_e, nwchem_u, energy_str, energy_loc, copy_command,
-                 xName, rName, cName, QMMMPack, pf_printed):
-    """
-    Test for a QM wrapper on its own or with an MM wrapper.
-
-    Parameters
-    ----------
-    name : str
-        Name of the test being run.
-    psi4_e : float
-        Expected PSI4 energy in the LICHEM log.
-    psi4_u : str
-        Units for the expected PSI4 energy in the LICHEM log.
-    g09_e : float
-        Expected Gaussian09 energy in the LICHEM log.
-    g09_u : str
-        Units for the expected Gaussian09 energy in the LICHEM log.
-    g16_e : float
-        Expected Gaussian16 energy in the LICHEM log.
-    g16_u : str
-        Units for the expected Gaussian16 energy in the LICHEM log.
-    nwchem_e : float
-        Expected NWChem energy in the LICHEM log.
-    nwchem_u : str
-        Units for the expected NWChem energy in the LICHEM log.
-    energy_str : str
-        Term to search for within the LICHEM log.
-    energy_loc : int
-        Location within split energy_str containing the energy value.
-    copy_command : list
-        A list of functions for copying required files.
-         Format: [CopyRequired(ifile, ofile)]
-    xName : str
-        Name of the LICHEM XYZ file.
-    rName : str
-        Name of the regions file.
-    cName : str
-        Name of the connectivity file.
-    QMMMPack : str
-        Name of the package being tested.
-    pf_printed : bool
-        True if pass/fail has already been printed. This is intended to help
-         avoid race conditions with SkipSequence() after a KeyboardInterrupt,
-         resulting in the skip being printed after a test has passed.
-
-    Returns
-    -------
-    pf_printed : bool
-    """
+                    nwchem_e, nwchem_u, energy_str, energy_loc, copy_command,
+                    xName, rName, cName, QMMMPack, pf_printed):
+    # """
+    # Test for a QM wrapper on its own or with an MM wrapper.
+    #
+    # Parameters
+    # ----------
+    # name : str
+    #     Name of the test being run.
+    # psi4_e : float
+    #     Expected PSI4 energy in the LICHEM log.
+    # psi4_u : str
+    #     Units for the expected PSI4 energy in the LICHEM log.
+    # g09_e : float
+    #     Expected Gaussian09 energy in the LICHEM log.
+    # g09_u : str
+    #     Units for the expected Gaussian09 energy in the LICHEM log.
+    # g16_e : float
+    #     Expected Gaussian16 energy in the LICHEM log.
+    # g16_u : str
+    #     Units for the expected Gaussian16 energy in the LICHEM log.
+    # nwchem_e : float
+    #     Expected NWChem energy in the LICHEM log.
+    # nwchem_u : str
+    #     Units for the expected NWChem energy in the LICHEM log.
+    # energy_str : str
+    #     Term to search for within the LICHEM log.
+    # energy_loc : int
+    #     Location within split energy_str containing the energy value.
+    # copy_command : list
+    #     A list of functions for copying required files.
+    #      Format: [CopyRequired(ifile, ofile)]
+    # xName : str
+    #     Name of the LICHEM XYZ file.
+    # rName : str
+    #     Name of the regions file.
+    # cName : str
+    #     Name of the connectivity file.
+    # QMMMPack : str
+    #     Name of the package being tested.
+    # pf_printed : bool
+    #     True if pass/fail has already been printed. This is intended to help
+    #      avoid race conditions with SkipSequence() after a KeyboardInterrupt,
+    #      resulting in the skip being printed after a test has passed.
+    #
+    # Returns
+    # -------
+    # pf_printed : bool
+    # """
     global testCt
     global debugMode
     # Skip irrelevant tests
-    if ((psi4_e == None) and (QMMMPack == "PSI4")):
+    if ((psi4_e is None) and (QMMMPack == "PSI4")):
         return
-    if ((g09_e == None) and (QMMMPack in ("Gaussian", "Gaussian09", "g09"))):
+    if ((g09_e is None) and (QMMMPack in ("Gaussian", "Gaussian09", "g09"))):
         return
-    if ((g16_e == None) and (QMMMPack in ("Gaussian16", "g16"))):
+    if ((g16_e is None) and (QMMMPack in ("Gaussian16", "g16"))):
         return
-    if ((nwchem_e == None) and (QMMMPack == "NWChem")):
+    if ((nwchem_e is None) and (QMMMPack == "NWChem")):
         return
     # Increment for relevant tests
     testCt += 1
@@ -805,7 +725,7 @@ def QMMMWrapperTest(name, psi4_e, psi4_u, g09_e, g09_u, g16_e, g16_u,
     # Initialize energy as failing
     passEnergy = False
     # Copy necessary files
-    if copy_command != None:
+    if copy_command is not None:
         # Iterate through list
         for command in copy_command:
             cmd_printed = command
@@ -847,60 +767,61 @@ def QMMMWrapperTest(name, psi4_e, psi4_u, g09_e, g09_u, g16_e, g16_u,
 def QMMMFreqTest(name, psi4_e, psi4_u, g09_e, g09_u, g16_e, g16_u,
                  nwchem_e, nwchem_u, xName, rName, cName,
                  QMMMPack, pf_printed):
-    """
-    Frequency test for a QM wrapper.
-
-    Parameters
-    ----------
-    name : str
-        Name of the test being run.
-    psi4_e : float
-        Expected PSI4 energy in the LICHEM log.
-    psi4_u : str
-        Units for the expected PSI4 energy in the LICHEM log.
-    g09_e : float
-        Expected Gaussian09 energy in the LICHEM log.
-    g09_u : str
-        Units for the expected Gaussian09 energy in the LICHEM log.
-    g16_e : float
-        Expected Gaussian16 energy in the LICHEM log.
-    g16_u : str
-        Units for the expected Gaussian16 energy in the LICHEM log.
-    nwchem_e : float
-        Expected NWChem energy in the LICHEM log.
-    nwchem_u : str
-        Units for the expected NWChem energy in the LICHEM log.
-    xName : str
-        Name of the LICHEM XYZ file.
-    rName : str
-        Name of the regions file.
-    cName : str
-        Name of the connectivity file.
-    QMMMPack : str
-        Name of the package being tested.
-    pf_printed : bool
-        True if pass/fail has already been printed. This is intended to help
-         avoid race conditions with SkipSequence() after a KeyboardInterrupt,
-         resulting in the skip being printed after a test has passed.
-
-    Returns
-    -------
-    pf_printed : bool
-
-    Notes
-    -----
-    A few more functions are required for selecting frequencies from the
-    log file, which is why this is a separate function from QMMMWrapperTest(),
-    """
+    # """
+    # Frequency test for a QM wrapper.
+    #
+    # Parameters
+    # ----------
+    # name : str
+    #     Name of the test being run.
+    # psi4_e : float
+    #     Expected PSI4 energy in the LICHEM log.
+    # psi4_u : str
+    #     Units for the expected PSI4 energy in the LICHEM log.
+    # g09_e : float
+    #     Expected Gaussian09 energy in the LICHEM log.
+    # g09_u : str
+    #     Units for the expected Gaussian09 energy in the LICHEM log.
+    # g16_e : float
+    #     Expected Gaussian16 energy in the LICHEM log.
+    # g16_u : str
+    #     Units for the expected Gaussian16 energy in the LICHEM log.
+    # nwchem_e : float
+    #     Expected NWChem energy in the LICHEM log.
+    # nwchem_u : str
+    #     Units for the expected NWChem energy in the LICHEM log.
+    # xName : str
+    #     Name of the LICHEM XYZ file.
+    # rName : str
+    #     Name of the regions file.
+    # cName : str
+    #     Name of the connectivity file.
+    # QMMMPack : str
+    #     Name of the package being tested.
+    # pf_printed : bool
+    #     True if pass/fail has already been printed. This is intended to help
+    #      avoid race conditions with SkipSequence() after a KeyboardInterrupt,
+    #      resulting in the skip being printed after a test has passed.
+    #
+    # Returns
+    # -------
+    # pf_printed : bool
+    #
+    # Notes
+    # -----
+    # A few more functions are required for selecting frequencies from the
+    # log file, which is why this is a separate function from
+    # QMMMWrapperTest().
+    # """
     global testCt
     # Skip irrelevant tests
-    if ((psi4_e == None) and (QMMMPack == "PSI4")):
+    if ((psi4_e is None) and (QMMMPack == "PSI4")):
         return
-    if ((g09_e == None) and (QMMMPack in ("Gaussian", "Gaussian09", "g09"))):
+    if ((g09_e is None) and (QMMMPack in ("Gaussian", "Gaussian09", "g09"))):
         return
-    if ((g16_e == None) and (QMMMPack in ("Gaussian16", "g16"))):
+    if ((g16_e is None) and (QMMMPack in ("Gaussian16", "g16"))):
         return
-    if ((nwchem_e == None) and (QMMMPack == "NWChem")):
+    if ((nwchem_e is None) and (QMMMPack == "NWChem")):
         return
     # Increment for relevant tests
     testCt += 1
@@ -918,8 +839,8 @@ def QMMMFreqTest(name, psi4_e, psi4_u, g09_e, g09_u, g16_e, g16_u,
     try:
         QMMMEnergy = min(QMMMFreqs)
         if QMMMEnergy > 1e100:
-          savedEnergy = "Crashed..."
-          time.sleep(2)
+            savedEnergy = "Crashed..."
+            time.sleep(2)
         else:
             # Save string for devMode printing
             savedEnergy = "Freq:{:3}{}".format(" ", QMMMEnergy)
@@ -960,52 +881,52 @@ def QMMMFreqTest(name, psi4_e, psi4_u, g09_e, g09_u, g16_e, g16_u,
 
 
 def MMWrapperTest(name, tinker_e, tinker_u, lammps_e, lammps_u,
-                 energy_str, energy_loc, tinkerKey,
-                 xName, rName, cName, QMMMPack, pf_printed):
-    """
-    Test for an MM wrapper on its own.
-
-    Parameters
-    ----------
-    name : str
-        Name of the test being run.
-    tinker_e : float
-        Expected PSI4 energy in the LICHEM log.
-    tinker_u : str
-        Units for the expected PSI4 energy in the LICHEM log.
-    lammps_e : float
-        Expected Gaussian09 energy in the LICHEM log.
-    lammps_u : str
-        Units for the expected Gaussian09 energy in the LICHEM log.
-    energy_str : str
-        Term to search for within the LICHEM log.
-    energy_loc : int
-        Location within split energy_str containing the energy value.
-    tinkerKey : str
-        Name of the TINKER key file to copy. (None for LAMMPS-only test.)
-    xName : str
-        Name of the LICHEM XYZ file.
-    rName : str
-        Name of the regions file.
-    cName : str
-        Name of the connectivity file.
-    QMMMPack : str
-        Name of the package being tested.
-    pf_printed : bool
-        True if pass/fail has already been printed. This is intended to help
-         avoid race conditions with SkipSequence() after a KeyboardInterrupt,
-         resulting in the skip being printed after a test has passed.
-
-    Returns
-    -------
-    pf_printed : bool
-    """
+                  energy_str, energy_loc, tinkerKey,
+                  xName, rName, cName, QMMMPack, pf_printed):
+    # """
+    # Test for an MM wrapper on its own.
+    #
+    # Parameters
+    # ----------
+    # name : str
+    #     Name of the test being run.
+    # tinker_e : float
+    #     Expected PSI4 energy in the LICHEM log.
+    # tinker_u : str
+    #     Units for the expected PSI4 energy in the LICHEM log.
+    # lammps_e : float
+    #     Expected Gaussian09 energy in the LICHEM log.
+    # lammps_u : str
+    #     Units for the expected Gaussian09 energy in the LICHEM log.
+    # energy_str : str
+    #     Term to search for within the LICHEM log.
+    # energy_loc : int
+    #     Location within split energy_str containing the energy value.
+    # tinkerKey : str
+    #     Name of the TINKER key file to copy. (None for LAMMPS-only test.)
+    # xName : str
+    #     Name of the LICHEM XYZ file.
+    # rName : str
+    #     Name of the regions file.
+    # cName : str
+    #     Name of the connectivity file.
+    # QMMMPack : str
+    #     Name of the package being tested.
+    # pf_printed : bool
+    #     True if pass/fail has already been printed. This is intended to help
+    #      avoid race conditions with SkipSequence() after a KeyboardInterrupt,
+    #      resulting in the skip being printed after a test has passed.
+    #
+    # Returns
+    # -------
+    # pf_printed : bool
+    # """
     global testCt
     global debugMode
     # Skip irrelevant tests
-    if ((tinker_e == None) and (QMMMPack in ("TINKER", "TINKER9"))):
+    if ((tinker_e is None) and (QMMMPack in ("TINKER", "TINKER9"))):
         return
-    if ((lammps_e == None) and (QMMMPack == "LAMMPS")):
+    if ((lammps_e is None) and (QMMMPack == "LAMMPS")):
         return
     # Increment for relevant tests
     testCt += 1
@@ -1155,6 +1076,45 @@ else:
               "executables\n from your path to change this behavior.\n")
         allTests = True
 
+# Make test options lowercase to test against input
+test_opts_lower = [x.lower() for x in test_opts]
+
+# Verify that test input matches a test
+if args.tests:
+    # If not running all tests
+    if args.tests != "all":
+        print("It wasn't all!")
+        # For index, value
+        for i, test in enumerate(args.tests):
+            if test not in test_opts_lower:
+                # Replace common mistakes
+                if test == "freq":
+                    args.tests[i] = "frequencies"
+                # Spaces register as separate tests, but QSM_TS/NEB_TS are
+                #  distinct without "TS"
+                elif test == "ts":
+                    args.tests.remove('ts')
+                elif test in ("nebts", "neb-ts", "neb ts", "neb"):
+                    args.tests[i] = "neb_ts"
+                elif test in ("qsmts", "qsm-ts", "qsm ts", "qsm"):
+                    args.tests[i] = "qsm_ts"
+                elif test in ("amoebagk", "amoeba-gk", "amoeba gk"):
+                    args.tests[i] = "amoeba/gk"
+                elif test in ("pbe0tip3p", "pbe0-tip3p", "pbe0 tip3p"):
+                    args.tests[i] = "pbe0/tip3p"
+                elif test in ("pbe0amoeba", "pbe0-amoeba", "pbe0 amoeba"):
+                    args.tests[i] = "pbe0/amoeba"
+                elif test in ("dfppseudobonds", "dfp-pseudobonds",
+                              "dfp", "pseudobonds", "pseudo"):
+                    args.tests[i] = "dfp/pseudobonds"
+                else:
+                    print(f"\nError: Test '{test}' not understood.\n\n"
+                          f" Valid options: {test_opts}\n\n"
+                          " Note: The test list is case-insensitive.\n")
+                    exit(0)
+        # Remove potential duplicates (e.g., from both dfp & pseudo)
+        args.tests = set(args.tests)
+
 # Look for LICHEM
 LICHEMbin = LocateLICHEM()
 
@@ -1292,7 +1252,7 @@ if allTests is True:
         # Run PSI4 tests
         packBin = subprocess.check_output(cmd, shell=True)
         QMTests.append("PSI4")
-    except:
+    except subprocess.CalledProcessError:
         # Skip tests that will fail
         if forceAll is True:
             QMTests.append("PSI4")
@@ -1307,7 +1267,7 @@ if allTests is True:
         try:
             packBin = subprocess.check_output(cmd, shell=True)
             QMTests.append("g16")
-        except:
+        except subprocess.CalledProcessError:
             # Skip tests that will fail
             if forceAll is True:
                 # QMTests.append("Gaussian")
@@ -1319,7 +1279,7 @@ if allTests is True:
         # Run NWChem tests
         packBin = subprocess.check_output(cmd, shell=True)
         QMTests.append("NWChem")
-    except:
+    except subprocess.CalledProcessError:
         # Skip tests that will fail
         if forceAll is True:
             QMTests.append("NWChem")
@@ -1329,7 +1289,7 @@ if allTests is True:
         # Run TINKER tests
         packBin = subprocess.check_output(cmd, shell=True)
         MMTests.append("TINKER")
-    except:
+    except subprocess.CalledProcessError:
         # Skip tests that will fail
         if forceAll is True:
             MMTests.append("TINKER")
@@ -1339,7 +1299,7 @@ if allTests is True:
         # Run LAMMPS tests
         packBin = subprocess.check_output(cmd, shell=True)
         MMTests.append("LAMMPS")
-    except:
+    except subprocess.CalledProcessError:
         # Skip tests that will fail
         if forceAll is True:
             MMTests.append("LAMMPS")
@@ -1355,22 +1315,16 @@ else:
 #     4) PM6 energy
 #     5) Frequencies
 #     6) NEB TS energy
-#     7) TIP3P energy
-#     8) AMOEBA/GK energy
-#     9) PBE0/TIP3P energy
-#    10) PBE0/AMOEBA energy
-#    11) DFP/Pseudobonds
+#     7) QSM TS energy
+#     8) TIP3P energy
+#     9) AMOEBA/GK energy
+#    10) PBE0/TIP3P energy
+#    11) PBE0/AMOEBA energy
+#    12) DFP/Pseudobonds
 
 # --------------------- #
 # --- Run the Tests --- #
 # --------------------- #
-
-# Loop over tests
-# for qmTest in QMTests:
-#     for mmTest in MMTests:
-#         # Set packages
-#         QMPack = qmTest
-#         MMPack = mmTest
 
 # Loop over tests
 for QMPack in QMTests:
@@ -1407,707 +1361,231 @@ for QMPack in QMTests:
 
         # Start printing results
         print(f"{QMPack}/{MMPack} results:")
-        #
-        # # Start each try block by declaring that the Pass/Fail report for that
-        # #  test hasn't yet printed.
-        # pf_printed = False
-        # # Use try/except to control Cntrl+C behavior with SkipSequence().
-        # try:
-        #     # Gaussian and Psi4 Only, so update counter/define test in the loop
-        #     # Check HF energy
-        #     if ((QMPack == "PSI4") or (QMPack == "Gaussian") or
-        #        (QMPack == "Gaussian16")):
-        #         pf_printed = Test1(name="HF Energy",
-        #                            QMMMPack=QMPack, pf_printed=pf_printed)
-        # except KeyboardInterrupt:
-        #     SkipSequence("HF energy:", pf_printed)
-        #
-        # pf_printed = False
-        # try:
-        #     pf_printed = Test2(name="PBE0 Energy",
-        #                        QMMMPack=QMPack, pf_printed=pf_printed)
-        # except KeyboardInterrupt:
-        #     SkipSequence("HF energy:", pf_printed)
 
-        pf_printed = False
-        try:
-            # Gaussian and Psi4 Only
-            # Check HF energy
-            pf_printed = QMMMWrapperTest(
-                name="HF Energy",
-                psi4_e=round(-4136.93039814/har2eV, 3), psi4_u="a.u.",
-                g09_e=round(-4136.9317704519/har2eV, 3), g09_u="a.u.",
-                g16_e=round(-4136.9317704519/har2eV, 3), g16_u="a.u.",
-                nwchem_e=None, nwchem_u=None,
-                energy_str="QM energy:", energy_loc=2,
-                copy_command=None,
-                xName="waterdimer.xyz", rName="hfreg.inp",
-                cName="watercon.inp",
-                QMMMPack=QMPack, pf_printed=pf_printed)
-        except KeyboardInterrupt:
-            SkipSequence("HF energy:", pf_printed)
+        # Only run each test if requested
+        if 'hf' or 'all' in test_opts_lower:
+            # Start each try block by declaring that the Pass/Fail
+            #  report for that test hasn't yet printed.
+            pf_printed = False
+            # Use try/except to control Cntrl+C behavior with
+            #  SkipSequence().
+            try:
+                # Gaussian and Psi4 Only
+                # Check HF energy
+                pf_printed = QMMMWrapperTest(
+                    name="HF Energy",
+                    psi4_e=round(-4136.93039814/har2eV, 3), psi4_u="a.u.",
+                    g09_e=round(-4136.9317704519/har2eV, 3), g09_u="a.u.",
+                    g16_e=round(-4136.9317704519/har2eV, 3), g16_u="a.u.",
+                    nwchem_e=None, nwchem_u=None,
+                    energy_str="QM energy:", energy_loc=2,
+                    copy_command=None,
+                    xName="waterdimer.xyz", rName="hfreg.inp",
+                    cName="watercon.inp",
+                    QMMMPack=QMPack, pf_printed=pf_printed)
+            except KeyboardInterrupt:
+                SkipSequence("HF energy:", pf_printed)
 
-        pf_printed = False
-        try:
-            # Check DFT energy
-            pf_printed = QMMMWrapperTest(
-                name="PBE0 Energy",
-                psi4_e=round(-4154.16836599/har2eV, 3), psi4_u="a.u.",
-                g09_e=round(-4154.1676114324/har2eV, 3), g09_u="a.u.",
-                g16_e=round(-4154.1676114324/har2eV, 3), g16_u="a.u.",
-                nwchem_e=round(-4154.1683939169/har2eV, 3), nwchem_u="a.u.",
-                energy_str="QM energy:", energy_loc=2,
-                copy_command=None,
-                xName="waterdimer.xyz", rName="pbereg.inp",
-                cName="watercon.inp",
-                QMMMPack=QMPack, pf_printed=pf_printed)
-        except KeyboardInterrupt:
-            SkipSequence("PBE0 energy:", pf_printed)
+        if 'pbe0' or 'all' in test_opts_lower:
+            pf_printed = False
+            try:
+                # Check DFT energy
+                pf_printed = QMMMWrapperTest(
+                    name="PBE0 Energy",
+                    psi4_e=round(-4154.16836599/har2eV, 3), psi4_u="a.u.",
+                    g09_e=round(-4154.1676114324/har2eV, 3), g09_u="a.u.",
+                    g16_e=round(-4154.1676114324/har2eV, 3), g16_u="a.u.",
+                    nwchem_e=round(-4154.1683939169/har2eV, 3),
+                    nwchem_u="a.u.",
+                    energy_str="QM energy:", energy_loc=2,
+                    copy_command=None,
+                    xName="waterdimer.xyz", rName="pbereg.inp",
+                    cName="watercon.inp",
+                    QMMMPack=QMPack, pf_printed=pf_printed)
+            except KeyboardInterrupt:
+                SkipSequence("PBE0 energy:", pf_printed)
 
-        pf_printed = False
-        try:
-            # PSI4-only test
-            pf_printed = QMMMWrapperTest(
-                name="CCSD Energy",
-                psi4_e=round(-4147.7304837/har2eV, 3), psi4_u="a.u.",
-                g09_e=None, g09_u=None,
-                g16_e=None, g16_u=None,
-                nwchem_e=None, nwchem_u=None,
-                energy_str="QM energy:", energy_loc=2,
-                copy_command=None,
-                xName="waterdimer.xyz", rName="ccsdreg.inp",
-                cName="watercon.inp",
-                QMMMPack=QMPack, pf_printed=pf_printed)
-        except KeyboardInterrupt:
-            SkipSequence("CCSD energy:", pf_printed)
+        if 'ccsd' or 'all' in test_opts_lower:
+            pf_printed = False
+            try:
+                # PSI4-only test
+                pf_printed = QMMMWrapperTest(
+                    name="CCSD Energy",
+                    psi4_e=round(-4147.7304837/har2eV, 3), psi4_u="a.u.",
+                    g09_e=None, g09_u=None,
+                    g16_e=None, g16_u=None,
+                    nwchem_e=None, nwchem_u=None,
+                    energy_str="QM energy:", energy_loc=2,
+                    copy_command=None,
+                    xName="waterdimer.xyz", rName="ccsdreg.inp",
+                    cName="watercon.inp",
+                    QMMMPack=QMPack, pf_printed=pf_printed)
+            except KeyboardInterrupt:
+                SkipSequence("CCSD energy:", pf_printed)
 
-        pf_printed = False
-        try:
-            # Gaussian-only test
-            pf_printed = QMMMWrapperTest(
-                name="PM6 Energy",
-                psi4_e=None, psi4_u=None,
-                g09_e=round(-4.8623027634995/har2eV, 3), g09_u="a.u.",
-                g16_e=round(-4.8623027634995/har2eV, 3), g16_u="a.u.",
-                nwchem_e=None, nwchem_u=None,
-                energy_str="QM energy:", energy_loc=2,
-                copy_command=None,
-                xName="waterdimer.xyz", rName="pm6reg.inp",
-                cName="watercon.inp",
-                QMMMPack=QMPack, pf_printed=pf_printed)
-        except KeyboardInterrupt:
-            SkipSequence("PM6 energy:", pf_printed)
+        if 'pm6' or 'all' in test_opts_lower:
+            pf_printed = False
+            try:
+                # Gaussian-only test
+                pf_printed = QMMMWrapperTest(
+                    name="PM6 Energy",
+                    psi4_e=None, psi4_u=None,
+                    g09_e=round(-4.8623027634995/har2eV, 3), g09_u="a.u.",
+                    g16_e=round(-4.8623027634995/har2eV, 3), g16_u="a.u.",
+                    nwchem_e=None, nwchem_u=None,
+                    energy_str="QM energy:", energy_loc=2,
+                    copy_command=None,
+                    xName="waterdimer.xyz", rName="pm6reg.inp",
+                    cName="watercon.inp",
+                    QMMMPack=QMPack, pf_printed=pf_printed)
+            except KeyboardInterrupt:
+                SkipSequence("PM6 energy:", pf_printed)
 
-        pf_printed = False
-        try:
-            # Gaussian-only test
-            pf_printed = QMMMFreqTest(
-                name="Frequencies",
-                psi4_e=round(-40.507339, 0), psi4_u="wavenumbers",
-                g09_e=round(-31.769945, 0), g09_u="wavenumbers",
-                g16_e=round(5.32988942, 0), g16_u="wavenumbers",
-                nwchem_e=round(-31.769945, 0), nwchem_u="wavenumbers",
-                xName="methfluor.xyz", rName="freqreg.inp",
-                cName="methflcon.inp",
-                QMMMPack=QMPack, pf_printed=pf_printed)
-        except KeyboardInterrupt:
-            SkipSequence("PM6 energy:", pf_printed)
+        if 'frequencies' or 'all' in test_opts_lower:
+            pf_printed = False
+            try:
+                # Gaussian-only test
+                pf_printed = QMMMFreqTest(
+                    name="Frequencies",
+                    psi4_e=round(-40.507339, 0), psi4_u="wavenumbers",
+                    g09_e=round(-31.769945, 0), g09_u="wavenumbers",
+                    g16_e=round(5.32988942, 0), g16_u="wavenumbers",
+                    nwchem_e=round(-31.769945, 0), nwchem_u="wavenumbers",
+                    xName="methfluor.xyz", rName="freqreg.inp",
+                    cName="methflcon.inp",
+                    QMMMPack=QMPack, pf_printed=pf_printed)
+            except KeyboardInterrupt:
+                SkipSequence("Frequencies", pf_printed)
 
-        pf_printed = False
-        try:
-            pf_printed = QMMMWrapperTest(
-                name="NEB TS Energy",
-                psi4_e=round(0.39581219003957, 3), psi4_u="eV",
-                g09_e=round(0.39582668467028, 3), g09_u="eV",
-                g16_e=round(0.39582668467028, 3), g16_u="eV",
-                nwchem_e=round(-0.39582668467028, 3), nwchem_u="eV",
-                energy_str="Forward barrier", energy_loc=3,
-                copy_command=[CopyRequired(ifile="methflbeads.xyz",
-                                       ofile="BeadStartStruct.xyz")],
-                xName="methfluor.xyz", rName="nebreg.inp",
-                cName="methflcon.inp",
-                QMMMPack=QMPack, pf_printed=pf_printed)
-        except KeyboardInterrupt:
-            SkipSequence("NEB Forward barrier:", pf_printed)
+        if 'neb_ts' or 'all' in test_opts_lower:
+            pf_printed = False
+            try:
+                pf_printed = QMMMWrapperTest(
+                    name="NEB TS Energy",
+                    psi4_e=round(0.39581219003957, 3), psi4_u="eV",
+                    g09_e=round(0.39582668467028, 3), g09_u="eV",
+                    g16_e=round(0.39582668467028, 3), g16_u="eV",
+                    nwchem_e=round(-0.39582668467028, 3), nwchem_u="eV",
+                    energy_str="Forward barrier", energy_loc=3,
+                    copy_command=[CopyRequired(ifile="methflbeads.xyz",
+                                               ofile="BeadStartStruct.xyz")],
+                    xName="methfluor.xyz", rName="nebreg.inp",
+                    cName="methflcon.inp",
+                    QMMMPack=QMPack, pf_printed=pf_printed)
+            except KeyboardInterrupt:
+                SkipSequence("NEB Forward barrier:", pf_printed)
 
-        pf_printed = False
-        try:
-            pf_printed = QMMMWrapperTest(
-                name="QSM TS Energy",
-                psi4_e=round(-239.27686429, 3), psi4_u="eV",
-                g09_e=round(-239.27681732, 3), g09_u="eV",
-                g16_e=round(-239.27681732, 3), g16_u="eV",
-                nwchem_e=round(-239.27681732, 3), nwchem_u="eV",
-                energy_str="TS Energy", energy_loc=4,
-                copy_command=[CopyRequired(ifile="methflbeads.xyz",
-                                       ofile="BeadStartStruct.xyz")],
-                xName="methfluor.xyz", rName="qsmreg.inp",
-                cName="methflcon.inp",
-                QMMMPack=QMPack, pf_printed=pf_printed)
-        except KeyboardInterrupt:
-            SkipSequence("QSM TS energy:", pf_printed)
+        if 'qsm_ts' or 'all' in test_opts_lower:
+            pf_printed = False
+            try:
+                pf_printed = QMMMWrapperTest(
+                    name="QSM TS Energy",
+                    psi4_e=round(-239.27686429, 3), psi4_u="eV",
+                    g09_e=round(-239.27681732, 3), g09_u="eV",
+                    g16_e=round(-239.27681732, 3), g16_u="eV",
+                    nwchem_e=round(-239.27681732, 3), nwchem_u="eV",
+                    energy_str="TS Energy", energy_loc=4,
+                    copy_command=[CopyRequired(ifile="methflbeads.xyz",
+                                               ofile="BeadStartStruct.xyz")],
+                    xName="methfluor.xyz", rName="qsmreg.inp",
+                    cName="methflcon.inp",
+                    QMMMPack=QMPack, pf_printed=pf_printed)
+            except KeyboardInterrupt:
+                SkipSequence("QSM TS energy:", pf_printed)
 
         # TINKER-only, but require key to be copied
         # For LAMMPS-only, set tinkerKey argument to 'None'
-        pf_printed = False
-        try:
-            pf_printed = MMWrapperTest(
-                name="TIP3P Energy",
-                tinker_e=round(-0.2596903536223/har2eV, 3), tinker_u="a.u.",
-                lammps_e=None, lammps_u=None,
-                energy_str="MM energy:", energy_loc=2,
-                tinkerKey="pchrg.key",
-                xName="waterdimer.xyz", rName="mmreg.inp",
-                cName="watercon.inp",
-                QMMMPack=MMPack, pf_printed=pf_printed)
-        except KeyboardInterrupt:
-            SkipSequence("TIP3P energy:", pf_printed)
+        if 'tip3p' or 'all' in test_opts_lower:
+            pf_printed = False
+            try:
+                pf_printed = MMWrapperTest(
+                    name="TIP3P Energy",
+                    tinker_e=round(-0.2596903536223/har2eV, 3),
+                    tinker_u="a.u.",
+                    lammps_e=None, lammps_u=None,
+                    energy_str="MM energy:", energy_loc=2,
+                    tinkerKey="pchrg.key",
+                    xName="waterdimer.xyz", rName="mmreg.inp",
+                    cName="watercon.inp",
+                    QMMMPack=MMPack, pf_printed=pf_printed)
+            except KeyboardInterrupt:
+                SkipSequence("TIP3P energy:", pf_printed)
 
-        pf_printed = False
-        try:
-            pf_printed = MMWrapperTest(
-                name="AMOEBA/GK Energy",
-                tinker_e=round(-0.0095434448906, 3), tinker_u="a.u.",
-                lammps_e=None, lammps_u=None,
-                energy_str="MM energy:", energy_loc=2,
-                tinkerKey="pol.key",
-                xName="waterdimer.xyz", rName="mmreg.inp",
-                cName="watercon.inp",
-                QMMMPack=MMPack, pf_printed=pf_printed)
-        except KeyboardInterrupt:
-            SkipSequence("TIP3P energy:", pf_printed)
+        if 'amoeba/gk' or 'all' in test_opts_lower:
+            pf_printed = False
+            try:
+                pf_printed = MMWrapperTest(
+                    name="AMOEBA/GK Energy",
+                    tinker_e=round(-0.0095434448906, 3), tinker_u="a.u.",
+                    lammps_e=None, lammps_u=None,
+                    energy_str="MM energy:", energy_loc=2,
+                    tinkerKey="pol.key",
+                    xName="waterdimer.xyz", rName="mmreg.inp",
+                    cName="watercon.inp",
+                    QMMMPack=MMPack, pf_printed=pf_printed)
+            except KeyboardInterrupt:
+                SkipSequence("TIP3P energy:", pf_printed)
 
-        pf_printed = False
-        try:
-            pf_printed = QMMMWrapperTest(
-                name="PBE0/TIP3P Energy",
-                psi4_e=round(-2077.2021947277/har2eV, 3), psi4_u="a.u.",
-                g09_e=round(-76.34642184669, 3), g09_u="a.u.",
-                g16_e=round(-76.34642184669, 3), g16_u="a.u.",
-                nwchem_e=round(-2077.2022117306/har2eV, 3), nwchem_u="a.u.",
-                energy_str="QMMM energy:", energy_loc=2,
-                copy_command=[CopyRequired(ifile="pchrg.key",
-                                       ofile="tinker.key")],
-                xName="waterdimer.xyz", rName="pchrgreg.inp",
-                cName="watercon.inp",
-                QMMMPack=QMPack, pf_printed=pf_printed)
-        except KeyboardInterrupt:
-            SkipSequence("PBE0/TIP3P energy:", pf_printed)
+        if 'pbe0/tip3p' or 'all' in test_opts_lower:
+            pf_printed = False
+            try:
+                pf_printed = QMMMWrapperTest(
+                    name="PBE0/TIP3P Energy",
+                    psi4_e=round(-2077.2021947277/har2eV, 3), psi4_u="a.u.",
+                    g09_e=round(-76.34642184669, 3), g09_u="a.u.",
+                    g16_e=round(-76.34642184669, 3), g16_u="a.u.",
+                    nwchem_e=round(-2077.2022117306/har2eV, 3),
+                    nwchem_u="a.u.",
+                    energy_str="QMMM energy:", energy_loc=2,
+                    copy_command=[CopyRequired(ifile="pchrg.key",
+                                               ofile="tinker.key")],
+                    xName="waterdimer.xyz", rName="pchrgreg.inp",
+                    cName="watercon.inp",
+                    QMMMPack=QMPack, pf_printed=pf_printed)
+            except KeyboardInterrupt:
+                SkipSequence("PBE0/TIP3P energy:", pf_printed)
 
-        pf_printed = False
-        try:
-            pf_printed = QMMMWrapperTest(
-                name="PBE0/AMOEBA Energy",
-                psi4_e=round(-2077.1114201829/har2eV, 3), psi4_u="a.u.",
-                g09_e=round(-2077.1090319595/har2eV, 3), g09_u="a.u.",
-                g16_e=round(-2077.1090319595/har2eV, 3), g16_u="a.u.",
-                nwchem_e=round(-2077.1094168459/har2eV, 3), nwchem_u="a.u.",
-                energy_str="QMMM energy:", energy_loc=2,
-                copy_command=[CopyRequired(ifile="pol.key",
-                                       ofile="tinker.key")],
-                xName="waterdimer.xyz", rName="polreg.inp",
-                cName="watercon.inp",
-                QMMMPack=QMPack, pf_printed=pf_printed)
-        except KeyboardInterrupt:
-            SkipSequence("PBE0/AMOEBA energy:", pf_printed)
+        if 'pbe0/amoeba' or 'all' in test_opts_lower:
+            pf_printed = False
+            try:
+                pf_printed = QMMMWrapperTest(
+                    name="PBE0/AMOEBA Energy",
+                    psi4_e=round(-2077.1114201829/har2eV, 3), psi4_u="a.u.",
+                    g09_e=round(-2077.1090319595/har2eV, 3), g09_u="a.u.",
+                    g16_e=round(-2077.1090319595/har2eV, 3), g16_u="a.u.",
+                    nwchem_e=round(-2077.1094168459/har2eV, 3),
+                    nwchem_u="a.u.",
+                    energy_str="QMMM energy:", energy_loc=2,
+                    copy_command=[CopyRequired(ifile="pol.key",
+                                               ofile="tinker.key")],
+                    xName="waterdimer.xyz", rName="polreg.inp",
+                    cName="watercon.inp",
+                    QMMMPack=QMPack, pf_printed=pf_printed)
+            except KeyboardInterrupt:
+                SkipSequence("PBE0/AMOEBA energy:", pf_printed)
 
-        pf_printed = False
-        try:
-            # Gaussian and NWChem only
-            pf_printed = QMMMWrapperTest(
-                name="DFP/Pseudobonds", QMMMPack=QMPack,
-                # Copy two files!
-                copy_command=[CopyRequired(ifile="pol.key",
-                                       ofile="tinker.key"),
-                              CopyRequired(ifile="pbbasis.txt",
-                                       ofile="BASIS")],
-                xName="alkyl.xyz", rName="pboptreg.inp",
-                cName="alkcon.inp",
-                energy_str="Opt. step: 2", energy_loc=6,
-                psi4_e=None, psi4_u=None,
-                g09_e=round(-3015.0548490566/har2eV, 3), g09_u="a.u.",
-                g16_e=round(-3015.0548490566/har2eV, 3), g16_u="a.u.",
-                nwchem_e=round(-3015.2278310975/har2eV, 3), nwchem_u="a.u.",
-                pf_printed=pf_printed)
-        except KeyboardInterrupt:
-            SkipSequence("DFP/Pseudobonds:", pf_printed)
-
-        # # Use try/except to control Cntrl+C behavior with SkipSequence().
-        # try:
-        #     # Gaussian and Psi4 Only, so update counter/define test in the loop
-        #     # Check HF energy
-        #     if ((QMPack == "PSI4") or (QMPack == "Gaussian") or
-        #        (QMPack == "g16")):
-        #         testCt += 1
-        #         print(f"{' ':2}Test {testCt}: HF Energy")
-        #         # Initialize energy as failing
-        #         passEnergy = False
-        #         runC = RunLICHEM("waterdimer.xyz", "hfreg.inp", "watercon.inp")
-        #         QMMMEnergy, savedEnergy, units = RecoverEnergy("QM energy:", 2)
-        #         # Check result
-        #         if (QMPack == "PSI4"):
-        #             expected_energy = round(-4136.93039814/har2eV, 3)
-        #             # Check against saved energy
-        #             if (QMMMEnergy == expected_energy):
-        #                 passEnergy = True
-        #             else:
-        #                 saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #         if ((QMPack == "Gaussian") or (QMPack == "g16")):
-        #             expected_energy = round(-4136.9317704519/har2eV, 3)
-        #             # Check against saved energy
-        #             if (QMMMEnergy == expected_energy):
-        #                 passEnergy = True
-        #             else:
-        #                 saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #         pf_printed = PrintPassFail("HF energy:", passEnergy,
-        #                                    updateResults, savedEnergy, units)
-        #         if passEnergy is False:
-        #             print(saved_fail)
-        #             PrintLICHEMDebug(runC)
-        #         CleanFiles()  # Clean up files
-        # except KeyboardInterrupt:
-        #     SkipSequence("HF energy:", pf_printed)
-        #
-        # pf_printed = False
-        # try:
-        #     testCt += 1
-        #     print(f"\n{' ':2}Test {testCt}: PBE0 Energy")
-        #     # Check DFT energy
-        #     # line = ""
-        #     passEnergy = False
-        #     runC = RunLICHEM("waterdimer.xyz", "pbereg.inp", "watercon.inp")
-        #     QMMMEnergy, savedEnergy, units = RecoverEnergy("QM energy:", 2)
-        #     # Check result
-        #     if (QMPack == "PSI4"):
-        #         expected_energy = round(-4154.16836599/har2eV, 3)
-        #         # Check against saved energy
-        #         if (QMMMEnergy == expected_energy):
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #     if ((QMPack == "Gaussian") or (QMPack == "g16")):
-        #         expected_energy = round(-4154.1676114324/har2eV, 3)
-        #         # Check against saved energy
-        #         if (QMMMEnergy == expected_energy):
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #     if (QMPack == "NWChem"):
-        #         expected_energy = round(-4154.1683939169/har2eV, 3)
-        #         # Check against saved energy
-        #         if (QMMMEnergy == expected_energy):
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #     pf_printed = PrintPassFail("PBE0 energy:", passEnergy,
-        #                                updateResults, savedEnergy, units)
-        #     if passEnergy is False:
-        #         print(saved_fail)
-        #         PrintLICHEMDebug(runC)
-        #     CleanFiles()  # Clean up files
-        # except KeyboardInterrupt:
-        #     SkipSequence("PBE0 energy:", pf_printed)
-        #
-        # pf_printed = False
-        # try:
-        #     # PSI4 Only, so update counter/define test in the loop
-        #     # Check CCSD energy
-        #     if (QMPack == "PSI4"):
-        #         testCt += 1
-        #         print(f"\n{' ':2}Test {testCt}: CCSD Energy")
-        #         # line = ""
-        #         passEnergy = False
-        #         runC = RunLICHEM("waterdimer.xyz", "ccsdreg.inp",
-        #                          "watercon.inp")
-        #         QMMMEnergy, savedEnergy, units = RecoverEnergy("QM energy:", 2)
-        #         # Check result
-        #         if (QMPack == "PSI4"):
-        #             expected_energy = round(-4147.7304837/har2eV, 3)
-        #             # Check against saved energy
-        #             if (QMMMEnergy == expected_energy):
-        #                 passEnergy = True
-        #             else:
-        #                 saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #         pf_printed = PrintPassFail("CCSD energy:", passEnergy,
-        #                                    updateResults, savedEnergy, units)
-        #         if passEnergy is False:
-        #             print(saved_fail)
-        #             PrintLICHEMDebug(runC)
-        #         CleanFiles()
-        # except KeyboardInterrupt:
-        #     SkipSequence("CCSD energy:", pf_printed)
-        #
-        # pf_printed = False
-        # try:
-        #     # Gaussian Only, so update counter/define test in the loop
-        #     # Check PM6 energy
-        #     if ((QMPack == "Gaussian") or (QMPack == "g16")):
-        #         testCt += 1
-        #         print(f"\n{' ':2}Test {testCt}: PM6 Energy")
-        #         # line = ""
-        #         passEnergy = False
-        #         runC = RunLICHEM("waterdimer.xyz", "pm6reg.inp",
-        #                          "watercon.inp")
-        #         QMMMEnergy, savedEnergy, units = RecoverEnergy("QM energy:", 2)
-        #         # Check result
-        #         if ((QMPack == "Gaussian") or (QMPack == "g16")):
-        #             expected_energy = round(-4.8623027634995/har2eV, 3)
-        #             # Check against saved energy
-        #             if (QMMMEnergy == expected_energy):
-        #                 passEnergy = True
-        #             else:
-        #                 saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #         pf_printed = PrintPassFail("PM6 energy:", passEnergy,
-        #                                    updateResults, savedEnergy, units)
-        #         if passEnergy is False:
-        #             print(saved_fail)
-        #             PrintLICHEMDebug(runC)
-        #         CleanFiles()
-        # except KeyboardInterrupt:
-        #     SkipSequence("PM6 energy:", pf_printed)
-        #
-        # pf_printed = False
-        # try:
-        #     testCt += 1
-        #     print(f"\n{' ':2}Test {testCt}: Frequencies")
-        #     # Check imaginary frequencies
-        #     # line = ""
-        #     passEnergy = False
-        #     runC = RunLICHEM("methfluor.xyz", "freqreg.inp", "methflcon.inp")
-        #     QMMMFreqs, units = RecoverFreqs()
-        #     # Find lowest frequency
-        #     try:
-        #         QMMMEnergy = min(QMMMFreqs)
-        #         if QMMMEnergy > 1e100:
-        #           savedEnergy = "Crashed..."
-        #         else:
-        #             savedEnergy = "Freq:{:3}{}".format(" ", QMMMEnergy)
-        #     # If list is empty
-        #     except ValueError:
-        #         savedEnergy = "Crashed..."
-        #     # Check results
-        #     if (QMPack == "PSI4"):
-        #         expected_energy = round(-40.507339, 0)
-        #         # Check against saved frequency
-        #         if (round(QMMMEnergy, 0) == expected_energy):
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(round(QMMMEnergy, 0),
-        #                                      expected_energy)
-        #     if (QMPack == "Gaussian"):
-        #         # Gaussian 09 only!
-        #         expected_energy = round(-31.769945, 0)
-        #         # Check against saved frequency
-        #         if (round(QMMMEnergy, 0) == expected_energy):
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(round(QMMMEnergy, 0),
-        #                                      expected_energy)
-        #     elif (QMPack == "g16"):
-        #         # Gaussian 16 will produce a different result!
-        #         expected_energy = round(5.32988942, 0)
-        #         if (round(QMMMEnergy, 0) == expected_energy):
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(round(QMMMEnergy, 0),
-        #                                      expected_energy)
-        #     if (QMPack == "NWChem"):
-        #         expected_energy = round(-31.769945, 0)
-        #         # Check against saved frequency
-        #         if (round(QMMMEnergy, 0) == expected_energy):
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(round(QMMMEnergy, 0),
-        #                                      expected_energy)
-        #     pf_printed = PrintPassFail("Frequencies:", passEnergy,
-        #                                updateResults, savedEnergy, units)
-        #     if passEnergy is False:
-        #         print(saved_fail)
-        #         PrintLICHEMDebug(runC)
-        #     CleanFiles()
-        # except KeyboardInterrupt:
-        #     SkipSequence("Frequencies:", pf_printed)
-        #
-        # pf_printed = False
-        # try:
-        #     testCt += 1
-        #     print(f"\n{' ':2}Test {testCt}: NEB TS Energy")
-        #     # Check NEB optimization
-        #     passEnergy = False
-        #     cmd = "cp methflbeads.xyz BeadStartStruct.xyz"
-        #     PrintCopyDebug(cmd)
-        #     subprocess.call(cmd, shell=True)  # Copy restart file
-        #     runC = RunLICHEM("methfluor.xyz", "nebreg.inp", "methflcon.inp")
-        #     # This is searching for matching line, which is in eV units.
-        #     #    au and kcal/mol are reported on next line.
-        #     QMMMEnergy, savedEnergy, units = RecoverEnergy("Forward barrier", 3)
-        #     # Check result
-        #     if (QMPack == "PSI4"):
-        #         expected_energy = round(0.39581219003957, 3)
-        #         # Check against saved energy
-        #         if (QMMMEnergy == expected_energy):
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #     if ((QMPack == "Gaussian") or (QMPack == "g16")):
-        #         expected_energy = round(0.39582668467028, 3)
-        #         # Check against saved energy
-        #         if (QMMMEnergy == expected_energy):
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #     if (QMPack == "NWChem"):
-        #         expected_energy = round(-0.39582668467028, 3)
-        #         # Check against saved energy
-        #         if (QMMMEnergy == expected_energy):
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #     pf_printed = PrintPassFail("NEB Forward barrier:", passEnergy,
-        #                                updateResults, savedEnergy, units)
-        #     if passEnergy is False:
-        #         print(saved_fail)
-        #         PrintLICHEMDebug(runC)
-        #     CleanFiles()
-        # except KeyboardInterrupt:
-        #     SkipSequence("NEB Forward barrier:", pf_printed)
-        #
-        # pf_printed = False
-        # try:
-        #     testCt += 1
-        #     print(f"\n{' ':2}Test {testCt}: QSM TS energy")
-        #     # Check QSM optimization
-        #     passEnergy = False
-        #     cmd = "cp methflbeads.xyz BeadStartStruct.xyz"
-        #     PrintCopyDebug(cmd)
-        #     subprocess.call(cmd, shell=True)  # Copy restart file
-        #     runC = RunLICHEM("methfluor.xyz", "qsmreg.inp", "methflcon.inp")
-        #     QMMMEnergy, savedEnergy, units = RecoverEnergy("TS Energy", 4)
-        #     # Check result
-        #     if (QMPack == "PSI4"):
-        #         expected_energy = round(-239.27686429, 3)
-        #         # Check against saved energy
-        #         if (QMMMEnergy == expected_energy):
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #     if ((QMPack == "Gaussian") or (QMPack == "g16")):
-        #         # Given in a.u.
-        #         expected_energy = round(-239.27681732, 3)
-        #         # Check against saved energy
-        #         if (QMMMEnergy == expected_energy):
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #     if (QMPack == "NWChem"):
-        #         expected_energy = round(-239.27681732, 3)
-        #         # Check against saved energy
-        #         if (QMMMEnergy == expected_energy):
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #     pf_printed = PrintPassFail("QSM TS energy:", passEnergy,
-        #                                updateResults, savedEnergy, units)
-        #     if passEnergy is False:
-        #         print(saved_fail)
-        #         PrintLICHEMDebug(runC)
-        #     CleanFiles()
-        # except KeyboardInterrupt:
-        #     SkipSequence("QSM TS energy:", pf_printed)
-        #
-        # # TINKER-only, so update counter/define test in the loop
-        # if (MMPack == "TINKER"):
-        #     pf_printed = False
-        #     try:
-        #         testCt += 1
-        #         print(f"\n{' ':2}Test {testCt}: TIP3P energy")
-        #         # Check MM energy
-        #         passEnergy = False
-        #         cmd = "cp pchrg.key tinker.key"
-        #         PrintCopyDebug(cmd)
-        #         subprocess.call(cmd, shell=True)  # Copy key file
-        #         runC = RunLICHEM("waterdimer.xyz", "mmreg.inp",
-        #                          "watercon.inp")
-        #         QMMMEnergy, savedEnergy, units = RecoverEnergy("MM energy:", 2)
-        #         # Expected TINKER energy
-        #         expected_energy = round(-0.2596903536223/har2eV, 3)
-        #         # Check result
-        #         if (QMMMEnergy == expected_energy):
-        #             # Check against saved energy
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #         pf_printed = PrintPassFail("TIP3P energy:", passEnergy,
-        #                                    updateResults, savedEnergy, units)
-        #         if passEnergy is False:
-        #             print(saved_fail)
-        #             PrintLICHEMDebug(runC)
-        #         CleanFiles()
-        #     except KeyboardInterrupt:
-        #         SkipSequence("TIP3P energy:", pf_printed)
-        #
-        #     pf_printed = False
-        #     try:
-        #         # New test instance
-        #         testCt += 1
-        #         print(f"\n{' ':2}Test {testCt}: AMOEBA/GK Energy")
-        #         # Check MM energy
-        #         line = ""
-        #         passEnergy = False
-        #         cmd = "cp pol.key tinker.key"
-        #         PrintCopyDebug(cmd)
-        #         subprocess.call(cmd, shell=True)  # Copy key file
-        #         runC = RunLICHEM("waterdimer.xyz", "solvreg.inp",
-        #                          "watercon.inp")
-        #         QMMMEnergy, savedEnergy, units = RecoverEnergy("MM energy:", 2)
-        #         # Expected TINKER energy (a.u.)
-        #         expected_energy = round(-0.0095434448906, 3)
-        #         # Check result
-        #         if (QMMMEnergy == expected_energy):
-        #             # Check against saved energy
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #         pf_printed = PrintPassFail("AMOEBA/GK energy:", passEnergy,
-        #                                    updateResults, savedEnergy, units)
-        #         if passEnergy is False:
-        #             print(saved_fail)
-        #             PrintLICHEMDebug(runC)
-        #         CleanFiles()
-        #     except KeyboardInterrupt:
-        #         SkipSequence("AMOEBA/GK energy:", pf_printed)
-        #
-        # pf_printed = False
-        # # Back to tests non-specific to TINKER
-        # try:
-        #     testCt += 1
-        #     print(f"\n{' ':2}Test {testCt}: PBE0/TIP3P Energy")
-        #     # Check QMMM point-charge energy results
-        #     passEnergy = False
-        #     cmd = "cp pchrg.key tinker.key"
-        #     PrintCopyDebug(cmd)
-        #     subprocess.call(cmd, shell=True)  # Copy key file
-        #     runC = RunLICHEM("waterdimer.xyz", "pchrgreg.inp",
-        #                      "watercon.inp")
-        #     QMMMEnergy, savedEnergy, units = RecoverEnergy("QMMM energy:", 2)
-        #     # Expected TINKER energy
-        #     expected_energy = round(-2077.2021947277/har2eV, 3)
-        #     # Check result
-        #     if (QMPack == "PSI4"):
-        #         # Check against saved energy
-        #         if (QMMMEnergy == expected_energy):
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #     if ((QMPack == "Gaussian") or (QMPack == "g16")):
-        #         # Expected in a.u.
-        #         expected_energy = round(-76.34642184669, 3)
-        #         # Check against saved energy
-        #         if (QMMMEnergy == expected_energy):
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #     if (QMPack == "NWChem"):
-        #         expected_energy = round(-2077.2022117306/har2eV, 3)
-        #         # Check against saved energy
-        #         if (QMMMEnergy == expected_energy):
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #     pf_printed = PrintPassFail("PBE0/TIP3P energy:", passEnergy,
-        #                                updateResults, savedEnergy, units)
-        #     if passEnergy is False:
-        #         print(saved_fail)
-        #         PrintLICHEMDebug(runC)
-        #     CleanFiles()
-        # except KeyboardInterrupt:
-        #     SkipSequence("PBE0/TIP3P energy:", pf_printed)
-        #
-        # pf_printed = False
-        # try:
-        #     testCt += 1
-        #     print(f"\n{' ':2}Test {testCt}: PBE0/AMOEBA Energy")
-        #     # Check QMMM polarizable energy results
-        #     passEnergy = False
-        #     cmd = "cp pol.key tinker.key"
-        #     PrintCopyDebug(cmd)
-        #     subprocess.call(cmd, shell=True)  # Copy key file
-        #     runC = RunLICHEM("waterdimer.xyz", "polreg.inp", "watercon.inp")
-        #     QMMMEnergy, savedEnergy, units = RecoverEnergy("QMMM energy:", 2)
-        #     # Check result
-        #     if (QMPack == "PSI4"):
-        #         expected_energy = round(-2077.1114201829/har2eV, 3)
-        #         # Check against saved energy
-        #         if (QMMMEnergy == expected_energy):
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #     if ((QMPack == "Gaussian") or (QMPack == "g16")):
-        #         # In a.u.
-        #         expected_energy = round(-0.0095434448906, 3)
-        #         # Check against saved energy
-        #         if (QMMMEnergy == expected_energy):
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #     if (QMPack == "NWChem"):
-        #         expected_energy = round(-2077.1094168459/har2eV, 3)
-        #         # Check against saved energy
-        #         if (QMMMEnergy == expected_energy):
-        #             passEnergy = True
-        #         else:
-        #             saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #     pf_printed = PrintPassFail("PBE0/AMOEBA energy:", passEnergy,
-        #                                updateResults, savedEnergy, units)
-        #     if passEnergy is False:
-        #         print(saved_fail)
-        #         PrintLICHEMDebug(runC)
-        #     CleanFiles()
-        # except KeyboardInterrupt:
-        #     SkipSequence("PBE0/AMOEBA energy:", pf_printed)
-        #
-        # pf_printed = False
-        # try:
-        #     # Gaussian and NWChem only, so update counter/def test in the loop
-        #     # Check pseudobond optimizations
-        #     if ((QMPack == "Gaussian") or (QMPack == "g16") or
-        #        (QMPack == "NWChem")):
-        #         testCt += 1
-        #         print(f"\n{' ':2}Test {testCt}: DFP/Pseudobonds")
-        #         # Carry out test
-        #         passEnergy = False
-        #         cmd = "cp pbopt.key tinker.key"
-        #         PrintCopyDebug(cmd)
-        #         subprocess.call(cmd, shell=True)  # Copy key file
-        #         cmd = "cp pbbasis.txt BASIS"
-        #         PrintCopyDebug(cmd)
-        #         subprocess.call(cmd, shell=True)  # Copy BASIS set file
-        #         runC = RunLICHEM("alkyl.xyz", "pboptreg.inp", "alkcon.inp")
-        #         QMMMEnergy, savedEnergy, units = RecoverEnergy("Opt. step: 2",
-        #                                                                     6)
-        #         # Check result
-        #         if ((QMPack == "Gaussian") or (QMPack == "g16")):
-        #             expected_energy = round(-3015.0548490566/har2eV, 3)
-        #             # Check against saved energy
-        #             if (QMMMEnergy == expected_energy):
-        #                 passEnergy = True
-        #             else:
-        #                 saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #         if (QMPack == "NWChem"):
-        #             expected_energy = round(-3015.2278310975/har2eV, 3)
-        #             # Check against saved energy
-        #             if (QMMMEnergy == expected_energy):
-        #                 passEnergy = True
-        #             else:
-        #                 saved_fail = SaveFailure(QMMMEnergy, expected_energy)
-        #         pf_printed = PrintPassFail("DFP/Pseudobonds:", passEnergy,
-        #                                    updateResults, savedEnergy, units)
-        #         if passEnergy is False:
-        #             print(saved_fail)
-        #             PrintLICHEMDebug(runC)
-        #         CleanFiles()
-        # except KeyboardInterrupt:
-        #     SkipSequence("DFP/Pseudobonds:", pf_printed)
+        if 'dfp/pseudobonds' or 'all' in test_opts_lower:
+            pf_printed = False
+            try:
+                # Gaussian and NWChem only
+                pf_printed = QMMMWrapperTest(
+                    name="DFP/Pseudobonds", QMMMPack=QMPack,
+                    # Copy two files!
+                    copy_command=[CopyRequired(ifile="pol.key",
+                                               ofile="tinker.key"),
+                                  CopyRequired(ifile="pbbasis.txt",
+                                               ofile="BASIS")],
+                    xName="alkyl.xyz", rName="pboptreg.inp",
+                    cName="alkcon.inp",
+                    energy_str="Opt. step: 2", energy_loc=6,
+                    psi4_e=None, psi4_u=None,
+                    g09_e=round(-3015.0548490566/har2eV, 3), g09_u="a.u.",
+                    g16_e=round(-3015.0548490566/har2eV, 3), g16_u="a.u.",
+                    nwchem_e=round(-3015.2278310975/har2eV, 3),
+                    nwchem_u="a.u.",
+                    pf_printed=pf_printed)
+            except KeyboardInterrupt:
+                SkipSequence("DFP/Pseudobonds:", pf_printed)
 
         # Revert the regions files, but only if you're not debugging!
         if debugMode is False:
@@ -2115,7 +1593,7 @@ for QMPack in QMTests:
                 # Check that the file exists for sed
                 if os.path.isfile("./"+filename):
                     # Gaussian
-                    if QMPack == "g16":
+                    if QMPack in ("Gaussian16", "g16"):
                         PrepRegions("QM_type", "g16", "Gaussian", filename)
                     # Tinker version
                     if MMPack == "TINKER9":

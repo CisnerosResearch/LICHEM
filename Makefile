@@ -55,7 +55,7 @@ INSTALLBIN=/tmp/LICHEM1.1/bin
 # The local copy of Eigen is located in ./Eigen3/
 LDFLAGS=-I./Eigen3/
 
-PYPATH=$(shell which python)
+PYPATH=$(shell which python3)
 #PYPATH=/usr/bin/python
 
 SEDI=-i
@@ -285,6 +285,8 @@ gitmk:
 	@echo "";\
 	echo "Preparing the directory for a git commit!"; \
 	sed $(SEDI) 's:$(INSTALLBIN):/tmp/LICHEM1.1/bin:g' ./Makefile; \
+	sed $(SEDI) 's/QM_type: g16/QM_type: Gaussian/g' \
+		./tests/Gau_TINKER/*reg.inp; \
 	echo ""
 
 # NB: binary MUST be defined last because ./configure appends
