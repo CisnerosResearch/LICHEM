@@ -34,6 +34,9 @@
 % Change Font to sans serif
 \usepackage{sansmathfonts}
 \renewcommand{\familydefault}{\sfdefault}
+% Use Open Sans (part of TeX Live)
+\usepackage[default,scale=0.95]{opensans}
+\usepackage[T1]{fontenc}
 
 % Formatting settings
 \setlength\parindent{0cm}
@@ -120,6 +123,7 @@ and DOIs for articles or URLs for software (if available). \\
 
 When updating the Python-based test suite, verify that it is within the PEP8
 standard with an external checker, such as autopep8 or pycodestyle.
+Use the 4-space standard for indentation.
 
 \subsection{Updating LICHEM}
 
@@ -173,6 +177,28 @@ In NEB and OpenMP--QSM (OpenMP) simulations the number of CPUs given as a
 command line argument is used to divide the OpenMP threads between the replicas.
 In MPI QSM simulations (hybrid--parallel), the number of CPUs given as a
 command line argument define the number of available nodes for MPI.
+
+\subsection{Adding Tests}
+
+The test suite executable is created from \texttt{./src/runtests.py}.
+The script uses
+\href{https://docs.python.org/3.10/library/argparse.html}{argparse}
+to define the command-line usage.
+Functions are used to call each test, passing \texttt{None} for 
+arguments that do not apply for the test case (e.g., having a 
+PSI4 energy for a Gaussian-only QM test).
+QM and QM/MM tests use the \texttt{QMMMWrapperTest} function, 
+and MM-only tests use the function \texttt{MMWrapperTest}.
+A notable exception is the `Frequencies' test, which uses the 
+\texttt{QMMMFreqTest} function because of the extra steps involved
+in finding the minimum frequency. \\
+
+All functions make use of 
+\href{https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard}{Numpy-style docstrings} 
+to descripe input and output variables.
+These docstrings are then commented out using the single-comment style
+(with a hashtag and space), so that they are not included in the executable
+form of the script (\texttt{./tests/runtests}).
 
 \section{Installation}
 
@@ -248,6 +274,27 @@ QM/MM calculations.
 
 \begin{table}[hbt]
  \centering
+ \begin{tabular}{|c|c|c|c|}
+ \hline
+ Short Flag & Long Flag   & Description                     & Default\\ \hline
+ -h         & \-\-help    & Print help                      & \\
+ -v         & \-\-verbose & Use developer/debugging options & False \\
+ -n         & \-\-ncpus   & Number of CPUs                  & 1 \\
+ -d         & \-\-dry     & Perform a dry run of all tests  & False \\
+ -t         & \-\-tests   & Explicit tests to run           & 'all' \\
+ -a         & \-\-all     & Auto-run all tests              & False \\
+ -q         & \-\-qm      & QM wrapper to test              & 'all' \\
+ -m         & \-\-mm      & MM wrapper to test              & 'all' \\
+ \hline
+ \end{tabular}
+ \caption{
+ Command-line options for the runtests script. If \texttt{-a} is given, the
+ \texttt{-q} and \texttt{-m} flags will be overridden.}
+ \label{tab:TestOpts}
+\end{table}
+
+\begin{table}[hbt]
+ \centering
  \scalebox{0.85}{
  \begin{tabular}{|l|p{0.5\textwidth}|c|c|}
  \hline
@@ -303,19 +350,34 @@ It is written to be compatible with Python 3.6+. \\
 
 Tests can be performed for pairs of QM and MM wrappers, \\
 
-\texttt{user:\$ ./runtests [Ncpus] [QMPackage] [MMPackage]} \\
+\texttt{user:\$ ./runtests -n [Ncpus] -q [QMPackage] -m [MMPackage]} \\
 
 or for all wrappers at once. \\
 
-\texttt{user:\$ ./runtests [Ncpus] All} \\
+\texttt{user:\$ ./runtests -n [Ncpus]} \\
 
 A dry run can be performed to check packages without performing the
 calculations. \\
 
-\texttt{user:\$ ./runtests [Ncpus] [QMPackage] [MMPackage] Dry} \\
+\texttt{user:\$ ./runtests -d} \\
 
 Dry runs are useful for checking which QM and MM packages were found in the
 path. \\
+
+The help and usage information can be given with: \\
+
+\texttt{user:\$ ./runtests -h} \\
+
+or
+
+\texttt{user:\$ ./runtests --help} \\
+
+with additional flags and options explained in Table \ref{tab:TestOpts}. \\
+
+The test script will change the 'QM_type' in input files for use with
+Gaussian16 if Gaussian09 is not found in the user's PATH.
+It will also attempt both Gaussian09 and Gaussian16 if both executables are
+found and it is running in all tests mode. \\
 
 Descriptions of the tests can be found in Table \ref{tab:Tests}.
 If tests are consistently failing, please post details on the GitHub issues
@@ -410,7 +472,7 @@ and MM regions are bonded.
 The development of LICHEM was supported by funding from the NIH (Grant No.\
 R01GM108583), Wayne State University, the University of North Texas,
 and the University of Texas at Dallas.
-LICHEM is maintained by the Cisneros research group at the University of
+LICHEM is maintained by the Cisneros Research Group at the University of
 Texas at Dallas.
 
 \chapter{LICHEM Input}
