@@ -33,19 +33,19 @@ the calculations.
 user:$ ./runtests Ncpus QMPackage MMPackage Dry
 ```
 
-If tests are consistently failing, please post details on the 
+If tests are consistently failing, please post details on the
 [GitHub issues](https://github.com/CisnerosResearch/LICHEM/issues)
 page.
 
 ### Notes
 
-The test suite prints run times for the tests. 
-Since LICHEM has different settings for different wrappers, 
-the times only represent the efficiency of the wrappers. 
-The run times are not for the comparison of the efficiency of different 
+The test suite prints run times for the tests.
+Since LICHEM has different settings for different wrappers,
+the times only represent the efficiency of the wrappers.
+The run times are not for the comparison of the efficiency of different
 packages.
 
-The test suite is written for Python 3.0 or higher.
+The test suite is written for Python 3.6 or higher.
 
 ### Tests
 
@@ -65,4 +65,3 @@ The test suite is written for Python 3.0 or higher.
 | PBE0/TIP3P energy | QMMM energy of a water dimer calculated with PBE0 and TIP3P. | PSI4,Gaussian,NWChem | TINKER |
 | PBE0/AMOEBA energy | Polarizable QMMM energy of a water dimer calculated with PBE0 and AMOEBA. | PSI4,Gaussian,NWChem | TINKER |
 | DFP/Pseudobonds | QMMM Davidon-Fletcher-Powell optimization of 2-Butyne with the two methyl groups replaced by pseudobond/boundary atoms. | Gaussian,NWChem | TINKER |
-

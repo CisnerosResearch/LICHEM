@@ -34,7 +34,7 @@
 # The local copy of Eigen is located in ./Eigen3/
 LDFLAGS=-I./Eigen3/
 
-PYPATH=$(shell which python)
+PYPATH=$(shell which python3)
 #PYPATH=/usr/bin/python
 
 SEDI=-i

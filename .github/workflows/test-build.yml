@@ -19,21 +19,21 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        # - {
-        #     name: "Ubuntu Latest GCC", artifact: "Linux.tar.xz",
-        #     os: ubuntu-latest,
-        #     build_type: "Release", cc: "gcc", cxx: "g++"
-        #   }
+        - {
+            name: "Ubuntu Latest GCC", artifact: "Linux.tar.xz",
+            os: ubuntu-latest,
+            build_type: "Release", cc: "gcc", cxx: "g++"
+          }
         - {
             name: "Ubuntu Latest Clang", artifact: "Linux.tar.xz",
             os: ubuntu-latest,
             build_type: "Release", cc: "clang", cxx: "clang++"
           }
-        # - {
-        #     name: "macOS Latest Clang", artifact: "macOS.tar.xz",
-        #     os: macos-latest,
-        #     build_type: "Release", cc: "clang", cxx: "clang++"
-        #   }
+        - {
+            name: "macOS Latest Clang", artifact: "macOS.tar.xz",
+            os: macos-latest,
+            build_type: "Release", cc: "clang", cxx: "clang++"
+          }
 
     steps:
     - uses: actions/checkout@v2
