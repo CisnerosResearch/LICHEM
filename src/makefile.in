@@ -160,6 +160,7 @@ manual:
 	mv manual.pdf ../doc/LICHEM_manual.pdf; \
 	rm -f manual.aux manual.bbl manual.blg; \
 	rm -f manual.log manual.out manual.toc; \
+	rm -f manual.lof manual.lot; \
 	rm -f doclog.txt manual.synctex.gz acs-manual.bib
 
 mantest:
@@ -185,9 +186,10 @@ mandel:
 	echo "### Removing the LICHEM documentation ###"; \
 	echo ""; \
 	rm -rf ./src/manual.pdf ./doc/LICHEM_manual.pdf; \
-	rm -f ./src/manual.aux ./src/manual.bbl ./src/manual.blg; \
-	rm -f ./src/manual.log ./src/manual.out ./src/manual.toc; \
-	rm -f ./src/doclog.txt ./src/manual.synctex.gz ./src/acs-manual.bib
+	rm -rf ./src/manual.aux ./src/manual.bbl ./src/manual.blg; \
+	rm -rf ./src/manual.log ./src/manual.out ./src/manual.toc; \
+	rm -rf ./src/manual.lof ./src/manual.lot; \
+	rm -rf ./src/doclog.txt ./src/manual.synctex.gz ./src/acs-manual.bib
 
 title:
 	@echo ""; \
