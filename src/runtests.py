@@ -849,6 +849,8 @@ def QMMMFreqTest(name, psi4_e, psi4_u, g09_e, g09_u, g16_e, g16_u,
     # If list is empty
     except ValueError:
         savedEnergy = "Crashed..."
+        # Set to 0 for debugMode
+        QMMMEnergy = 0.0
         time.sleep(2)
     if QMMMPack == "PSI4":
         comparison = CompareEnergy(
@@ -1034,11 +1036,7 @@ else:
             qm_test_packs.add("psi4")
         # Check for Gaussian
         if 'gaussian' in args.qm:
-            # Check g09 not given twice
-            if 'g09' in args.qm:
-                qm_test_packs.add("g09")
-            else:
-                qm_test_packs.add("g09")
+            qm_test_packs.add("g09")
         elif 'g09' in args.qm:
             qm_test_packs.add("g09")
         elif 'g16' in args.qm:
@@ -1083,7 +1081,6 @@ test_opts_lower = [x.lower() for x in test_opts]
 if args.tests:
     # If not running all tests
     if args.tests != "all":
-        print("It wasn't all!")
         # For index, value
         for i, test in enumerate(args.tests):
             if test not in test_opts_lower:
@@ -1261,7 +1258,7 @@ if allTests is True:
     try:
         # Run Gaussian tests
         packBin = subprocess.check_output(cmd, shell=True)
-        QMTests.append("Gaussian")
+        QMTests.append("Gaussian09")
     except subprocess.CalledProcessError:
         cmd = "which g16"
         try:
@@ -1363,7 +1360,8 @@ for QMPack in QMTests:
         print(f"{QMPack}/{MMPack} results:")
 
         # Only run each test if requested
-        if 'hf' or 'all' in test_opts_lower:
+        # Note: "if ('hf' or 'all') in args.tests" does not work!
+        if 'hf' in args.tests or 'all' in args.tests:
             # Start each try block by declaring that the Pass/Fail
             #  report for that test hasn't yet printed.
             pf_printed = False
@@ -1386,7 +1384,7 @@ for QMPack in QMTests:
             except KeyboardInterrupt:
                 SkipSequence("HF energy:", pf_printed)
 
-        if 'pbe0' or 'all' in test_opts_lower:
+        if 'pbe0' in args.tests or 'all' in args.tests:
             pf_printed = False
             try:
                 # Check DFT energy
@@ -1405,7 +1403,7 @@ for QMPack in QMTests:
             except KeyboardInterrupt:
                 SkipSequence("PBE0 energy:", pf_printed)
 
-        if 'ccsd' or 'all' in test_opts_lower:
+        if 'ccsd' in args.tests or 'all' in args.tests:
             pf_printed = False
             try:
                 # PSI4-only test
@@ -1423,7 +1421,7 @@ for QMPack in QMTests:
             except KeyboardInterrupt:
                 SkipSequence("CCSD energy:", pf_printed)
 
-        if 'pm6' or 'all' in test_opts_lower:
+        if 'pm6' in args.tests or 'all' in args.tests:
             pf_printed = False
             try:
                 # Gaussian-only test
@@ -1441,23 +1439,23 @@ for QMPack in QMTests:
             except KeyboardInterrupt:
                 SkipSequence("PM6 energy:", pf_printed)
 
-        if 'frequencies' or 'all' in test_opts_lower:
+        if 'frequencies' in args.tests or 'all' in args.tests:
             pf_printed = False
             try:
                 # Gaussian-only test
                 pf_printed = QMMMFreqTest(
                     name="Frequencies",
-                    psi4_e=round(-40.507339, 0), psi4_u="wavenumbers",
-                    g09_e=round(-31.769945, 0), g09_u="wavenumbers",
-                    g16_e=round(5.32988942, 0), g16_u="wavenumbers",
-                    nwchem_e=round(-31.769945, 0), nwchem_u="wavenumbers",
+                    psi4_e=round(-40.507339, 0), psi4_u="cm^-1",
+                    g09_e=round(5.33078515, 0), g09_u="cm^-1",
+                    g16_e=round(5.33078515, 0), g16_u="cm^-1",
+                    nwchem_e=round(-31.769945, 0), nwchem_u="cm^-1",
                     xName="methfluor.xyz", rName="freqreg.inp",
                     cName="methflcon.inp",
                     QMMMPack=QMPack, pf_printed=pf_printed)
             except KeyboardInterrupt:
                 SkipSequence("Frequencies", pf_printed)
 
-        if 'neb_ts' or 'all' in test_opts_lower:
+        if 'neb_ts' in args.tests or 'all' in args.tests:
             pf_printed = False
             try:
                 pf_printed = QMMMWrapperTest(
@@ -1475,7 +1473,7 @@ for QMPack in QMTests:
             except KeyboardInterrupt:
                 SkipSequence("NEB Forward barrier:", pf_printed)
 
-        if 'qsm_ts' or 'all' in test_opts_lower:
+        if 'qsm_ts' in args.tests or 'all' in args.tests:
             pf_printed = False
             try:
                 pf_printed = QMMMWrapperTest(
@@ -1495,7 +1493,7 @@ for QMPack in QMTests:
 
         # TINKER-only, but require key to be copied
         # For LAMMPS-only, set tinkerKey argument to 'None'
-        if 'tip3p' or 'all' in test_opts_lower:
+        if 'tip3p' in args.tests or 'all' in args.tests:
             pf_printed = False
             try:
                 pf_printed = MMWrapperTest(
@@ -1511,7 +1509,7 @@ for QMPack in QMTests:
             except KeyboardInterrupt:
                 SkipSequence("TIP3P energy:", pf_printed)
 
-        if 'amoeba/gk' or 'all' in test_opts_lower:
+        if 'amoeba/gk' in args.tests or 'all' in args.tests:
             pf_printed = False
             try:
                 pf_printed = MMWrapperTest(
@@ -1526,7 +1524,7 @@ for QMPack in QMTests:
             except KeyboardInterrupt:
                 SkipSequence("TIP3P energy:", pf_printed)
 
-        if 'pbe0/tip3p' or 'all' in test_opts_lower:
+        if 'pbe0/tip3p' in args.tests or 'all' in args.tests:
             pf_printed = False
             try:
                 pf_printed = QMMMWrapperTest(
@@ -1545,7 +1543,7 @@ for QMPack in QMTests:
             except KeyboardInterrupt:
                 SkipSequence("PBE0/TIP3P energy:", pf_printed)
 
-        if 'pbe0/amoeba' or 'all' in test_opts_lower:
+        if 'pbe0/amoeba' in args.tests or 'all' in args.tests:
             pf_printed = False
             try:
                 pf_printed = QMMMWrapperTest(
@@ -1564,14 +1562,14 @@ for QMPack in QMTests:
             except KeyboardInterrupt:
                 SkipSequence("PBE0/AMOEBA energy:", pf_printed)
 
-        if 'dfp/pseudobonds' or 'all' in test_opts_lower:
+        if 'dfp/pseudobonds' in args.tests or 'all' in args.tests:
             pf_printed = False
             try:
                 # Gaussian and NWChem only
                 pf_printed = QMMMWrapperTest(
                     name="DFP/Pseudobonds", QMMMPack=QMPack,
                     # Copy two files!
-                    copy_command=[CopyRequired(ifile="pol.key",
+                    copy_command=[CopyRequired(ifile="pbopt.key",
                                                ofile="tinker.key"),
                                   CopyRequired(ifile="pbbasis.txt",
                                                ofile="BASIS")],
