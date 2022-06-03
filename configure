@@ -98,6 +98,12 @@ echo '' >> Makefile
 echo '### Install directory ### ' >> Makefile
 echo 'INSTALLBIN='$prefix >> Makefile
 echo '' >> Makefile
+echo '### Version Information ### ' >> Makefile
+# Date in YYYY-MM-DD format
+echo 'MAKEDATE='$(date +"%F") >> Makefile
+# Last git commit
+echo 'COMMIT'=$(git log --pretty=format:'%h' -n 1) >> Makefile
+echo '' >> Makefile
 
 cat ./src/makefile.in >> Makefile
 

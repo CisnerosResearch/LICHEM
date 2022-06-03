@@ -5,7 +5,8 @@
 ### 1. make install        General LICHEM installation
 ### 2. make manual         Compile the LaTeX-based documentation
 ### 3. make tests          Clear pre-existing test output, remake test source
-### 4. make clean          Clear bin and manual
+### 4. make module         Put path, commit, & date info in ./modules/*
+### 5. make clean          Clear bin and manual
 ###
 ### Developer Usage:
 ###     ** These set additional flags in the process! **
@@ -191,6 +192,22 @@ mandel:
 	rm -rf ./src/manual.lof ./src/manual.lot; \
 	rm -rf ./src/doclog.txt ./src/manual.synctex.gz ./src/acs-manual.bib
 
+module:
+	@echo ""; \
+	echo "### Adding path to module templates ###"; \
+	sed $(SEDI) 's:MOD_FIX_VERS_DATE:$(MAKEDATE):g' ./modules/lichem.lua; \
+	sed $(SEDI) 's:MOD_FIX_COMMIT:$(COMMIT):g' ./modules/lichem.lua; \
+	sed $(SEDI) 's:MOD_FIX_PATH:$(INSTALLBIN):g' ./modules/lichem.lua; \
+	sed $(SEDI) 's:MOD_FIX_VERS_DATE:$(MAKEDATE):g' ./modules/lichem.tcl; \
+	sed $(SEDI) 's:MOD_FIX_COMMIT:$(COMMIT):g' ./modules/lichem.tcl; \
+	sed $(SEDI) 's:MOD_FIX_PATH:$(INSTALLBIN):g' ./modules/lichem.tcl; \
+	echo ""; \
+	echo "Remember to add or copy the module to your module path!"; \
+	echo "  Use '.lua' for LMOD modules and '.tcl' for environment modules."; \
+	echo "";\
+	echo "And don't forget to modify the file to load the QM and MM packages!";\
+	echo ""
+
 title:
 	@echo ""; \
 	echo "###################################################"; \
@@ -262,12 +279,22 @@ deltests: vroom
 	rm -rf ./tests/*_TINKER/BurstStruct.xyz; \
 	rm -rf ./tests/*_TINKER/tinker.key; \
 
+# Arbitrarily assign MAKEDATE and COMMIT in Makefile so you see actual
+# updates in commit history.
 gitmk:
 	@echo "";\
 	echo "Preparing the directory for a git commit!"; \
 	sed $(SEDI) 's:$(INSTALLBIN):/tmp/LICHEM1.1/bin:g' ./Makefile; \
+	sed $(SEDI) 's:$(MAKEDATE):2222-22-22:g' ./Makefile; \
+	sed $(SEDI) 's:$(COMMIT):0a1b2c3:g' ./Makefile; \
 	sed $(SEDI) 's/QM_type: g16/QM_type: Gaussian/g' \
 		./tests/Gau_TINKER/*reg.inp; \
+	sed $(SEDI) 's:$(INSTALLBIN):MOD_FIX_PATH:g' ./modules/lichem.lua; \
+	sed $(SEDI) 's:$(MAKEDATE):MOD_FIX_VERS_DATE:g' ./modules/lichem.lua; \
+	sed $(SEDI) 's:$(COMMIT):MOD_FIX_VERS_DATE:g' ./modules/lichem.lua; \
+	sed $(SEDI) 's:$(INSTALLBIN):MOD_FIX_PATH:g' ./modules/lichem.tcl; \
+	sed $(SEDI) 's:$(MAKEDATE):MOD_FIX_VERS_DATE:g' ./modules/lichem.tcl; \
+	sed $(SEDI) 's:$(COMMIT):MOD_FIX_VERS_DATE:g' ./modules/lichem.tcl; \
 	echo ""
 
 # NB: binary MUST be defined last because ./configure appends

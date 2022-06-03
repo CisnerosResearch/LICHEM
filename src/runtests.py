@@ -186,12 +186,12 @@ def get_args():
     wrappers.add_argument("-a", "--all", action='store_true',
                           help=("Auto-run all tests for each available "
                                 "wrapper."))
-    wrappers.add_argument("-q", "--qm", nargs="?", default="all",
+    wrappers.add_argument("-q", "--qm", nargs="+", default="all",
                           type=str.lower,
                           help=("The QM wrapper to test.\n"
                                 f"Options: {QM_wrappers}\n"
                                 "  Note: Gaussian and g09 are equivalent."))
-    wrappers.add_argument("-m", "--mm", nargs="?", default="all",
+    wrappers.add_argument("-m", "--mm", nargs="+", default="all",
                           type=str.lower,
                           help=("The MM wrapper to test.\n"
                                 f"Options: {MM_wrappers}"))
@@ -247,6 +247,7 @@ def LocateProgram(executable):
     except subprocess.CalledProcessError:
         # If g09 fails, try g16
         if executable == 'g09':
+            print("g09 failed I guess...")
             cmd = "which g16"
             try:
                 prog_bin = subprocess.check_output(cmd, shell=True)
@@ -1115,36 +1116,47 @@ if args.tests:
 # Look for LICHEM
 LICHEMbin = LocateLICHEM()
 
+# Set up dictionaries for key = QM wrapper, value = binary location
+qm_pack_dict = {}
+mm_pack_dict = {}
+
 # Identify all available wrappers
 if allTests is True:
     # Identify QM wrappers
     print("Available QM wrappers:")
     # Search for PSI4
     QMbin = LocateProgram(executable='psi4')
-    print(f" PSI4: {QMbin}")
+    # print(f" PSI4: {QMbin}")
+    qm_pack_dict["PSI4"] = QMbin
     # Search for Gaussian
     QMbin = LocateProgram(executable='g09')
-    print(f" Gaussian09: {QMbin}")
+    # print(f" Gaussian09: {QMbin}")
+    qm_pack_dict["Gaussian09"] = QMbin
     # Check if both g09 and g16 co-exist
     if useg16 is False:
         QMbin = LocateProgram(executable='g16')
         if QMbin != "N/A":
             useg16 = True
-        print(f" Gaussian16: {QMbin}")
+        # print(f" Gaussian16: {QMbin}")
+        qm_pack_dict["Gaussian16"] = QMbin
     # Search for NWChem
     QMbin = LocateProgram(executable='nwchem')
-    print(f" NWChem: {QMbin}")
+    # print(f" NWChem: {QMbin}")
+    qm_pack_dict["NWChem"] = QMbin
     # Identify MM wrappers
     print("\nAvailable MM wrappers:")
     # Search for TINKER
     MMbin = LocateProgram(executable='analyze')
-    print(f" TINKER: {MMbin}")
+    # print(f" TINKER: {MMbin}")
+    mm_pack_dict["TINKER"] = MMbin
     # Search for TINKER9
     MMbin = LocateProgram(executable='tinker9')
-    print(f" TINKER9: {MMbin}")
+    # print(f" TINKER9: {MMbin}")
+    mm_pack_dict["TINKER9"] = MMbin
     # Search for LAMMPS
     MMbin = LocateProgram(executable='lammps')
-    print(f" LAMMPS: {MMbin}")
+    # print(f" LAMMPS: {MMbin}")
+    mm_pack_dict["LAMMPS"] = MMbin
 # Search for requested wrappers
 else:
     badQM = True
@@ -1154,18 +1166,21 @@ else:
         QMbin = LocateProgram(executable='psi4')
         if QMbin != "N/A":
             badQM = False
+            qm_pack_dict[QMPack] = QMbin
     # Search for Gaussian
     if "g09" in qm_test_packs:
         QMPack = "Gaussian09"
         QMbin = LocateProgram(executable='g09')
         if QMbin != "N/A":
             badQM = False
+            qm_pack_dict[QMPack] = QMbin
     if "g16" in qm_test_packs:
         QMPack = "Gaussian16"
         QMbin = LocateProgram(executable='g16')
         if QMbin != "N/A":
             useg16 = True
             badQM = False
+            qm_pack_dict[QMPack] = QMbin
     if useg16 is True:
         QMPack = "Gaussian16"
     if "nwchem" in qm_test_packs:
@@ -1173,6 +1188,7 @@ else:
         QMbin = LocateProgram(executable='nwchem')
         if QMbin != "N/A":
             badQM = False
+            qm_pack_dict[QMPack] = QMbin
     if badQM is True:
         # Quit with an error
         print("\nError: No QM executables located for any of the\n"
@@ -1185,35 +1201,135 @@ else:
         MMbin = LocateProgram(executable='analyze')
         if MMbin != "N/A":
             badMM = False
+            mm_pack_dict[MMPack] = MMbin
     # Search for TINKER9
     if "tinker9" in mm_test_packs:
         MMPack = "TINKER9"
         MMbin = LocateProgram(executable='tinker9')
         if MMbin != "N/A":
             badMM = False
+            mm_pack_dict[MMPack] = MMbin
     # Search for LAMMPS
     if "lammps" in mm_test_packs:
         MMPack = "LAMMPS"
         MMbin = LocateProgram(executable='lammps')
         if MMbin != "N/A":
             badMM = False
+            mm_pack_dict[MMPack] = MMbin
     if badMM is True:
         # Quit with error
         print("\nError: No MM executables located for any of the"
               f" following: {mm_test_packs}.\n")
         exit(0)
 
+# # Identify all available wrappers
+# if allTests is True:
+#     # Identify QM wrappers
+#     print("Available QM wrappers:")
+#     # Search for PSI4
+#     QMbin = LocateProgram(executable='psi4')
+#     print(f" PSI4: {QMbin}")
+#     # Search for Gaussian
+#     QMbin = LocateProgram(executable='g09')
+#     print(f" Gaussian09: {QMbin}")
+#     # Check if both g09 and g16 co-exist
+#     if useg16 is False:
+#         QMbin = LocateProgram(executable='g16')
+#         if QMbin != "N/A":
+#             useg16 = True
+#         print(f" Gaussian16: {QMbin}")
+#     # Search for NWChem
+#     QMbin = LocateProgram(executable='nwchem')
+#     print(f" NWChem: {QMbin}")
+#     # Identify MM wrappers
+#     print("\nAvailable MM wrappers:")
+#     # Search for TINKER
+#     MMbin = LocateProgram(executable='analyze')
+#     print(f" TINKER: {MMbin}")
+#     # Search for TINKER9
+#     MMbin = LocateProgram(executable='tinker9')
+#     print(f" TINKER9: {MMbin}")
+#     # Search for LAMMPS
+#     MMbin = LocateProgram(executable='lammps')
+#     print(f" LAMMPS: {MMbin}")
+# # Search for requested wrappers
+# else:
+#     badQM = True
+#     # Ask if wrapper is in since it's part of a set!
+#     if "psi4" in qm_test_packs:
+#         QMPack = "PSI4"
+#         QMbin = LocateProgram(executable='psi4')
+#         if QMbin != "N/A":
+#             badQM = False
+#     # Search for Gaussian
+#     if "g09" in qm_test_packs:
+#         QMPack = "Gaussian09"
+#         QMbin = LocateProgram(executable='g09')
+#         if QMbin != "N/A":
+#             badQM = False
+#     if "g16" in qm_test_packs:
+#         QMPack = "Gaussian16"
+#         QMbin = LocateProgram(executable='g16')
+#         if QMbin != "N/A":
+#             useg16 = True
+#             badQM = False
+#     if useg16 is True:
+#         QMPack = "Gaussian16"
+#     if "nwchem" in qm_test_packs:
+#         QMPack = "NWChem"
+#         QMbin = LocateProgram(executable='nwchem')
+#         if QMbin != "N/A":
+#             badQM = False
+#     if badQM is True:
+#         # Quit with an error
+#         print("\nError: No QM executables located for any of the\n"
+#               f" following: {qm_test_packs}.\n")
+#         exit(0)
+#     # Check for MM
+#     badMM = True
+#     if "tinker" in mm_test_packs:
+#         MMPack = "TINKER"
+#         MMbin = LocateProgram(executable='analyze')
+#         if MMbin != "N/A":
+#             badMM = False
+#     # Search for TINKER9
+#     if "tinker9" in mm_test_packs:
+#         MMPack = "TINKER9"
+#         MMbin = LocateProgram(executable='tinker9')
+#         if MMbin != "N/A":
+#             badMM = False
+#     # Search for LAMMPS
+#     if "lammps" in mm_test_packs:
+#         MMPack = "LAMMPS"
+#         MMbin = LocateProgram(executable='lammps')
+#         if MMbin != "N/A":
+#             badMM = False
+#     if badMM is True:
+#         # Quit with error
+#         print("\nError: No MM executables located for any of the"
+#               f" following: {mm_test_packs}.\n")
+#         exit(0)
+
 # Print test settings
 print(
     "Settings:\n"
     f" Threads: {Ncpus}")
 if allTests is False:
-    print(
-        f" LICHEM binary: {LICHEMbin}\n"
-        f" QM package: {QMPack}\n"
-        f" Binary: {QMbin}\n"
-        f" MM package: {MMPack}\n"
-        f" Binary: {MMbin}\n")
+    print(f" LICHEM binary: {LICHEMbin}")
+    for qm_key,qm_value in qm_pack_dict.items():
+        print(
+            f" QM package: {qm_key}\n"
+            f" Binary: {qm_value}")
+    for mm_key,mm_value in mm_pack_dict.items():
+        print(
+            f" MM package: {mm_key}\n"
+            f" Binary: {mm_value}\n")
+    # print(
+    #     f" LICHEM binary: {LICHEMbin}\n"
+    #     f" QM package: {QMPack}\n"
+    #     f" Binary: {QMbin}\n"
+    #     f" MM package: {MMPack}\n"
+    #     f" Binary: {MMbin}\n")
 else:
     if forceAll is True:
         print(" Mode: Development")
