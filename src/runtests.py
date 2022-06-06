@@ -245,6 +245,7 @@ def LocateProgram(executable):
         saved_bin = prog_bin.decode('utf-8').strip()  # Uncolored
         prog_bin = ClrSet.TPass+prog_bin.decode('utf-8').strip()+ClrSet.Reset
     except subprocess.CalledProcessError:
+        # print("\n")  # Print newline after "which" failure
         # If g09 fails, try g16
         if executable == 'g09':
             print("g09 failed I guess...")
@@ -281,6 +282,7 @@ def PrepRegions(keyword, d_val, u_val, file):
     # file : str
     #     The name of the file to operate on.
     # """
+    global revertMode
     # Account for difference in sed in-line between OSX and Linux
     # ex: sed -i '' '/^QM_type/s/Gaussian/g16'
     if platform.system() == "Darwin":
@@ -300,6 +302,12 @@ def PrepRegions(keyword, d_val, u_val, file):
               "   manually.\n"
               f"This is because the program name calls '{d_val}'.\n"
               "These tests will likely fail!")
+    if debugMode is True and revertMode is False:
+        print("Modifying the regions files for this wrapper combination...")
+        print("\n{' ':6}- {cmd}\n")
+    elif debugMode is True and revertMode is True:
+        print("Reverting the regions files for this wrapper combination...")
+        print("\n{' ':6}- {cmd}\n")
     return
 
 
@@ -1040,6 +1048,8 @@ else:
             qm_test_packs.add("g09")
         elif 'g09' in args.qm:
             qm_test_packs.add("g09")
+        if 'gaussian16' in args.qm:
+            qm_test_packs.add("g16")
         elif 'g16' in args.qm:
             qm_test_packs.add("g16")
         # Check for NWChem
@@ -1123,40 +1133,40 @@ mm_pack_dict = {}
 # Identify all available wrappers
 if allTests is True:
     # Identify QM wrappers
-    print("Available QM wrappers:")
+    print("Checking available QM wrappers:")
     # Search for PSI4
     QMbin = LocateProgram(executable='psi4')
-    # print(f" PSI4: {QMbin}")
     qm_pack_dict["PSI4"] = QMbin
+    print(f" PSI4: {QMbin}")
     # Search for Gaussian
     QMbin = LocateProgram(executable='g09')
-    # print(f" Gaussian09: {QMbin}")
     qm_pack_dict["Gaussian09"] = QMbin
+    print(f" Gaussian09: {QMbin}")
     # Check if both g09 and g16 co-exist
     if useg16 is False:
         QMbin = LocateProgram(executable='g16')
         if QMbin != "N/A":
             useg16 = True
-        # print(f" Gaussian16: {QMbin}")
         qm_pack_dict["Gaussian16"] = QMbin
+        print(f" Gaussian16: {QMbin}")
     # Search for NWChem
     QMbin = LocateProgram(executable='nwchem')
-    # print(f" NWChem: {QMbin}")
     qm_pack_dict["NWChem"] = QMbin
+    print(f" NWChem: {QMbin}")
     # Identify MM wrappers
-    print("\nAvailable MM wrappers:")
+    print("\nChecking available MM wrappers:")
     # Search for TINKER
     MMbin = LocateProgram(executable='analyze')
-    # print(f" TINKER: {MMbin}")
     mm_pack_dict["TINKER"] = MMbin
+    print(f" TINKER: {MMbin}")
     # Search for TINKER9
     MMbin = LocateProgram(executable='tinker9')
-    # print(f" TINKER9: {MMbin}")
     mm_pack_dict["TINKER9"] = MMbin
+    print(f" TINKER9: {MMbin}")
     # Search for LAMMPS
     MMbin = LocateProgram(executable='lammps')
-    # print(f" LAMMPS: {MMbin}")
     mm_pack_dict["LAMMPS"] = MMbin
+    print(f" LAMMPS: {MMbin}\n")
 # Search for requested wrappers
 else:
     badQM = True
@@ -1222,115 +1232,99 @@ else:
               f" following: {mm_test_packs}.\n")
         exit(0)
 
-# # Identify all available wrappers
-# if allTests is True:
-#     # Identify QM wrappers
-#     print("Available QM wrappers:")
-#     # Search for PSI4
-#     QMbin = LocateProgram(executable='psi4')
-#     print(f" PSI4: {QMbin}")
-#     # Search for Gaussian
-#     QMbin = LocateProgram(executable='g09')
-#     print(f" Gaussian09: {QMbin}")
-#     # Check if both g09 and g16 co-exist
-#     if useg16 is False:
-#         QMbin = LocateProgram(executable='g16')
-#         if QMbin != "N/A":
-#             useg16 = True
-#         print(f" Gaussian16: {QMbin}")
-#     # Search for NWChem
-#     QMbin = LocateProgram(executable='nwchem')
-#     print(f" NWChem: {QMbin}")
-#     # Identify MM wrappers
-#     print("\nAvailable MM wrappers:")
-#     # Search for TINKER
-#     MMbin = LocateProgram(executable='analyze')
-#     print(f" TINKER: {MMbin}")
-#     # Search for TINKER9
-#     MMbin = LocateProgram(executable='tinker9')
-#     print(f" TINKER9: {MMbin}")
-#     # Search for LAMMPS
-#     MMbin = LocateProgram(executable='lammps')
-#     print(f" LAMMPS: {MMbin}")
-# # Search for requested wrappers
-# else:
-#     badQM = True
-#     # Ask if wrapper is in since it's part of a set!
-#     if "psi4" in qm_test_packs:
-#         QMPack = "PSI4"
-#         QMbin = LocateProgram(executable='psi4')
-#         if QMbin != "N/A":
-#             badQM = False
-#     # Search for Gaussian
-#     if "g09" in qm_test_packs:
-#         QMPack = "Gaussian09"
-#         QMbin = LocateProgram(executable='g09')
-#         if QMbin != "N/A":
-#             badQM = False
-#     if "g16" in qm_test_packs:
-#         QMPack = "Gaussian16"
-#         QMbin = LocateProgram(executable='g16')
-#         if QMbin != "N/A":
-#             useg16 = True
-#             badQM = False
-#     if useg16 is True:
-#         QMPack = "Gaussian16"
-#     if "nwchem" in qm_test_packs:
-#         QMPack = "NWChem"
-#         QMbin = LocateProgram(executable='nwchem')
-#         if QMbin != "N/A":
-#             badQM = False
-#     if badQM is True:
-#         # Quit with an error
-#         print("\nError: No QM executables located for any of the\n"
-#               f" following: {qm_test_packs}.\n")
-#         exit(0)
-#     # Check for MM
-#     badMM = True
-#     if "tinker" in mm_test_packs:
-#         MMPack = "TINKER"
-#         MMbin = LocateProgram(executable='analyze')
-#         if MMbin != "N/A":
-#             badMM = False
-#     # Search for TINKER9
-#     if "tinker9" in mm_test_packs:
-#         MMPack = "TINKER9"
-#         MMbin = LocateProgram(executable='tinker9')
-#         if MMbin != "N/A":
-#             badMM = False
-#     # Search for LAMMPS
-#     if "lammps" in mm_test_packs:
-#         MMPack = "LAMMPS"
-#         MMbin = LocateProgram(executable='lammps')
-#         if MMbin != "N/A":
-#             badMM = False
-#     if badMM is True:
-#         # Quit with error
-#         print("\nError: No MM executables located for any of the"
-#               f" following: {mm_test_packs}.\n")
-#         exit(0)
+if forceAll is False:
+    # Remove N/A values from QM_Packs
+    qm_del_list = [key for key, value in qm_pack_dict.items()
+                   if value == ClrSet.TFail+"N/A"+ClrSet.Reset]
+    for x in qm_del_list:
+        del qm_pack_dict[x]
+
+    # Remove N/A values from MM_Packs
+    mm_del_list = [key for key, value in mm_pack_dict.items()
+                   if value == ClrSet.TFail+"N/A"+ClrSet.Reset]
+    for x in mm_del_list:
+        del mm_pack_dict[x]
+
+# Create lists from the keys of tests to run
+QMTests = list(qm_pack_dict.keys())
+MMTests = list(mm_pack_dict.keys())
+
+# Find total number of packages to test
+total_valid_qm = len(QMTests)
+total_valid_mm = len(MMTests)
 
 # Print test settings
 print(
     "Settings:\n"
-    f" Threads: {Ncpus}")
-if allTests is False:
-    print(f" LICHEM binary: {LICHEMbin}")
-    for qm_key,qm_value in qm_pack_dict.items():
+    f" CPUs: {Ncpus}")
+# LICHEM binary information
+print(f" LICHEM binary: {LICHEMbin}")
+# QM wrapper binary information
+# Loop through dictionary and start counter at 1
+for i, (qm_key, qm_value) in enumerate(qm_pack_dict.items(), 1):
+    if total_valid_qm > 1:
+        print(
+            f" QM package {i}: {qm_key}\n"
+            f"  Binary: {qm_value}")
+    else:
         print(
             f" QM package: {qm_key}\n"
-            f" Binary: {qm_value}")
-    for mm_key,mm_value in mm_pack_dict.items():
+            f"  Binary: {qm_value}")
+# MM wrapper binary information
+for i, (mm_key, mm_value) in enumerate(mm_pack_dict.items(), 1):
+    if total_valid_mm > 1:
+        print(
+            f" MM package {i}: {mm_key}\n"
+            f"  Binary: {mm_value}\n")
+    else:
         print(
             f" MM package: {mm_key}\n"
-            f" Binary: {mm_value}\n")
-    # print(
-    #     f" LICHEM binary: {LICHEMbin}\n"
-    #     f" QM package: {QMPack}\n"
-    #     f" Binary: {QMbin}\n"
-    #     f" MM package: {MMPack}\n"
-    #     f" Binary: {MMbin}\n")
-else:
+            f"  Binary: {mm_value}\n")
+
+# # Print test settings
+# print(
+#     "Settings:\n"
+#     f" CPUs: {Ncpus}")
+# # LICHEM binary information
+# print(f" LICHEM binary: {LICHEMbin}")
+# # QM wrapper binary information
+# # num_valid = Total number of QM packages with binaries not set to "N/A"
+# num_valid = sum(1 for x in qm_pack_dict.values()
+#                 if x != ClrSet.TFail+"N/A"+ClrSet.Reset)
+# # j = Counter for number of N/As skipped
+# j = 0
+# # Loop through dictionary and start counter at 1
+# for i, (qm_key, qm_value) in enumerate(qm_pack_dict.items(), 1):
+#     if qm_value == ClrSet.TFail+"N/A"+ClrSet.Reset:
+#         j += 1  # Update N/A counter
+#         continue  # Exit the for loop for N/A
+#     elif num_valid > 1:
+#         print(
+#             f" QM package {i-j}: {qm_key}\n"
+#             f"  Binary: {qm_value}")
+#     else:
+#         print(
+#             f" QM package: {qm_key}\n"
+#             f"  Binary: {qm_value}")
+# # MM wrapper binary information
+# num_valid = sum(1 for x in mm_pack_dict.values()
+#                 if x != ClrSet.TFail+"N/A"+ClrSet.Reset)
+# j = 0
+# for i, (mm_key, mm_value) in enumerate(mm_pack_dict.items(), 1):
+#     if mm_value == ClrSet.TFail+"N/A"+ClrSet.Reset:
+#         j += 1
+#         continue
+#     elif num_valid > 1:
+#         print(
+#             f" MM package {i-j}: {mm_key}\n"
+#             f"  Binary: {mm_value}\n")
+#     else:
+#         print(
+#             f" MM package: {mm_key}\n"
+#             f"  Binary: {mm_value}\n")
+
+# Mode information
+if allTests is True:
     if forceAll is True:
         print(" Mode: Development")
     else:
@@ -1354,72 +1348,72 @@ print(
     "***************************************************\n\n"
     "Running LICHEM tests...\n")
 
-# TODO: FIXME
-# Make a list of tests
-QMTests = []
-MMTests = []
-if allTests is True:
-    # Safely add PSI4
-    cmd = "which psi4"
-    try:
-        # Run PSI4 tests
-        packBin = subprocess.check_output(cmd, shell=True)
-        QMTests.append("PSI4")
-    except subprocess.CalledProcessError:
-        # Skip tests that will fail
-        if forceAll is True:
-            QMTests.append("PSI4")
-    # Safely add Gaussian
-    cmd = "which g09"
-    try:
-        # Run Gaussian tests
-        packBin = subprocess.check_output(cmd, shell=True)
-        QMTests.append("Gaussian09")
-    except subprocess.CalledProcessError:
-        cmd = "which g16"
-        try:
-            packBin = subprocess.check_output(cmd, shell=True)
-            QMTests.append("g16")
-        except subprocess.CalledProcessError:
-            # Skip tests that will fail
-            if forceAll is True:
-                # QMTests.append("Gaussian")
-                # Instead try g16 if no other Gaussian found
-                QMTests.append("g16")
-    # Safely add NWChem
-    cmd = "which nwchem"
-    try:
-        # Run NWChem tests
-        packBin = subprocess.check_output(cmd, shell=True)
-        QMTests.append("NWChem")
-    except subprocess.CalledProcessError:
-        # Skip tests that will fail
-        if forceAll is True:
-            QMTests.append("NWChem")
-    # Safely add TINKER
-    cmd = "which analyze"
-    try:
-        # Run TINKER tests
-        packBin = subprocess.check_output(cmd, shell=True)
-        MMTests.append("TINKER")
-    except subprocess.CalledProcessError:
-        # Skip tests that will fail
-        if forceAll is True:
-            MMTests.append("TINKER")
-    # Safely add lammps
-    cmd = "which lammps"
-    try:
-        # Run LAMMPS tests
-        packBin = subprocess.check_output(cmd, shell=True)
-        MMTests.append("LAMMPS")
-    except subprocess.CalledProcessError:
-        # Skip tests that will fail
-        if forceAll is True:
-            MMTests.append("LAMMPS")
-else:
-    # Add only the specified packages
-    QMTests.append(QMPack)
-    MMTests.append(MMPack)
+# # TODO: FIXME
+# # Make a list of tests
+# QMTests = []
+# MMTests = []
+# if allTests is True:
+#     # Safely add PSI4
+#     cmd = "which psi4"
+#     try:
+#         # Run PSI4 tests
+#         packBin = subprocess.check_output(cmd, shell=True)
+#         QMTests.append("PSI4")
+#     except subprocess.CalledProcessError:
+#         # Skip tests that will fail
+#         if forceAll is True:
+#             QMTests.append("PSI4")
+#     # Safely add Gaussian
+#     cmd = "which g09"
+#     try:
+#         # Run Gaussian tests
+#         packBin = subprocess.check_output(cmd, shell=True)
+#         QMTests.append("Gaussian09")
+#     except subprocess.CalledProcessError:
+#         cmd = "which g16"
+#         try:
+#             packBin = subprocess.check_output(cmd, shell=True)
+#             QMTests.append("g16")
+#         except subprocess.CalledProcessError:
+#             # Skip tests that will fail
+#             if forceAll is True:
+#                 # QMTests.append("Gaussian")
+#                 # Instead try g16 if no other Gaussian found
+#                 QMTests.append("g16")
+#     # Safely add NWChem
+#     cmd = "which nwchem"
+#     try:
+#         # Run NWChem tests
+#         packBin = subprocess.check_output(cmd, shell=True)
+#         QMTests.append("NWChem")
+#     except subprocess.CalledProcessError:
+#         # Skip tests that will fail
+#         if forceAll is True:
+#             QMTests.append("NWChem")
+#     # Safely add TINKER
+#     cmd = "which analyze"
+#     try:
+#         # Run TINKER tests
+#         packBin = subprocess.check_output(cmd, shell=True)
+#         MMTests.append("TINKER")
+#     except subprocess.CalledProcessError:
+#         # Skip tests that will fail
+#         if forceAll is True:
+#             MMTests.append("TINKER")
+#     # Safely add lammps
+#     cmd = "which lammps"
+#     try:
+#         # Run LAMMPS tests
+#         packBin = subprocess.check_output(cmd, shell=True)
+#         MMTests.append("LAMMPS")
+#     except subprocess.CalledProcessError:
+#         # Skip tests that will fail
+#         if forceAll is True:
+#             MMTests.append("LAMMPS")
+# else:
+#     # Add only the specified packages
+#     QMTests = list(qm_pack_dict.keys())
+#     MMTests = list(mm_pack_dict.keys())
 
 # NB: Tests are in the following order:
 #     1) HF energy
@@ -1462,6 +1456,7 @@ for QMPack in QMTests:
 
         # Fix the regions files (if the specific one exits) to match program
         #  version requested
+        revertMode = False
         for filename in regions_files:
             # Check that the file exists for sed
             if os.path.isfile("./"+filename):
@@ -1701,17 +1696,17 @@ for QMPack in QMTests:
             except KeyboardInterrupt:
                 SkipSequence("DFP/Pseudobonds:", pf_printed)
 
-        # Revert the regions files, but only if you're not debugging!
-        if debugMode is False:
-            for filename in regions_files:
-                # Check that the file exists for sed
-                if os.path.isfile("./"+filename):
-                    # Gaussian
-                    if QMPack in ("Gaussian16", "g16"):
-                        PrepRegions("QM_type", "g16", "Gaussian", filename)
-                    # Tinker version
-                    if MMPack == "TINKER9":
-                        PrepRegions("MM_type", "TINKER9", "TINKER", filename)
+        # Revert the regions files
+        revertMode = True
+        for filename in regions_files:
+            # Check that the file exists for sed
+            if os.path.isfile("./"+filename):
+                # Gaussian
+                if QMPack in ("Gaussian16", "g16"):
+                    PrepRegions("QM_type", "g16", "Gaussian", filename)
+                # Tinker version
+                if MMPack == "TINKER9":
+                    PrepRegions("MM_type", "TINKER9", "TINKER", filename)
 
         # Print blank line and change directory
         print()
