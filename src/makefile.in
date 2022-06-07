@@ -12,11 +12,10 @@
 ###     ** These set additional flags in the process! **
 ### 1. make Dev            CPU-based LICHEM installation
 ### 2. make GPUDev         GPU-based LICHEM installation
-### 3. make Devtests       Clear pre-existing test output, set flags, remake
-### 4. make checksyntax    Check for syntax errors, print stats
-### 5. make mantest        Only compile the manual
-### 6. make mandel         Only remove the manual
-### 7. make gitclean       Clear bin, tests, & manual, generalize INSTALLBIN
+### 3. make checksyntax    Check for syntax errors, print stats
+### 4. make mantest        Only compile the manual
+### 5. make mandel         Only remove the manual
+### 6. make gitclean       Clear bin, tests, & manual, generalize INSTALLBIN
 ###
 ###############################################################################
 
@@ -61,11 +60,9 @@ GPUFLAGS=-fopenacc
 
 install:	title binary testexe compdone
 
-Dev:	title devbin devtestexe manual stats compdone
+Dev:	title devbin testexe manual stats compdone
 
-GPUDev:	title gpubin devtestexe manual stats compdone
-
-Devtests:	title deltests devtestexe
+GPUDev:	title gpubin testexe manual stats compdone
 
 tests:	title deltests testexe
 
@@ -110,23 +107,6 @@ testexe:
 	sed $(SEDI) 's/\s*$$//g' ./tests/runtests; \
 	sed $(SEDI) '/^$$/d' ./tests/runtests; \
 	sed $(SEDI) 's/\!\!/\#\!/g' ./tests/runtests; \
-	chmod a+x ./tests/runtests
-	@echo ""
-
-devtestexe:
-	@echo ""; \
-	echo "### Creating development test suite executable ###"
-	@echo 'echo "#!$(PYPATH)" > ./tests/runtests'; \
-	echo "!!$(PYPATH)" > ./tests/runtests
-	cat ./src/runtests.py >> ./tests/runtests
-	@sed $(SEDI) 's/\#.*//g' ./tests/runtests; \
-	sed $(SEDI) 's/\s*$$//g' ./tests/runtests; \
-	sed $(SEDI) '/^$$/d' ./tests/runtests; \
-	sed $(SEDI) 's/\!\!/\#\!/g' ./tests/runtests; \
-	sed $(SEDI) 's/updateResults = False/updateResults = True/g' \
-		./tests/runtests; \
-	sed $(SEDI) 's/forceAll = False/forceAll = True/g' ./tests/runtests; \
-	sed $(SEDI) 's/debugMode = False/debugMode = True/g' ./tests/runtests; \
 	chmod a+x ./tests/runtests
 	@echo ""
 

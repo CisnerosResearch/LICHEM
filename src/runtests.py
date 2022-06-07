@@ -8,15 +8,27 @@
 
 # LICHEM semi-automated test suite
 
-###
-# usage: ./runtests [-h] [-v] [-n [NCPUS]] [-d] [-t TESTS [TESTS ...]] [-a]
-#                   [-q [QM]] [-m [MM]]
+# Include ./runtests -h from <76 character line-width terminal as a
+#  commented docstring here:
+# """
+# ***************************************************
+# *                                                 *
+# *   LICHEM: Layered Interacting CHEmical Models   *
+# *                                                 *
+# *        Symbiotic Computational Chemistry        *
+# *                                                 *
+# ***************************************************
+#
+# usage: ./runtests [-h] [-v] [-V] [-n [NCPUS]] [-M [MEM]] [-U [MEM_UNITS]]
+#                   [-d] [-t TESTS [TESTS ...]] [-a] [-q QM [QM ...]]
+#                   [-m MM [MM ...]]
 #
 # Run the LICHEM test suite.
 #
 # optional arguments:
 #   -h, --help            show this help message and exit
-#   -v, --verbose         Use developer options and print debugging
+#   -v, --verbose         Print debugging information (default: False)
+#   -V, --dev             Use developer options and print debugging
 #                         information (default: False)
 #
 # Job Settings (optional):
@@ -24,12 +36,16 @@
 #
 #   -n [NCPUS], --ncpus [NCPUS]
 #                         Number of CPUs (default: 1)
+#   -M [MEM], --mem [MEM]
+#                         Memory for QM jobs (default: 256)
+#   -U [MEM_UNITS], --mem-units [MEM_UNITS]
+#                         Memory units for QM jobs (default: MB)
 #   -d, --dry             Perform a dry run of all tests (default: False)
 #   -t TESTS [TESTS ...], --tests TESTS [TESTS ...]
 #                         Explicit tests to run. Options: ['HF', 'PBE0',
 #                         'CCSD', 'PM6', 'Frequencies', 'NEB_TS', 'QSM_TS',
-#                         'TIP3P', 'AMOEBA/GK', 'PBE0/TIP3P', 'PBE0/AMOEBA',
-#                         'DFP/Pseudobonds'] (default: all)
+#                         'TIP3P', 'AMOEBA/GK', 'PBE0/TIP3P',
+#                         'PBE0/AMOEBA', 'DFP/Pseudobonds'] (default: all)
 #
 # Wrappers (optional):
 #   Specify QM and MM Wrappers for tests. Use (-a|--all) to search for
@@ -39,16 +55,21 @@
 #
 #   -a, --all             Auto-run all tests for each available wrapper.
 #                         (default: False)
-#   -q [QM], --qm [QM]    The QM wrapper to test. Options: ['gaussian',
-#                         'g09', 'g16', 'nwchem', 'psi4'] Note: Gaussian and
-#                         g09 are equivalent. (default: all)
-#   -m [MM], --mm [MM]    The MM wrapper to test. Options: ['tinker',
+#   -q QM [QM ...], --qm QM [QM ...]
+#                         The QM wrapper to test. Options: ['gaussian',
+#                         'g09', 'g16', 'nwchem', 'psi4'] Note: Gaussian
+#                         and g09 are equivalent. Loading modules for both
+#                         g09 and g16 is not recommended, as the
+#                         GAUSS_EXEDIR environment variable will likely
+#                         have been overwritten! (default: all)
+#   -m MM [MM ...], --mm MM [MM ...]
+#                         The MM wrapper to test. Options: ['tinker',
 #                         'tinker9', 'lammps'] (default: all)
-###
+# """
 
 # TODO:
-# - Rework the if/if process for QM/MM engines tests (shorten code)
 # - Figure out where QSM TS tinker.key copy attempt is...
+# - Identify what excepts the blanks (except: ) should throw
 
 # DevNote:
 # > The comments are removed to make this an executable. Docstrings will be
@@ -56,6 +77,7 @@
 #    require docstrings. For the best of both worlds, write function
 #    info in the Numpy docstring style, and then comment each line out
 #    with '# '.
+# > Check that this script meets PEP8 standard with `pycodestyle runtests.py`
 
 """
 NOTE: See ../src/runtests.py for commented code!
@@ -87,17 +109,15 @@ failCt = 0    # Number of tests failed
 skipCt = 0    # Number of tests skipped
 testCt = 0    # Current test number
 
-# Development settings -- can be forced to True with `-v` option!
-# NB: Modified by the Makefile (make devtestexe)
+# Verbosity and Development settings
+#  -v|--verbose: sets updateResults and debugMode to True
+#  -V|--dev: sets updateResults, debugMode, and forceAll to True
 updateResults = False  # Bool to print energies to update tests
-forceAll = False       # Bool to force it to do tests even if they will fail
 debugMode = False      # Bool to print LICHEM command used if test fails
+forceAll = False       # Bool to force it to do tests even if they will fail
 
 # Note: All round statements expect eV!
 har2eV = 27.21138505  # Convert eV to au/Hartree
-
-# Assume g09 by default
-useg16 = False
 
 # List of regions files needing to be updated with program versions
 regions_files = ["ccsdreg.inp", "freqreg.inp", "hfreg.inp", "mmreg.inp",
@@ -112,7 +132,6 @@ MM_wrappers = ['tinker', 'tinker9', 'lammps']
 test_opts = ["HF", "PBE0", "CCSD", "PM6", "Frequencies", "NEB_TS", "QSM_TS",
              "TIP3P", "AMOEBA/GK", "PBE0/TIP3P", "PBE0/AMOEBA",
              "DFP/Pseudobonds"]
-
 
 # ---------------------- #
 # --- Define Classes --- #
@@ -159,6 +178,8 @@ def get_args():
                     # Print the default values
                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-v", "--verbose", action='store_true',
+                        help=("Print debugging information"))
+    parser.add_argument("-V", "--dev", action='store_true',
                         help=("Use developer options and print debugging "
                               "information"))
     job = parser.add_argument_group(
@@ -167,6 +188,12 @@ def get_args():
     # nargs = ? saves only 1 value
     job.add_argument("-n", "--ncpus", nargs='?', default=1, type=int,
                      help="Number of CPUs")
+    # Assume 256 MB of memory by default
+    job.add_argument("-M", "--mem", nargs='?', default=256, type=int,
+                     help="Memory for QM jobs")
+    job.add_argument("-U", "--mem-units", nargs='?', default="MB",
+                     type=str.upper,
+                     help="Memory units for QM jobs")
     # store_true will only set to True if argument given!
     job.add_argument("-d", "--dry", action='store_true',
                      help="Perform a dry run of all tests")
@@ -190,7 +217,11 @@ def get_args():
                           type=str.lower,
                           help=("The QM wrapper to test.\n"
                                 f"Options: {QM_wrappers}\n"
-                                "  Note: Gaussian and g09 are equivalent."))
+                                "  Note: Gaussian and g09 are equivalent.\n"
+                                "  Loading modules for both g09 and g16 is \n"
+                                "  not recommended, as the GAUSS_EXEDIR \n"
+                                "  environment variable will likely have \n"
+                                "  been overwritten!"))
     wrappers.add_argument("-m", "--mm", nargs="+", default="all",
                           type=str.lower,
                           help=("The MM wrapper to test.\n"
@@ -237,7 +268,6 @@ def LocateProgram(executable):
     #     The path to the program binary.
     # """
     global allTests
-    global useg16
     cmd = "which {}".format(executable)
     # Find the binary and save the colored and uncolored output
     try:
@@ -248,14 +278,13 @@ def LocateProgram(executable):
         # print("\n")  # Print newline after "which" failure
         # If g09 fails, try g16
         if executable == 'g09':
-            print("g09 failed I guess...")
+            print("Search for g09 failed, looking for g16")
             cmd = "which g16"
             try:
                 prog_bin = subprocess.check_output(cmd, shell=True)
                 saved_bin = prog_bin.decode('utf-8').strip()  # Uncolored
                 prog_bin = (ClrSet.TPass+prog_bin.decode('utf-8').strip() +
                             ClrSet.Reset)
-                useg16 = True  # Use Gaussian 16 for tests
             except subprocess.CalledProcessError:
                 prog_bin = ClrSet.TFail+"N/A"+ClrSet.Reset
                 saved_bin = "N/A"
@@ -265,6 +294,59 @@ def LocateProgram(executable):
     if allTests is True:
         saved_bin = prog_bin  # Use colored version
     return saved_bin
+
+
+def CheckGaussian(qm_pack_dict):
+    """
+    Check that either g09 or g16 are valid executables.
+
+    Parameters
+    ----------
+    qm_pack_dict : dict
+        Dictionary with keys of QM packages and values of their binaries.
+
+    Returns
+    -------
+    qm_pack_dict : dict
+        Dictionary without errant Gaussian values.
+    """
+    gau_exe = os.getenv('GAUSS_EXEDIR')
+    # Initialize removal bools
+    remove_g09 = False
+    remove_g16 = False
+    # If exedir has no value
+    if gau_exe is None:
+        remove_g09 = True
+        remove_g16 = True
+    # Case for both g09 and g16 requested
+    elif "Gaussian09" in qm_pack_dict and "Gaussian16" in qm_pack_dict:
+        if gau_exe[-3:] == "g09":
+            remove_g16 = True  # Remove g16 and use g09
+        elif gau_exe[-3:] == "g16":
+            remove_g09 = True  # Remove g09 and use g16
+    # Check if last 3 of exedir do not match requested version
+    #  If they don't, remove, since something went haywire
+    elif "Gaussian09" in qm_pack_dict:
+        if gau_exe[-3:] == "g16":
+            remove_g09 = True
+    elif "Gaussian16" in qm_pack_dict:
+        if gau_exe[-3:] == "g09":
+            remove_g16 = True
+    # Warn users that Gaussian is being removed
+    if remove_g09 is True:
+        print("WARNING: Gaussian09 is not set up properly.\n"
+              " Removing from tests and continuing.\n")
+        del qm_pack_dict["Gaussian09"]
+    if remove_g16 is True:
+        print("WARNING: Gaussian16 is not set up properly.\n"
+              " Removing from tests and continuing.\n")
+        del qm_pack_dict["Gaussian16"]
+    # Check that at least 1 QM package still exists
+    if len(qm_pack_dict) == 0:
+        print("ERROR: After Gaussian removal, no QM packages remain.\n"
+              " Exiting...\n")
+        exit(0)
+    return qm_pack_dict
 
 
 def PrepRegions(keyword, d_val, u_val, file):
@@ -283,6 +365,7 @@ def PrepRegions(keyword, d_val, u_val, file):
     #     The name of the file to operate on.
     # """
     global revertMode
+    global firstPass
     # Account for difference in sed in-line between OSX and Linux
     # ex: sed -i '' '/^QM_type/s/Gaussian/g16'
     if platform.system() == "Darwin":
@@ -303,11 +386,17 @@ def PrepRegions(keyword, d_val, u_val, file):
               f"This is because the program name calls '{d_val}'.\n"
               "These tests will likely fail!")
     if debugMode is True and revertMode is False:
-        print("Modifying the regions files for this wrapper combination...")
-        print("\n{' ':6}- {cmd}\n")
+        if firstPass is True:
+            print("Modifying the regions files for this wrapper combination..."
+                  f"\n{' ':6} {cmd}")
+        else:
+            print(f"{' ':6} {cmd}")
     elif debugMode is True and revertMode is True:
-        print("Reverting the regions files for this wrapper combination...")
-        print("\n{' ':6}- {cmd}\n")
+        if firstPass is True:
+            print("Reverting the regions files for this wrapper combination..."
+                  f"\n{' ':6} {cmd}")
+        else:
+            print(f"{' ':6} {cmd}")
     return
 
 
@@ -1005,22 +1094,32 @@ if not len(sys.argv) > 1:
           "'./runtests --help'.\n")
 
 # Set for now, go back and use args.dry = False
-dryRun = False    # Only check packages
-allTests = False  # Run all tests at once
+dryRun = False     # Only check packages
+allTests = False   # Run all tests at once
 
 # Create a set of each QM and MM package to test to avoid duplicates
 qm_test_packs = set()
 mm_test_packs = set()
 
-# Check the arguments!
-# TODO: Go back and remove Makefile line!
 if args.verbose:
-    updateResults = True  # Bool to print energies to update tests
-    forceAll = True       # Bool to force it to do tests even if they will fail
-    debugMode = True      # Bool to print LICHEM command used if test fails
+    updateResults = True
+    debugMode = True
+
+if args.dev:
+    updateResults = True
+    debugMode = True
+    forceAll = True
 
 # Set the Number of CPUs (default is set as 1)
 Ncpus = int(args.ncpus)
+
+setMemory = False  # Update QM memory allocation
+if args.mem or args.mem_units:
+    # If not "256 MB", turn on flag
+    if args.mem != 256 or args.mem_units != "MB":
+        setMemory = True  # Set a memory value
+    # Get memory as a string for all
+    memory = str(args.mem) + " " + args.mem_units
 
 if args.dry:
     dryRun = True  # Only check packages
@@ -1037,7 +1136,6 @@ if args.all:
         print("Ignoring provided MM wrappers and auto-running with all "
               "available options.\n")
 else:
-    # TODO: look for both g09 and g16, and use the one found
     if args.qm:
         # Verify the QM options
         # Check for PSI4
@@ -1062,7 +1160,6 @@ else:
             print(f"\nError: QM package name {args.qm} not recognized.\n")
             print(f"Valid QM package options: {QM_wrappers}\n")
             exit(0)
-    # TODO: look for both tinker and tinker9
     if args.mm:
         # Verify the MM options
         # Check for Tinker
@@ -1138,17 +1235,14 @@ if allTests is True:
     QMbin = LocateProgram(executable='psi4')
     qm_pack_dict["PSI4"] = QMbin
     print(f" PSI4: {QMbin}")
-    # Search for Gaussian
+    # Search for Gaussian09
     QMbin = LocateProgram(executable='g09')
     qm_pack_dict["Gaussian09"] = QMbin
     print(f" Gaussian09: {QMbin}")
-    # Check if both g09 and g16 co-exist
-    if useg16 is False:
-        QMbin = LocateProgram(executable='g16')
-        if QMbin != "N/A":
-            useg16 = True
-        qm_pack_dict["Gaussian16"] = QMbin
-        print(f" Gaussian16: {QMbin}")
+    # Search for Gaussian16
+    QMbin = LocateProgram(executable='g16')
+    qm_pack_dict["Gaussian16"] = QMbin
+    print(f" Gaussian16: {QMbin}")
     # Search for NWChem
     QMbin = LocateProgram(executable='nwchem')
     qm_pack_dict["NWChem"] = QMbin
@@ -1177,22 +1271,20 @@ else:
         if QMbin != "N/A":
             badQM = False
             qm_pack_dict[QMPack] = QMbin
-    # Search for Gaussian
+    # Search for Gaussian09
     if "g09" in qm_test_packs:
         QMPack = "Gaussian09"
         QMbin = LocateProgram(executable='g09')
         if QMbin != "N/A":
             badQM = False
             qm_pack_dict[QMPack] = QMbin
+    # Search for Gaussian16
     if "g16" in qm_test_packs:
         QMPack = "Gaussian16"
         QMbin = LocateProgram(executable='g16')
         if QMbin != "N/A":
-            useg16 = True
             badQM = False
             qm_pack_dict[QMPack] = QMbin
-    if useg16 is True:
-        QMPack = "Gaussian16"
     if "nwchem" in qm_test_packs:
         QMPack = "NWChem"
         QMbin = LocateProgram(executable='nwchem')
@@ -1245,6 +1337,9 @@ if forceAll is False:
     for x in mm_del_list:
         del mm_pack_dict[x]
 
+# Check that GAUSS_EXEDIR always matches requested version!
+qm_pack_dict = CheckGaussian(qm_pack_dict)
+
 # Create lists from the keys of tests to run
 QMTests = list(qm_pack_dict.keys())
 MMTests = list(mm_pack_dict.keys())
@@ -1256,7 +1351,8 @@ total_valid_mm = len(MMTests)
 # Print test settings
 print(
     "Settings:\n"
-    f" CPUs: {Ncpus}")
+    f" CPUs: {Ncpus}\n"
+    f" Memory: {memory}")
 # LICHEM binary information
 print(f" LICHEM binary: {LICHEMbin}")
 # QM wrapper binary information
@@ -1280,48 +1376,6 @@ for i, (mm_key, mm_value) in enumerate(mm_pack_dict.items(), 1):
         print(
             f" MM package: {mm_key}\n"
             f"  Binary: {mm_value}\n")
-
-# # Print test settings
-# print(
-#     "Settings:\n"
-#     f" CPUs: {Ncpus}")
-# # LICHEM binary information
-# print(f" LICHEM binary: {LICHEMbin}")
-# # QM wrapper binary information
-# # num_valid = Total number of QM packages with binaries not set to "N/A"
-# num_valid = sum(1 for x in qm_pack_dict.values()
-#                 if x != ClrSet.TFail+"N/A"+ClrSet.Reset)
-# # j = Counter for number of N/As skipped
-# j = 0
-# # Loop through dictionary and start counter at 1
-# for i, (qm_key, qm_value) in enumerate(qm_pack_dict.items(), 1):
-#     if qm_value == ClrSet.TFail+"N/A"+ClrSet.Reset:
-#         j += 1  # Update N/A counter
-#         continue  # Exit the for loop for N/A
-#     elif num_valid > 1:
-#         print(
-#             f" QM package {i-j}: {qm_key}\n"
-#             f"  Binary: {qm_value}")
-#     else:
-#         print(
-#             f" QM package: {qm_key}\n"
-#             f"  Binary: {qm_value}")
-# # MM wrapper binary information
-# num_valid = sum(1 for x in mm_pack_dict.values()
-#                 if x != ClrSet.TFail+"N/A"+ClrSet.Reset)
-# j = 0
-# for i, (mm_key, mm_value) in enumerate(mm_pack_dict.items(), 1):
-#     if mm_value == ClrSet.TFail+"N/A"+ClrSet.Reset:
-#         j += 1
-#         continue
-#     elif num_valid > 1:
-#         print(
-#             f" MM package {i-j}: {mm_key}\n"
-#             f"  Binary: {mm_value}\n")
-#     else:
-#         print(
-#             f" MM package: {mm_key}\n"
-#             f"  Binary: {mm_value}\n")
 
 # Mode information
 if allTests is True:
@@ -1347,73 +1401,6 @@ if (((QMbin == "N/A") or (MMbin == "N/A")) and (allTests is False)):
 print(
     "***************************************************\n\n"
     "Running LICHEM tests...\n")
-
-# # TODO: FIXME
-# # Make a list of tests
-# QMTests = []
-# MMTests = []
-# if allTests is True:
-#     # Safely add PSI4
-#     cmd = "which psi4"
-#     try:
-#         # Run PSI4 tests
-#         packBin = subprocess.check_output(cmd, shell=True)
-#         QMTests.append("PSI4")
-#     except subprocess.CalledProcessError:
-#         # Skip tests that will fail
-#         if forceAll is True:
-#             QMTests.append("PSI4")
-#     # Safely add Gaussian
-#     cmd = "which g09"
-#     try:
-#         # Run Gaussian tests
-#         packBin = subprocess.check_output(cmd, shell=True)
-#         QMTests.append("Gaussian09")
-#     except subprocess.CalledProcessError:
-#         cmd = "which g16"
-#         try:
-#             packBin = subprocess.check_output(cmd, shell=True)
-#             QMTests.append("g16")
-#         except subprocess.CalledProcessError:
-#             # Skip tests that will fail
-#             if forceAll is True:
-#                 # QMTests.append("Gaussian")
-#                 # Instead try g16 if no other Gaussian found
-#                 QMTests.append("g16")
-#     # Safely add NWChem
-#     cmd = "which nwchem"
-#     try:
-#         # Run NWChem tests
-#         packBin = subprocess.check_output(cmd, shell=True)
-#         QMTests.append("NWChem")
-#     except subprocess.CalledProcessError:
-#         # Skip tests that will fail
-#         if forceAll is True:
-#             QMTests.append("NWChem")
-#     # Safely add TINKER
-#     cmd = "which analyze"
-#     try:
-#         # Run TINKER tests
-#         packBin = subprocess.check_output(cmd, shell=True)
-#         MMTests.append("TINKER")
-#     except subprocess.CalledProcessError:
-#         # Skip tests that will fail
-#         if forceAll is True:
-#             MMTests.append("TINKER")
-#     # Safely add lammps
-#     cmd = "which lammps"
-#     try:
-#         # Run LAMMPS tests
-#         packBin = subprocess.check_output(cmd, shell=True)
-#         MMTests.append("LAMMPS")
-#     except subprocess.CalledProcessError:
-#         # Skip tests that will fail
-#         if forceAll is True:
-#             MMTests.append("LAMMPS")
-# else:
-#     # Add only the specified packages
-#     QMTests = list(qm_pack_dict.keys())
-#     MMTests = list(mm_pack_dict.keys())
 
 # NB: Tests are in the following order:
 #     1) HF energy
@@ -1443,8 +1430,6 @@ for QMPack in QMTests:
             dirPath += "PSI4_"
         if QMPack in ("Gaussian", "g09", "g16", "Gaussian09", "Gaussian16"):
             dirPath += "Gau_"
-        # elif (QMPack == "g16"):
-        #     dirPath += "G16_"
         if (QMPack == "NWChem"):
             dirPath += "NWChem_"
         # TODO: Fix for Tinker9 (and against 8.4+ for anglep)
@@ -1457,18 +1442,24 @@ for QMPack in QMTests:
         # Fix the regions files (if the specific one exits) to match program
         #  version requested
         revertMode = False
+        firstPass = True
         for filename in regions_files:
             # Check that the file exists for sed
             if os.path.isfile("./"+filename):
                 # Gaussian
                 if QMPack in ("g16", "Gaussian16"):
                     PrepRegions("QM_type", "Gaussian", "g16", filename)
+                    firstPass = False
                 # Tinker version
                 if MMPack == "TINKER9":
                     PrepRegions("MM_type", "TINKER", "TINKER9", filename)
+                    firstPass = False
+                if setMemory is True:
+                    PrepRegions("QM_memory", "256 MB", memory, filename)
+                    firstPass = False
 
         # Start printing results
-        print(f"{QMPack}/{MMPack} results:")
+        print(f"\n{QMPack}/{MMPack} results:")
 
         # Only run each test if requested
         # Note: "if ('hf' or 'all') in args.tests" does not work!
@@ -1557,7 +1548,7 @@ for QMPack in QMTests:
                 pf_printed = QMMMFreqTest(
                     name="Frequencies",
                     psi4_e=round(-40.507339, 0), psi4_u="cm^-1",
-                    g09_e=round(5.33078515, 0), g09_u="cm^-1",
+                    g09_e=round(-31.769945, 0), g09_u="cm^-1",
                     g16_e=round(5.33078515, 0), g16_u="cm^-1",
                     nwchem_e=round(-31.769945, 0), nwchem_u="cm^-1",
                     xName="methfluor.xyz", rName="freqreg.inp",
@@ -1625,7 +1616,7 @@ for QMPack in QMTests:
             try:
                 pf_printed = MMWrapperTest(
                     name="AMOEBA/GK Energy",
-                    tinker_e=round(-0.0095434448906, 3), tinker_u="a.u.",
+                    tinker_e=round(-0.0069748492358, 3), tinker_u="a.u.",
                     lammps_e=None, lammps_u=None,
                     energy_str="MM energy:", energy_loc=2,
                     tinkerKey="pol.key",
@@ -1641,8 +1632,8 @@ for QMPack in QMTests:
                 pf_printed = QMMMWrapperTest(
                     name="PBE0/TIP3P Energy",
                     psi4_e=round(-2077.2021947277/har2eV, 3), psi4_u="a.u.",
-                    g09_e=round(-76.34642184669, 3), g09_u="a.u.",
-                    g16_e=round(-76.34642184669, 3), g16_u="a.u.",
+                    g09_e=round(-76.335762290923, 3), g09_u="a.u.",
+                    g16_e=round(-76.335762290923, 3), g16_u="a.u.",
                     nwchem_e=round(-2077.2022117306/har2eV, 3),
                     nwchem_u="a.u.",
                     energy_str="QMMM energy:", energy_loc=2,
@@ -1654,6 +1645,7 @@ for QMPack in QMTests:
             except KeyboardInterrupt:
                 SkipSequence("PBE0/TIP3P energy:", pf_printed)
 
+        # Failing
         if 'pbe0/amoeba' in args.tests or 'all' in args.tests:
             pf_printed = False
             try:
@@ -1673,6 +1665,7 @@ for QMPack in QMTests:
             except KeyboardInterrupt:
                 SkipSequence("PBE0/AMOEBA energy:", pf_printed)
 
+        # Failing
         if 'dfp/pseudobonds' in args.tests or 'all' in args.tests:
             pf_printed = False
             try:
@@ -1698,15 +1691,23 @@ for QMPack in QMTests:
 
         # Revert the regions files
         revertMode = True
+        firstPass = True
         for filename in regions_files:
             # Check that the file exists for sed
             if os.path.isfile("./"+filename):
+                print("")  # Blank line
                 # Gaussian
                 if QMPack in ("Gaussian16", "g16"):
                     PrepRegions("QM_type", "g16", "Gaussian", filename)
+                    firstPass = False
                 # Tinker version
                 if MMPack == "TINKER9":
                     PrepRegions("MM_type", "TINKER9", "TINKER", filename)
+                    firstPass = False
+                # Reset memory
+                if setMemory is True:
+                    PrepRegions("QM_memory", memory, "256 MB", filename)
+                    firstPass = False
 
         # Print blank line and change directory
         print()
