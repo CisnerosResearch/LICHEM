@@ -35,7 +35,7 @@ namespace LICHEMConst
   const double amu2kg = 1.660538921e-27; //Atomic mass units to kg
   const double SI2eV = 1/(1.602176565e-19); //Convert SI to eV
   const double elecMassSI = 9.10938291e-31; //Mass of an electron (kg)
-  const double bohrRad = 0.52917721092; //Bohr radius (Ang)
+  const double bohrRad = 0.52917721092; // Bohr radius to Ang
   const double har2eV = 27.21138505; //Hartrees to eV
   const double avogNum = 6.02214129e23; //Avogadro's number
   const double debye2au = 0.393430307; //Convert from Debye to au
@@ -51,4 +51,3 @@ namespace LICHEMConst
 };
 
 #endif
-

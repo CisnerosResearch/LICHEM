@@ -325,6 +325,26 @@ void TINKERInduced(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     call << " LICHM_" << bead << ".err";
     globalSys = system(call.str().c_str());
   }
+  // EML add
+  else {
+    // Name files based on number existing
+    call.str("");
+    call << "LICHM_" << bead << ".log";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_bead_" << bead << "_TINKERInduced_";
+      call << ct << ".log";
+    }
+    call.str("");
+    call << "mv ";
+    call << "LICHM_" << bead << ".log ";
+    call << "LICHM_bead_" << bead << "_TINKEROpt_" << ct << ".log ";
+    globalSys = system(call.str().c_str());
+  }
+  // EML DONE
   return;
 };
 
@@ -584,11 +604,29 @@ double TINKERPolEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     globalSys = system(call.str().c_str());
   }
   else{
+    // EML Fix
+    // call.str("");
+    // call << "mv ";
+    // call << "LICHM_" << bead << ".log ";
+    // call << "LICHM_TINKERPolEnergy_" << bead << ".log ";
+    // globalSys = system(call.str().c_str());
+    // Name files based on number existing
+    call.str("");
+    call << "LICHM_" << bead << ".log";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_bead_" << bead << "_TINKERPolEnergy_";
+      call << ct << ".log";
+    }
     call.str("");
     call << "mv ";
     call << "LICHM_" << bead << ".log ";
-    call << "LICHM_TINKERPolEnergy_" << bead << ".log ";
+    call << "LICHM_bead_" << bead << "_TINKERPolEnergy_" << ct << ".log ";
     globalSys = system(call.str().c_str());
+    // EML DONE
   }
   //Return polarization and solvation energy in kcal/mol
   return EPol+ESolv;
@@ -863,11 +901,29 @@ double TINKERForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     globalSys = system(call.str().c_str());
   }
   else{
+    // EML Fix
+    // call.str("");
+    // call << "mv ";
+    // call << "LICHM_" << bead << ".grad ";
+    // call << "LICHM_TINKERForces_" << bead << ".grad ";
+    // globalSys = system(call.str().c_str());
+    // Name files based on number existing
+    call.str("");
+    call << "LICHM_" << bead << ".grad";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_bead_" << bead << "_TINKERForces_";
+      call << ct << ".grad";
+    }
     call.str("");
     call << "mv ";
     call << "LICHM_" << bead << ".grad ";
-    call << "LICHM_TINKERForces_" << bead << ".grad ";
+    call << "LICHM_bead_" << bead << "_TINKERForces_" << ct << ".grad ";
     globalSys = system(call.str().c_str());
+    // EML Done
   }
   //Return
   Emm *= kcal2eV;
@@ -1137,11 +1193,29 @@ double TINKERMMForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     globalSys = system(call.str().c_str());
   }
   else{
+    // EML Fix
+    // call.str("");
+    // call << "mv ";
+    // call << "LICHM_" << bead << ".grad ";
+    // call << "LICHM_TINKERMMForces_" << bead << ".grad ";
+    // globalSys = system(call.str().c_str());
+    // Name files based on number existing
+    call.str("");
+    call << "LICHM_" << bead << ".grad";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_bead_" << bead << "_TINKERMMForces_";
+      call << ct << ".grad";
+    }
     call.str("");
     call << "mv ";
     call << "LICHM_" << bead << ".grad ";
-    call << "LICHM_TINKERMMForces_" << bead << ".grad ";
+    call << "LICHM_bead_" << bead << "_TINKERMMForces_" << ct << ".grad ";
     globalSys = system(call.str().c_str());
+    // EML DONE
   }
 
   //Return energy for error checking purposes
@@ -1406,11 +1480,28 @@ double TINKERPolForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     globalSys = system(call.str().c_str());
   }
   else{
+    // EML Fix
+    // call.str("");
+    // call << "mv ";
+    // call << "LICHM_" << bead << ".grad ";
+    // call << "LICHM_TINKERPolForces_" << bead << ".grad ";
+    // globalSys = system(call.str().c_str());
+    call.str("");
+    call << "LICHM_" << bead << ".grad";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_bead_" << bead << "_TINKERPolForces_";
+      call << ct << ".grad";
+    }
     call.str("");
     call << "mv ";
     call << "LICHM_" << bead << ".grad ";
-    call << "LICHM_TINKERPolForces_" << bead << ".grad ";
+    call << "LICHM_bead_" << bead << "_TINKERPolForces_" << ct << ".grad ";
     globalSys = system(call.str().c_str());
+    // EML DONE
   }
 
   //Return
@@ -1652,11 +1743,28 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     globalSys = system(call.str().c_str());
   }
   else{
+    // EML Fix
+    // call.str("");
+    // call << "mv ";
+    // call << "LICHM_" << bead << ".log ";
+    // call << "LICHM_TINKEREnergy_" << bead << ".log ";
+    // globalSys = system(call.str().c_str());
+    call.str("");
+    call << "LICHM_" << bead << ".log";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_bead_" << bead << "_TINKEREnergy_";
+      call << ct << ".log";
+    }
     call.str("");
     call << "mv ";
     call << "LICHM_" << bead << ".log ";
-    call << "LICHM_TINKEREnergy_" << bead << ".log ";
+    call << "LICHM_bead_" << bead << "_TINKEREnergy_" << ct << ".log ";
     globalSys = system(call.str().c_str());
+    // EML Done
   }
 
   double tempE;
@@ -1952,14 +2060,33 @@ MatrixXd TINKERHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     globalSys = system(call.str().c_str());
   }
   else{
+    // EML Fix
+    // call.str("");
+    // call << "mv ";
+    // call << "LICHM_" << bead << ".grad ";
+    // call << "LICHM_TINKERHessian_" << bead << ".hes ";
+    // call << "; mv ";
+    // call << " LICHM_" << bead << ".log ";
+    // call << "LICHM_TINKERHessian_" << bead << ".log ";
+    // globalSys = system(call.str().c_str());
+    call.str("");
+    call << "LICHM_" << bead << ".grad";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_bead_" << bead << "_TINKERHessian_";
+      call << ct << ".hes";
+    }
     call.str("");
     call << "mv ";
-    call << "LICHM_" << bead << ".grad ";
-    call << "LICHM_TINKERHessian_" << bead << ".hes ";
-    call << "; mv ";
-    call << " LICHM_" << bead << ".log ";
-    call << "LICHM_TINKERHessian_" << bead << ".log ";
+    call << "LICHM_" << bead << ".log ";
+    call << "LICHM_bead_" << bead << "_TINKERHessian_" << ct << ".log; ";
+    call << "mv LICHM_" << bead << ".grad ";
+    call << "LICHM_bead_" << bead << "_TINKERHessian_" << ct << ".hes";
     globalSys = system(call.str().c_str());
+    // EML DONE
   }
 
 
@@ -2264,11 +2391,24 @@ double TINKEROpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
     globalSys = system(call.str().c_str());
   }
   else{
+    // EML Fix
+    // Name files based on number existing
+    call.str("");
+    call << "LICHM_" << bead << ".log";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_bead_" << bead << "_TINKEROpt_";
+      call << ct << ".log";
+    }
     call.str("");
     call << "mv ";
     call << "LICHM_" << bead << ".log ";
-    call << "LICHM_TINKEROpt_" << bead << ".log ";
+    call << "LICHM_bead_" << bead << "_TINKEROpt_" << ct << ".log ";
     globalSys = system(call.str().c_str());
+    // EML Done
   }
   //Change units
   E *= kcal2eV;

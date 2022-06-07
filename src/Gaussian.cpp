@@ -27,6 +27,7 @@ void GaussianCharges(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                      int bead)
 {
   //Function to update QM point-charges
+  int ct; // EML Generic counter
   fstream QMLog; //Generic file streams
   string dummy; //Generic string
   stringstream call; //Stream for system calls and reading/writing files
@@ -158,10 +159,35 @@ void GaussianCharges(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     globalSys = system(call.str().c_str());
   }
   else{
+    // call.str("");
+    // call << "mv LICHM_" << bead << ".log";
+    // call << " LICHM_GaussianCharges_" << bead << ".log;";
+    // globalSys = system(call.str().c_str());
+    // EML ADD
+    // Avoid overwriting .com files
     call.str("");
-    call << "mv LICHM_" << bead << ".log";
-    call << " LICHM_GaussianCharges_" << bead << ".log;";
+    call << "LICHM_" << bead << ".com";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_bead_" << bead << "_com_";
+      call << ct << ".com";
+    }
+    call.str("");
+    // Rename com
+    call << "mv LICHM_" << bead << ".com";
+    call << " LICHM_bead_" << bead << "_com_" << ct << ".com; ";
+    // Rename checkpoint
+    call << "mv LICHM_" << bead << ".chk";
+    call << " LICHM_bead_" << bead << "_com_" << ct << ".chk; ";
+    // Rename log
+    call << " mv LICHM_" << bead << ".log";
+    call << " LICHM_bead_" << bead << "_GaussianCharges_com_";
+    call << ct << ".log;";
     globalSys = system(call.str().c_str());
+    // EML DONE
   }
 
   return;
@@ -171,6 +197,7 @@ double GaussianEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                       int bead)
 {
   //Calculates the QM energy with Gaussian
+  int ct; // EML Generic counter
   fstream QMLog; //Generic file streams
   string dummy; //Generic string
   stringstream call; //Stream for system calls and reading/writing files
@@ -354,10 +381,37 @@ double GaussianEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     globalSys = system(call.str().c_str());
   }
   else{
+    // call.str("");
+    // call << "mv LICHM_" << bead << ".log";
+    // call << " LICHM_GaussEnergy_" << bead << ".log;";
+    // globalSys = system(call.str().c_str());
+    // EML ADD
+    // Avoid overwriting .com files
     call.str("");
-    call << "mv LICHM_" << bead << ".log";
-    call << " LICHM_GaussEnergy_" << bead << ".log;";
+    call << "LICHM_" << bead << ".com";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_bead_" << bead << "_com_";
+      call << ct << ".com";
+    }
+    call.str("");
+    // Rename com
+    call << "mv LICHM_" << bead << ".com";
+    call << " LICHM_bead_" << bead << "_com_" << ct << ".com; ";
+    // Rename checkpoint
+    call << "mv LICHM_" << bead << ".chk";
+    call << " LICHM_bead_" << bead << "_com_" << ct << ".chk; ";
+    // Rename log
+    call << " mv LICHM_" << bead << ".log";
+    call << " LICHM_bead_" << bead << "_GaussEnergy_com_" << ct << ".log;";
     globalSys = system(call.str().c_str());
+    // call.str("");
+    // call << "echo 'Macroiteration: " << stepCt << "'; ";
+    // globalSys = system(call.str().c_str());
+    // EML DONE
   }
 
 
@@ -371,6 +425,7 @@ double GaussianForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
                       QMMMSettings& QMMMOpts, int bead)
 {
   //Function for calculating the forces on a set of atoms
+  int ct; // EML Generic counter
   stringstream call; //Stream for system calls and reading/writing files
   call.copyfmt(cout); //Copy print settings
   string dummy; //Generic string
@@ -569,10 +624,36 @@ double GaussianForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
 
   }
   else{
+   // EML UC
+   // call.str("");
+   // call << "mv LICHM_" << bead << ".log";
+   // call << " LICHM_GaussForce_" << bead << ".log;";
+   // globalSys = system(call.str().c_str());
+   // EML END UC
+   // EML ADD
+   // Avoid overwriting .com files
     call.str("");
-    call << "mv LICHM_" << bead << ".log";
-    call << " LICHM_GaussForce_" << bead << ".log;";
+    call << "LICHM_" << bead << ".com";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_bead_" << bead << "_com_";
+      call << ct << ".com";
+    }
+    call.str("");
+    // Rename com
+    call << "mv LICHM_" << bead << ".com";
+    call << " LICHM_bead_" << bead << "_com_" << ct << ".com; ";
+    // Rename checkpoint
+    call << "mv LICHM_" << bead << ".chk";
+    call << " LICHM_bead_" << bead << "_com_" << ct << ".chk; ";
+    // Rename log
+    call << " mv LICHM_" << bead << ".log";
+    call << " LICHM_bead_" << bead << "_GaussForce_com_" << ct << ".log;";
     globalSys = system(call.str().c_str());
+    // EML DONE
   }
 
   //Change units and return
@@ -585,6 +666,7 @@ MatrixXd GaussianHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                          int bead)
 {
   //Function for calculating the Hessian for a set of QM atoms
+  int ct; // EML Generic counter
   stringstream call; //Stream for system calls and reading/writing files
   call.copyfmt(cout); //Copy print settings
   string dummy; //Generic string
@@ -741,9 +823,33 @@ MatrixXd GaussianHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     globalSys = system(call.str().c_str());
   }
   else{
+    // call.str("");
+    // call << "mv LICHM_" << bead << ".log";
+    // call << " LICHM_GaussHess_" << bead << ".log;";
+    // EML ADD
+    // Avoid overwriting .com files
     call.str("");
-    call << "mv LICHM_" << bead << ".log";
-    call << " LICHM_GaussHess_" << bead << ".log;";
+    call << "LICHM_" << bead << ".com";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_bead_" << bead << "_com_";
+      call << ct << ".com";
+    }
+    call.str("");
+    // Rename com
+    call << "mv LICHM_" << bead << ".com";
+    call << " LICHM_bead_" << bead << "_com_" << ct << ".com; ";
+    // Rename checkpoint
+    call << "mv LICHM_" << bead << ".chk";
+    call << " LICHM_bead_" << bead << "_com_" << ct << ".chk; ";
+    // Rename log
+    call << " mv LICHM_" << bead << ".log";
+    call << " LICHM_bead_" << bead << "_GaussHess_com_" << ct << ".log;";
+    globalSys = system(call.str().c_str());
+    // EML DONE
   }
   //Return
   return QMHess;
@@ -753,6 +859,7 @@ double GaussianOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                    int bead)
 {
   //Runs Gaussian for pure QM optimizations
+  int ct; // EML Generic counter
   fstream QMLog; //Generic file streams
   string dummy; //Generic string
   stringstream call; //Stream for system calls and reading/writing files
@@ -875,13 +982,34 @@ double GaussianOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     globalSys = system(call.str().c_str());
   }
   else{
+    // call.str("");
+    // call << "mv LICHM_" << bead << ".log";
+    // call << " LICHM_GaussOpt_" << bead << ".log;";
+    // globalSys = system(call.str().c_str());
+    // EML ADD
+    // Avoid overwriting .com files
     call.str("");
-    call << "mv LICHM_" << bead << ".log";
-    call << " LICHM_GaussOpt_" << bead << ".log;";
-
+    call << "LICHM_" << bead << ".com";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_bead_" << bead << "_com_";
+      call << ct << ".com";
+    }
+    call.str("");
+    // Rename com
+    call << "mv LICHM_" << bead << ".com";
+    call << " LICHM_bead_" << bead << "_com_" << ct << ".com; ";
+    // Rename checkpoint
+    call << "mv LICHM_" << bead << ".chk";
+    call << " LICHM_bead_" << bead << "_com_" << ct << ".chk; ";
+    // Rename log
+    call << " mv LICHM_" << bead << ".log";
+    call << " LICHM_bead_" << bead << "_GaussOpt_com_" << ct << ".log;";
     globalSys = system(call.str().c_str());
-
-
+   // EML DONE
   }
   //Return
   return E;
