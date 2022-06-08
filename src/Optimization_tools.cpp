@@ -183,6 +183,7 @@ fstream& logFile)
 
 
       }//runOPT of images is finished
+      return 0; // EML: Fix return error
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -305,7 +306,7 @@ double CalcEnergy(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
       }
     }
     //==============================================================
-
+    return 0; // EML: Fix return error
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 double runMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,fstream& logFile)
@@ -361,7 +362,7 @@ double runMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,fstream& logFi
         logFile.flush();
         logFile << '\n';
 
-
+        return 0; // EML: Fix return error
 }
 //---------------------------------------------------------------------------
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -401,6 +402,7 @@ double runRestrMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,double re
     logFile << "restraints are complete. \n";
     logFile << "             ";
     logFile << "Starting new QSM iteration. \n" << endl;
+    return 0; // EML: Fix return error
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

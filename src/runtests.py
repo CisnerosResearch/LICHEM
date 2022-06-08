@@ -479,7 +479,7 @@ def CleanFiles():
     # Remove NWChem files
     cleanCmd += " *.movecs"
     # Remove QSM output
-    cleanCmd += "; rm -rf LICHM_QSM_Opt_1/ LICHM_QSM_Opt_2"
+    cleanCmd += "; rm -rf LICHM_QSM_Opt_*"
     # Delete the files
     subprocess.call(cleanCmd, shell=True)
     # Wait 1 second for files to be deleted (avoid race conditions for I/O)
