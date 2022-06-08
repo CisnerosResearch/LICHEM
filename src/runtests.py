@@ -282,9 +282,14 @@ def LocateProgram(executable):
             cmd = "which g16"
             try:
                 prog_bin = subprocess.check_output(cmd, shell=True)
-                saved_bin = prog_bin.decode('utf-8').strip()  # Uncolored
-                prog_bin = (ClrSet.TPass+prog_bin.decode('utf-8').strip() +
-                            ClrSet.Reset)
+                # Don't save as Gaussian in alltests mode
+                if allTests is True:
+                    prog_bin = ClrSet.TFail+"N/A"+ClrSet.Reset
+                    saved_bin = "N/A"
+                else:
+                    saved_bin = prog_bin.decode('utf-8').strip()  # Uncolored
+                    prog_bin = (ClrSet.TPass+prog_bin.decode('utf-8').strip() +
+                                ClrSet.Reset)
             except subprocess.CalledProcessError:
                 prog_bin = ClrSet.TFail+"N/A"+ClrSet.Reset
                 saved_bin = "N/A"
@@ -393,7 +398,8 @@ def PrepRegions(keyword, d_val, u_val, file):
             print(f"{' ':6} {cmd}")
     elif debugMode is True and revertMode is True:
         if firstPass is True:
-            print("Reverting the regions files for this wrapper combination..."
+            print("\nReverting the regions files for this wrapper "
+                  "combination..."
                   f"\n{' ':6} {cmd}")
         else:
             print(f"{' ':6} {cmd}")
@@ -431,6 +437,27 @@ def RunLICHEM(xName, rName, cName):
     return cmd_printed
 
 
+def GoToSleep(wait_time, msg=None):
+    # """
+    # Call sleep for a set amount of time.
+    #
+    # Parameters
+    # ----------
+    # wait_time : float, int
+    #     Number of seconds to sleep for.
+    # msg : str
+    #     Message to print on keyboard interrupt.
+    # """
+    try:
+        time.sleep(wait_time)
+    except KeyboardInterrupt:
+        if msg is not None:
+            print(msg)
+        else:
+            print("Fine, I won't nap, gosh.")
+    return
+
+
 def CleanFiles():
     # """
     # Clean out various files after tests are performed.
@@ -440,6 +467,7 @@ def CleanFiles():
     # Remove LICHEM files
     cleanCmd += " BASIS tests.out trash.xyz"
     cleanCmd += " BeadStartStruct.xyz BurstStruct.xyz"
+    cleanCmd += " LICHM*"
     # Remove TINKER files
     cleanCmd += " tinker.key"
     # Remove LAMMPS files
@@ -450,13 +478,14 @@ def CleanFiles():
     cleanCmd += " timer.* psi.* *.32 *.180"
     # Remove NWChem files
     cleanCmd += " *.movecs"
+    # Remove QSM output
+    cleanCmd += "; rm -rf LICHM_QSM_Opt_1/ LICHM_QSM_Opt_2"
     # Delete the files
     subprocess.call(cleanCmd, shell=True)
     # Wait 1 second for files to be deleted (avoid race conditions for I/O)
-    try:
-        time.sleep(1)
-    except KeyboardInterrupt:
-        print("Fine, I won't nap, gosh.")
+    GoToSleep(1, f"\nWARNING: I was cleaning up some files.\n"
+                 f"{' ':9}Further tests may wrongly fail because\n"
+                 f"{' ':9}you did not give me adequate time to rest.\n")
     return
 
 
@@ -496,7 +525,11 @@ def RecoverEnergy(txtLabel, itemNum):
         # Calculation failed
         finalEnergy = 0.0
         units = ":("
-        time.sleep(2)
+        GoToSleep(2, "\nWARNING: I was waiting for a crashed job to "
+                     " clean up its act.\n"
+                     f"{' ':9}Future tests may wrongly fail because "
+                     f"you did not\n"
+                     f"{' ':9}give me adequate time to rest.\n")
     return finalEnergy, savedResult, units
 
 
@@ -748,7 +781,7 @@ def CopyRequired(ifile, ofile):
     #     Formatted version of the attempted copy command (for printing).
     # """
     cmd = "cp {} {}".format(ifile, ofile)
-    cmd_printed = "\n{:6}- {}\n".format(' ', cmd)
+    cmd_printed = "{:6} {}".format(' ', cmd)
     subprocess.call(cmd, shell=True)
     return cmd_printed
 
@@ -824,11 +857,13 @@ def QMMMWrapperTest(name, psi4_e, psi4_u, g09_e, g09_u, g16_e, g16_u,
     passEnergy = False
     # Copy necessary files
     if copy_command is not None:
+        print()  # Blank line
         # Iterate through list
         for command in copy_command:
             cmd_printed = command
             if debugMode is True:
                 print(cmd_printed)
+        print()  # Blank line
     # Run LICHEM
     runC = RunLICHEM(xName, rName, cName)
     QMMMEnergy, savedEnergy, units = RecoverEnergy(energy_str, energy_loc)
@@ -938,7 +973,11 @@ def QMMMFreqTest(name, psi4_e, psi4_u, g09_e, g09_u, g16_e, g16_u,
         QMMMEnergy = min(QMMMFreqs)
         if QMMMEnergy > 1e100:
             savedEnergy = "Crashed..."
-            time.sleep(2)
+            GoToSleep(2, "\nWARNING: I was waiting for a crashed job to "
+                         " clean up its act.\n"
+                         f"{' ':9}Future tests may wrongly fail because "
+                         f"you did not\n"
+                         f"{' ':9}give me adequate time to rest.\n")
         else:
             # Save string for devMode printing
             savedEnergy = "Freq:{:3}{}".format(" ", QMMMEnergy)
@@ -1038,7 +1077,7 @@ def MMWrapperTest(name, tinker_e, tinker_u, lammps_e, lammps_u,
     if QMMMPack in ("TINKER", "TINKER9"):
         cmd_printed = CopyRequired(tinkerKey, "tinker.key")
         if debugMode is True:
-            print(cmd_printed)
+            print("\n"+cmd_printed+"\n")
     # Initialize energy as failing
     passEnergy = False
     runC = RunLICHEM(xName, rName, cName)
@@ -1461,6 +1500,9 @@ for QMPack in QMTests:
         # Start printing results
         print(f"\n{QMPack}/{MMPack} results:")
 
+        # Clear previous test output (if any exists)
+        CleanFiles()
+
         # Only run each test if requested
         # Note: "if ('hf' or 'all') in args.tests" does not work!
         if 'hf' in args.tests or 'all' in args.tests:
@@ -1593,6 +1635,12 @@ for QMPack in QMTests:
             except KeyboardInterrupt:
                 SkipSequence("QSM TS energy:", pf_printed)
 
+        # Pause for a bit because post-QSM system commands take some time
+        #  and may accidentally clear output from the next job
+        GoToSleep(3, f"\nWARNING: I was intentionally sleeping!!!\n"
+                     f"{' ':9}Further tests may wrongly fail because\n"
+                     f"{' ':9}you did not give me adequate time to rest.\n")
+
         # TINKER-only, but require key to be copied
         # For LAMMPS-only, set tinkerKey argument to 'None'
         if 'tip3p' in args.tests or 'all' in args.tests:
@@ -1695,7 +1743,6 @@ for QMPack in QMTests:
         for filename in regions_files:
             # Check that the file exists for sed
             if os.path.isfile("./"+filename):
-                print("")  # Blank line
                 # Gaussian
                 if QMPack in ("Gaussian16", "g16"):
                     PrepRegions("QM_type", "g16", "Gaussian", filename)
