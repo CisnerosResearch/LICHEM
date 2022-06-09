@@ -19,43 +19,43 @@
 
 */
 
-//QM utility functions
+// QM utility functions
 void ExternalGaussian(int& argc, char**& argv)
 {
-  //This function is an "external script" that can be called by
-  //Gaussian's external interface
-  double Eqm = 0; //Stores partial energies
-  double Emm = 0; //Stores partial energies
-  vector<QMMMAtom> QMMMData; //Atomic data
-  QMMMSettings QMMMOpts; //Simulation settings
-  int derType = 0; //Type of derivatives
-  int bead = 0; //Which replica
-  stringstream call; //Stream for system calls and reading/writing files
-  call.copyfmt(cout); //Copy print settings
-  string dummy,Stub; //Generic strings
-  //Declare lots of file streams
-  fstream xyzFile,connectFile,regionFile; //LICHEM streams
-  fstream gauInput,gauOutput,gauMsg,gauFchk,gauMatrix; //Gaussian streams
-  fstream outFile; //Generic streams
-  /*Start: Hatice GOKCAN */
+  // This function is an "external script" that can be called by
+  // Gaussian's external interface
+  double Eqm = 0; // Stores partial energies
+  double Emm = 0; // Stores partial energies
+  vector<QMMMAtom> QMMMData; // Atomic data
+  QMMMSettings QMMMOpts; // Simulation settings
+  int derType = 0; // Type of derivatives
+  int bead = 0; // Which replica
+  stringstream call; // Stream for system calls and reading/writing files
+  call.copyfmt(cout); // Copy print settings
+  string dummy,Stub; // Generic strings
+  // Declare lots of file streams
+  fstream xyzFile,connectFile,regionFile; // LICHEM streams
+  fstream gauInput,gauOutput,gauMsg,gauFchk,gauMatrix; // Gaussian streams
+  fstream outFile; // Generic streams
+  // Start: Hatice GOKCAN 
   fstream logFile,errFile;
-  /*End: Hatice GOKCAN*/
-  //Read arguments
+  // End: Hatice GOKCAN
+  // Read arguments
   for (int i=0;i<argc;i++)
   {
-    //Read file names and CPUs
+    // Read file names and CPUs
     dummy = string(argv[i]);
     if (dummy == "-n")
     {
       Ncpus = atoi(argv[i+1]);
-      //Set OpenMP threads for the external routine
+      // Set OpenMP threads for the external routine
       #ifdef _OPENMP
         omp_set_num_threads(Ncpus);
       #endif
     }
     if (dummy == "-GauExtern")
     {
-      //Get the QMMM filename and xyzfile
+      // Get the QMMM filename and xyzfile
       Stub = string(argv[i+1]);
       call.str("");
       call << Stub << ".xyz";
@@ -63,92 +63,95 @@ void ExternalGaussian(int& argc, char**& argv)
     }
     if (dummy == "-c")
     {
-      //Open the connectivity file
+      // Open the connectivity file
       connectFile.open(argv[i+1],ios_base::in);
     }
     if (dummy == "-r")
     {
-      //Open the region file
+      // Open the region file
       regionFile.open(argv[i+1],ios_base::in);
     }
     if (dummy == "-b")
     {
-      //Read the current bead
+      // Read the current bead
       bead = atoi(argv[i+1]);
     }
   }
-  //Open files passed by Gaussian
+  // Open files passed by Gaussian
   gauInput.open(argv[12],ios_base::in);
   gauOutput.open(argv[13],ios_base::out);
   gauMsg.open(argv[14],ios_base::out);
-  //Read LICHEM input
-  /*Start: Hatice GOKCAN */
+  // Read LICHEM input
+  // Start: Hatice GOKCAN
   int mystat=0;
-  ReadLICHEMInput(xyzFile,connectFile,regionFile,QMMMData,QMMMOpts,logFile,mystat);
-  if(mystat!=0){
+  ReadLICHEMInput(xyzFile,connectFile,regionFile,QMMMData,QMMMOpts,
+                  logFile,mystat);
+  if (mystat!=0)
+  {
     logFile.close();
     errFile.close();
     exit(0);
   }
-
-
-  /*End: Hatice GOKCAN */
-  //Set degrees of freedom
-  int Ndof = 3*(Nqm+Npseudo); //Number of QM and PB degrees of freedom
-  //Read g09 input for new QM atom positions
+  
+  // End: Hatice GOKCAN
+  // Set degrees of freedom
+  int Ndof = 3*(Nqm+Npseudo); // Number of QM and PB degrees of freedom
+  // Read g09 input for new QM atom positions
   getline(gauInput,dummy);
   stringstream line(dummy);
   line >> dummy >> derType;
   if (derType == 2)
   {
-    //Make sure Gaussian is only requesting energies or forces
-    /*Start: Hatice GOKCAN*/
-    /*cerr << "Error: Second derivatives of the energy were requested!!!";
-    cerr << '\n';
-    cerr << "Something is wrong.";
-    cerr << '\n';
-    cerr.flush();
-    exit(0);*/
+    // Make sure Gaussian is only requesting energies or forces
+    // Start: Hatice GOKCAN
+    /*
+      cerr << "Error: Second derivatives of the energy were requested!!!";
+      cerr << '\n';
+      cerr << "Something is wrong.";
+      cerr << '\n';
+      cerr.flush();
+      exit(0);
+    */
     logFile << "Error: Second derivatives of the energy were requested!!!";
     logFile << '\n';
     logFile << "Something is wrong.";
     logFile << '\n';
     logFile.flush();
     exit(0);
-    /*End: Hatice GOKCAN*/
+    // End: Hatice GOKCAN
   }
-  //Read updated positions from Gaussian files
+  // Read updated positions from Gaussian files
   for (int i=0;i<Natoms;i++)
   {
     if (QMMMData[i].QMRegion or QMMMData[i].PBRegion)
     {
-      //Save atom information
+      // Save atom information
       getline(gauInput,dummy);
       stringstream line(dummy);
       line >> dummy;
       line >> QMMMData[i].P[bead].x;
       line >> QMMMData[i].P[bead].y;
       line >> QMMMData[i].P[bead].z;
-      //Change units
+      // Change units
       QMMMData[i].P[bead].x *= bohrRad;
       QMMMData[i].P[bead].y *= bohrRad;
       QMMMData[i].P[bead].z *= bohrRad;
     }
   }
   gauInput.close();
-  //Calculate the QMMM forces
-  VectorXd forces(Ndof); //Forces for QM and PB
+  // Calculate the QMMM forces
+  VectorXd forces(Ndof); // Forces for QM and PB
   forces.setZero();
-  fstream MMgrad,QMLog; //QMMM output
-  //QM forces
+  fstream MMgrad,QMLog; // QMMM output
+  // QM forces
   Eqm = GaussianForces(QMMMData,forces,QMMMOpts,bead);
-  //MM forces
+  // MM forces
   if (TINKER)
   {
     Emm = TINKERForces(QMMMData,forces,QMMMOpts,bead);
     if (AMOEBA or QMMMOpts.useImpSolv)
     {
-      //Calculate polarization forces for AMOEBA
+      // Calculate polarization forces for AMOEBA
       Emm += TINKERPolForces(QMMMData,forces,QMMMOpts,bead,logFile);
     }
   }
@@ -156,49 +159,49 @@ void ExternalGaussian(int& argc, char**& argv)
   {
     Emm = LAMMPSForces(QMMMData,forces,QMMMOpts,bead);
   }
-  //Write formatted output for g09
-  double E = (Eqm+Emm)/har2eV; //Calculate
-  gauOutput << left; //More formatting
-  gauOutput << LICHEMFormFloat(E,20); //QM+MM partial energy
-  gauOutput << LICHEMFormFloat(0.0,20); //Dipole moment
-  gauOutput << LICHEMFormFloat(0.0,20); //Dipole moment
-  gauOutput << LICHEMFormFloat(0.0,20); //Dipole moment
+  // Write formatted output for g09
+  double E = (Eqm+Emm)/har2eV; // Calculate
+  gauOutput << left; // More formatting
+  gauOutput << LICHEMFormFloat(E,20); // QM+MM partial energy
+  gauOutput << LICHEMFormFloat(0.0,20); // Dipole moment
+  gauOutput << LICHEMFormFloat(0.0,20); // Dipole moment
+  gauOutput << LICHEMFormFloat(0.0,20); // Dipole moment
   gauOutput << '\n';
   for (int i=0;i<(Nqm+Npseudo);i++)
   {
-    //Write forces
+    // Write forces
     gauOutput << LICHEMFormFloat(-1*forces(3*i)*bohrRad/har2eV,20);
     gauOutput << LICHEMFormFloat(-1*forces(3*i+1)*bohrRad/har2eV,20);
     gauOutput << LICHEMFormFloat(-1*forces(3*i+2)*bohrRad/har2eV,20);
     gauOutput << '\n';
   }
-  gauOutput << LICHEMFormFloat(0.0,20); //Polarizability
-  gauOutput << LICHEMFormFloat(0.0,20); //Polarizability
-  gauOutput << LICHEMFormFloat(0.0,20); //Polarizability
+  gauOutput << LICHEMFormFloat(0.0,20); // Polarizability
+  gauOutput << LICHEMFormFloat(0.0,20); // Polarizability
+  gauOutput << LICHEMFormFloat(0.0,20); // Polarizability
   gauOutput << '\n';
-  gauOutput << LICHEMFormFloat(0.0,20); //Polarizability
-  gauOutput << LICHEMFormFloat(0.0,20); //Polarizability
-  gauOutput << LICHEMFormFloat(0.0,20); //Polarizability
+  gauOutput << LICHEMFormFloat(0.0,20); // Polarizability
+  gauOutput << LICHEMFormFloat(0.0,20); // Polarizability
+  gauOutput << LICHEMFormFloat(0.0,20); // Polarizability
   gauOutput << '\n';
   for (int i=0;i<Ndof;i++)
   {
-    //Dipole derivatives
+    // Dipole derivatives
     gauOutput << LICHEMFormFloat(0.0,20);
     gauOutput << LICHEMFormFloat(0.0,20);
     gauOutput << LICHEMFormFloat(0.0,20);
     gauOutput << '\n';
   }
-  //Write output and close the file
+  // Write output and close the file
   gauOutput.flush();
   gauOutput.close();
-  //Write new XYZ for recovery of failed optimizations
+  // Write new XYZ for recovery of failed optimizations
   call.str("");
   call << Stub << ".xyz";
   outFile.open(call.str().c_str(),ios_base::out);
   outFile << Natoms << '\n' << '\n';
   for (int i=0;i<Natoms;i++)
   {
-    //Write XYZ coordinates
+    // Write XYZ coordinates
     outFile << QMMMData[i].QMTyp << " ";
     outFile << LICHEMFormFloat(QMMMData[i].P[bead].x,16) << " ";
     outFile << LICHEMFormFloat(QMMMData[i].P[bead].y,16) << " ";
@@ -206,36 +209,38 @@ void ExternalGaussian(int& argc, char**& argv)
   }
   outFile.flush();
   outFile.close();
-  //Return to Gaussian
+  // Return to Gaussian
   logFile << "Forces were returned to Gaussian..." << '\n';
   logFile.flush();
   exit(0);
   return;
 };
 
+/*-------------------------------------------------------------------------*/
+
 double GaussianExternOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                          int bead)
 {
-  //Runs Gaussian optimizations with GauExternal
-  fstream inFile,QMLog; //Generic file streams
-  string dummy; //Generic string
-  stringstream call; //Stream for system calls and reading/writing files
-  call.copyfmt(cout); //Copy print settings
-  double E = 0.0; //QM energy
-  int extCPUs = 1; //Number of CPUs for GauExternal
+  // Runs Gaussian optimizations with GauExternal
+  fstream inFile,QMLog; // Generic file streams
+  string dummy; // Generic string
+  stringstream call; // Stream for system calls and reading/writing files
+  call.copyfmt(cout); // Copy print settings
+  double E = 0.0; // QM energy
+  int extCPUs = 1; // Number of CPUs for GauExternal
   if (AMOEBA and TINKER)
   {
     RotateTINKCharges(QMMMData,bead);
   }
-  //Write a new XYZ
-  //NB: GauExternal needs different input than the rest of the wrappers
+  // Write a new XYZ
+  // NB: GauExternal needs different input than the rest of the wrappers
   call.str("");
   call << "LICHMExt_" << bead << ".xyz";
   inFile.open(call.str().c_str(),ios_base::out);
   inFile << Natoms << '\n' << '\n';
   for (int i=0;i<Natoms;i++)
   {
-    //Print XYZ coordinates
+    // Print XYZ coordinates
     inFile << QMMMData[i].QMTyp << " ";
     inFile << LICHEMFormFloat(QMMMData[i].P[bead].x,16) << " ";
     inFile << LICHEMFormFloat(QMMMData[i].P[bead].y,16) << " ";
@@ -243,7 +248,7 @@ double GaussianExternOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   inFile.flush();
   inFile.close();
-  //Write Gaussian input
+  // Write Gaussian input
   call.str("");
   call << "LICHMExt_" << bead << ".com";
   inFile.open(call.str().c_str(),ios_base::out);
@@ -272,7 +277,7 @@ double GaussianExternOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   call << '\n';
   call << "#P " << "external=\"lichem -GauExtern ";
-  call << "LICHMExt_" << bead;  //Just the stub
+  call << "LICHMExt_" << bead;  // Just the stub
   call << " -n " << extCPUs;
   call << " -c " << conFilename;
   call << " -r " << regFilename;
@@ -282,10 +287,10 @@ double GaussianExternOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   call << "MaxCycles=" << QMMMOpts.maxOptSteps;
   call << ",MaxStep=" << int(round((QMMMOpts.maxStep/(0.01*bohrRad))));
   call << ")" << '\n';
-  call << '\n'; //Blank line
-  call << "QMMM" << '\n' << '\n'; //Dummy title
+  call << '\n'; // Blank line
+  call << "QMMM" << '\n' << '\n'; // Dummy title
   call << QMMMOpts.charge << " " << QMMMOpts.spin << '\n';
-  //Add atoms
+  // Add atoms
   for (int i=0;i<Natoms;i++)
   {
     if (QMMMData[i].QMRegion)
@@ -305,22 +310,24 @@ double GaussianExternOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       call << '\n';
     }
   }
-  call << '\n'; //Blank line needed
-  //Write Gaussian input
+  call << '\n'; // Blank line needed
+  // Write Gaussian input
   inFile << call.str();
   inFile.close();
-  //Run Optimization
+  // Run Optimization
   call.str("");
-  //call << "g09 ";
-  if(g09){
+  /* call << "g09 "; */
+  if (g09)
+  {
     call << "g09 ";
   }
-  else{
+  else
+  {
     call << "g16 ";
   }
   call << "LICHMExt_" << bead;
   globalSys = system(call.str().c_str());
-  //Read new structure
+  // Read new structure
   call.str("");
   call << "LICHMExt_";
   call << bead << ".log";
@@ -328,8 +335,8 @@ double GaussianExternOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   bool optFinished = 0;
   while (!QMLog.eof() and QMLog.good())
   {
-    //This loop will find the last geometry even if the calculation
-    //did not complete
+    // This loop will find the last geometry even if the calculation
+    // did not complete
     getline(QMLog,dummy);
     stringstream line(dummy);
     line >> dummy;
@@ -339,14 +346,14 @@ double GaussianExternOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       line >> dummy;
       if (dummy == "Coordinates")
       {
-        //Clear junk
+        // Clear junk
         getline(QMLog,dummy);
         getline(QMLog,dummy);
         for (int i=0;i<Natoms;i++)
         {
           if (QMMMData[i].QMRegion or QMMMData[i].PBRegion)
           {
-            //Get new coordinates
+            // Get new coordinates
             getline(QMLog,dummy);
             stringstream line(dummy);
             line >> dummy >> dummy;
@@ -368,27 +375,26 @@ double GaussianExternOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     }
   }
   QMLog.close();
-  //Clean up files
+  // Clean up files
   call.str("");
   call << "rm -f LICHMExt_";
   call << bead << ".*";
   globalSys = system(call.str().c_str());
-  //Print warnings and errors
+  // Print warnings and errors
   if (!optFinished)
   {
     cerr << "Warning: Optimization did not converge!!!";
     cerr << '\n';
     cerr << "An older geometry will be recovered...";
     cerr << '\n';
-    E = hugeNum; //Large number to reject step
-    cerr.flush(); //Print warning immediately
-    //Delete checkpoint
+    E = hugeNum; // Large number to reject step
+    cerr.flush(); // Print warning immediately
+    // Delete checkpoint
     call.str("");
     call << "rm -f LICHM_" << bead << ".chk";
     globalSys = system(call.str().c_str());
   }
-  //Calculate new point-charges and return
+  // Calculate new point-charges and return
   GaussianCharges(QMMMData,QMMMOpts,bead);
   return E;
 };
-

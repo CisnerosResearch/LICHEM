@@ -11,38 +11,38 @@
 */
 
 /*
-  ###############################################################################
-  #                                                                             #
-  # Hatice GOKCAN                                                               #
-  #                                                                             #
-  # Functions to write Gaussian input in parallel LICHEM                        #
-  # Includes:                                                                   #
-  #                                                                             #
-  #            for master proc:                                                 #
-  #                                                                             #
-  #                            Writing input files :                            #
-  #                                   void WriteGauInputMPI                     #
-  #                                                                             #
-  ###############################################################################
+  #############################################################################
+  #                                                                           #
+  # Hatice GOKCAN                                                             #
+  #                                                                           #
+  # Functions to write Gaussian input in parallel LICHEM                      #
+  # Includes:                                                                 #
+  #                                                                           #
+  #            for master proc:                                               #
+  #                                                                           #
+  #                            Writing input files :                          #
+  #                                   void WriteGauInputMPI                   #
+  #                                                                           #
+  #############################################################################
 */
 
 
 void WriteGauInputMPI(vector<QMMMAtom>& QMMMData, string calcTyp,
-                   QMMMSettings& QMMMOpts, int bead,
-                   int gautype)
+                      QMMMSettings& QMMMOpts, int bead,
+                      int gautype)
 {
-  /*Write Gaussian input files*/
-  stringstream call; /*Stream for system calls and reading/writing files*/
-  call.copyfmt(cout); /*Copy settings from cout*/
-  string dummy,chrgfilename; /*Generic strings*/
-  fstream inFile,outFile; /*Generic file names*/
-  /*Check units*/
-  double uConv = 1; /*Units conversion constant*/
+  // Write Gaussian input files
+  stringstream call; // Stream for system calls and reading/writing files
+  call.copyfmt(cout); // Copy settings from cout
+  string dummy,chrgfilename; // Generic strings
+  fstream inFile,outFile; // Generic file names
+  // Check units
+  double uConv = 1; // Units conversion constant
   if (QMMMOpts.unitsQM == "Bohr")
   {
     uConv = 1.0/bohrRad;
   }
-  /*Check for a charge file*/
+  // Check for a charge file
   bool useChargeFile = 0;
   call.str("");
   call << "MMCharges_" << bead << ".txt";
@@ -50,11 +50,11 @@ void WriteGauInputMPI(vector<QMMMAtom>& QMMMData, string calcTyp,
   useChargeFile = CheckFile(call.str());
   if (Nmm == 0)
   {
-    /*Skip blank charge files*/
+    // Skip blank charge files
     useChargeFile = 0;
   }
-  /*Initialize multipoles and center of mass*/
-  bool firstCharge = 1; /*Always write the first charge*/
+  // Initialize multipoles and center of mass
+  bool firstCharge = 1; // Always write the first charge
   Coord QMCOM;
   if (!useChargeFile)
   {
@@ -66,29 +66,29 @@ void WriteGauInputMPI(vector<QMMMAtom>& QMMMData, string calcTyp,
     {
       if (TINKER)
       {
-        /*Set up multipoles*/
+        // Set up multipoles
         RotateTINKCharges(QMMMData,bead);
       }
     }
   }
-  /*Construct g09 input*/
+  // Construct g09 input
   call.str("");
   /*
-   gautype=0 -> energy
-   gautype=1 -> force 
+    gautype=0 -> energy
+    gautype=1 -> force 
   */
-  if(gautype==0){
+  if (gautype==0){
     call << "LICHM_GauEner_" << bead << ".com";
   }
-  if(gautype==1){
+  if (gautype==1){
     call << "LICHM_GauForce_" << bead << ".com";
   }
   outFile.open(call.str().c_str(),ios_base::out);
   call.str("");
-  if(gautype==0){
+  if (gautype==0){
     call << "%chk=LICHM_" << bead << ".chk";
   }
-  if(gautype==1){
+  if (gautype==1){
     call << "%chk=LICHM_" << bead << ".chk";
   }
 
@@ -103,14 +103,14 @@ void WriteGauInputMPI(vector<QMMMAtom>& QMMMData, string calcTyp,
     call << "GB";
   }
   call << '\n';
-  /*Start: Hatice*/
-  /*call << "%NprocShared=" << Ncpus << '\n';*/
-  /*End: Hatice*/
-  /*Add ROUTE section*/
+  // Start: Hatice
+  /* call << "%NprocShared=" << Ncpus << '\n'; */
+  // End: Hatice
+  // Add ROUTE section
   call << calcTyp;
-  /*Add structure*/
-  call << '\n'; /*Blank line*/
-  call << "QMMM" << '\n' << '\n'; /*Dummy title*/
+  // Add structure
+  call << '\n'; // Blank line
+  call << "QMMM" << '\n' << '\n'; // Dummy title
   call << QMMMOpts.charge << " " << QMMMOpts.spin << '\n';
   for (int i=0;i<Natoms;i++)
   {
@@ -131,8 +131,8 @@ void WriteGauInputMPI(vector<QMMMAtom>& QMMMData, string calcTyp,
       call << '\n';
     }
   }
-  call << '\n'; /*Blank line needed*/
-  /*Add the MM field*/
+  call << '\n'; // Blank line needed
+  // Add the MM field
   if (QMMM and useChargeFile)
   {
     inFile.open(chrgfilename.c_str(),ios_base::in);
@@ -140,7 +140,7 @@ void WriteGauInputMPI(vector<QMMMAtom>& QMMMData, string calcTyp,
     {
       while (!inFile.eof())
       {
-        /*Copy charge file line by line*/
+        // Copy charge file line by line
         getline(inFile,dummy);
         call << dummy << '\n';
       }
@@ -155,21 +155,21 @@ void WriteGauInputMPI(vector<QMMMAtom>& QMMMData, string calcTyp,
       {
         if (QMMMData[i].MMRegion)
         {
-          /*Check PBC (minimum image convention)*/
-          Coord distCent; /*Distance from QM COM*/
+          // Check PBC (minimum image convention)
+          Coord distCent; // Distance from QM COM
           double xShft = 0;
           double yShft = 0;
           double zShft = 0;
           if (PBCon or QMMMOpts.useLREC)
           {
-            /*Initialize displacements*/
-            double dx,dy,dz; /*Starting displacements*/
+            // Initialize displacements
+            double dx,dy,dz; // Starting displacements
             dx = QMMMData[i].P[bead].x-QMCOM.x;
             dy = QMMMData[i].P[bead].y-QMCOM.y;
             dz = QMMMData[i].P[bead].z-QMCOM.z;
             distCent = CoordDist2(QMMMData[i].P[bead],QMCOM);
-            /*Calculate the shift in positions*/
-            /*NB: Generally this work out to be +/- {Lx,Ly,Lz}*/
+            // Calculate the shift in positions
+            // NB: Generally this work out to be +/- {Lx,Ly,Lz}
             if (PBCon)
             {
               xShft = distCent.x-dx;
@@ -177,18 +177,18 @@ void WriteGauInputMPI(vector<QMMMAtom>& QMMMData, string calcTyp,
               zShft = distCent.z-dz;
             }
           }
-          /*Check for long-range corrections*/
+          // Check for long-range corrections
           double scrq = 1;
           if (QMMMOpts.useLREC)
           {
-            /*Use the long-range correction*/
+            // Use the long-range correction
             scrq = LRECFunction(distCent,QMMMOpts);
           }
           if ((scrq > 0) or firstCharge)
           {
-            /*Add charges*/
-            firstCharge = 0; /*Skips writing the remaining zeros*/
-            double tmpX,tmpY,tmpZ,tmpQ; /*Temporary storage*/
+            // Add charges
+            firstCharge = 0; // Skips writing the remaining zeros
+            double tmpX,tmpY,tmpZ,tmpQ; // Temporary storage
             tmpX = (QMMMData[i].P[bead].x+xShft)*uConv;
             tmpY = (QMMMData[i].P[bead].y+yShft)*uConv;
             tmpZ = (QMMMData[i].P[bead].z+zShft)*uConv;
@@ -207,7 +207,7 @@ void WriteGauInputMPI(vector<QMMMAtom>& QMMMData, string calcTyp,
       }
       if (Nmm > 0)
       {
-        call << '\n'; /*Blank line needed*/
+        call << '\n'; // Blank line needed
       }
     }
     if (AMOEBA)
@@ -216,21 +216,21 @@ void WriteGauInputMPI(vector<QMMMAtom>& QMMMData, string calcTyp,
       {
         if (QMMMData[i].MMRegion)
         {
-          /*Check PBC (minimum image convention)*/
-          Coord distCent; /*Distance from QM COM*/
+          // Check PBC (minimum image convention)
+          Coord distCent; // Distance from QM COM
           double xShft = 0;
           double yShft = 0;
           double zShft = 0;
           if (PBCon or QMMMOpts.useLREC)
           {
-            /*Initialize displacements*/
-            double dx,dy,dz; /*Starting displacements*/
+            // Initialize displacements
+            double dx,dy,dz; // Starting displacements
             dx = QMMMData[i].P[bead].x-QMCOM.x;
             dy = QMMMData[i].P[bead].y-QMCOM.y;
             dz = QMMMData[i].P[bead].z-QMCOM.z;
             distCent = CoordDist2(QMMMData[i].P[bead],QMCOM);
-            /*Calculate the shift in positions*/
-            /*NB: Generally this work out to be +/- {Lx,Ly,Lz}*/
+            // Calculate the shift in positions
+            // NB: Generally this work out to be +/- {Lx,Ly,Lz}
             if (PBCon)
             {
               xShft = distCent.x-dx;
@@ -238,16 +238,16 @@ void WriteGauInputMPI(vector<QMMMAtom>& QMMMData, string calcTyp,
               zShft = distCent.z-dz;
             }
           }
-          /*Check for long-range corrections*/
+          // Check for long-range corrections
           double scrq = 1;
           if (QMMMOpts.useLREC)
           {
-            /*Use the long-range correction*/
+            // Use the long-range correction
             scrq = LRECFunction(distCent,QMMMOpts);
           }
           if ((scrq > 0) or firstCharge)
           {
-            firstCharge = 0; /*Skips writing the remaining zeros*/
+            firstCharge = 0; // Skips writing the remaining zeros
             call << " ";
             call << LICHEMFormFloat(QMMMData[i].PC[bead].x1+xShft,16);
             call << " ";
@@ -307,17 +307,17 @@ void WriteGauInputMPI(vector<QMMMAtom>& QMMMData, string calcTyp,
       }
       if (Nmm > 0)
       {
-        call << '\n'; /*Blank line needed*/
+        call << '\n'; // Blank line needed
       }
     }
   }
-  /*Add basis set information from the BASIS file*/
+  // Add basis set information from the BASIS file
   inFile.open("BASIS",ios_base::in);
   if (inFile.good())
   {
     while (!inFile.eof())
     {
-      /*Copy BASIS line by line, if BASIS exists*/
+      // Copy BASIS line by line, if BASIS exists
       getline(inFile,dummy);
       call << dummy << '\n';
     }
@@ -328,4 +328,3 @@ void WriteGauInputMPI(vector<QMMMAtom>& QMMMData, string calcTyp,
   outFile.close();
   return;
 };
-

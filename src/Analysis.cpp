@@ -18,17 +18,17 @@
 
 */
 
-//Trajectory analysis functions
+// Trajectory analysis functions
 void Print_traj(vector<QMMMAtom>& QMMMData, fstream& traj,
                 QMMMSettings& QMMMOpts)
 {
-  //Function to print the trajectory or restart files for all beads
-  stringstream call; //Only used to save traj stream settings
-  //Print XYZ file
-  int Ntot = QMMMOpts.NBeads*Natoms; //Total number of particles
-  traj << Ntot << '\n' << '\n'; //Print number of particles and a blank line
+  // Function to print the trajectory or restart files for all beads
+  stringstream call; // Only used to save traj stream settings
+  // Print XYZ file
+  int Ntot = QMMMOpts.NBeads*Natoms; // Total number of particles
+  traj << Ntot << '\n' << '\n'; // Print number of particles and a blank line
  
-  //Print all replicas
+  // Print all replicas
   for (int j=0;j<QMMMOpts.NBeads;j++)
   {
     for (int i=0;i<Natoms;i++)
@@ -39,80 +39,84 @@ void Print_traj(vector<QMMMAtom>& QMMMData, fstream& traj,
       traj << LICHEMFormFloat(QMMMData[i].P[j].z,16) << '\n';
     }
   }
-  //Write data and return
-  traj.flush(); //Force printing
+  // Write data and return
+  traj.flush(); // Force printing
   return;
 };
 
+/*-------------------------------------------------------------------------*/
+
 void BurstTraj(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts)
 {
-  //Function to split reaction path and path-integral trajectory frames
-  int ct; //Generic counter
-  stringstream call; //Stream for system calls and reading/writing files
+  // Function to split reaction path and path-integral trajectory frames
+  int ct; // Generic counter
+  stringstream call; // Stream for system calls and reading/writing files
   fstream burstFile;
-  string dummy; //Generic string
-  //Open new trajectory file
+  string dummy; // Generic string
+  // Open new trajectory file
   call.str("");
   call << "BurstStruct.xyz";
-  ct = 0; //Start counting at the second file
+  ct = 0; // Start counting at the second file
   while (CheckFile(call.str()))
   {
-    //Avoids overwriting files
-    ct += 1; //Increase file counter
-    call.str(""); //Change file name
+    // Avoids overwriting files
+    ct += 1; // Increase file counter
+    call.str(""); // Change file name
     call << "BurstStruct_";
     call << ct << ".xyz";
   }
   burstFile.open(call.str().c_str(),ios_base::out);
-  //Print trajectory
+  // Print trajectory
   for (int j=0;j<QMMMOpts.NBeads;j++)
   {
-    //Print all atoms in replica j
-    burstFile << Natoms; //Number of atoms
-    burstFile << '\n' << '\n'; //Print blank comment line
+    // Print all atoms in replica j
+    burstFile << Natoms; // Number of atoms
+    burstFile << '\n' << '\n'; // Print blank comment line
     for (int i=0;i<Natoms;i++)
     {
-      //Print data for atom i
+      // Print data for atom i
       burstFile << setw(3) << left << QMMMData[i].QMTyp << " ";
       burstFile << LICHEMFormFloat(QMMMData[i].P[j].x,16) << " ";
       burstFile << LICHEMFormFloat(QMMMData[i].P[j].y,16) << " ";
       burstFile << LICHEMFormFloat(QMMMData[i].P[j].z,16) << '\n';
     }
   }
-  //Write data and return
-  burstFile.flush(); //Print trajectory
-  burstFile.close(); //File is nolonger needed
+  // Write data and return
+  burstFile.flush(); // Print trajectory
+  burstFile.close(); // File is nolonger needed
   return;
 };
 
-//Trajectory manipulation functions
+/*-------------------------------------------------------------------------*/
+
+// Trajectory manipulation functions
 void PathLinInterpolate(int& argc, char**& argv)
 {
-  //Linearly interpolate a path from reactant and product geometries
-  //NB: Transition state structures are optional
-  stringstream call; //Stream for system calls and reading/writing files
-  string dummy; //Generic string
-  string reactFilename, tsFilename, prodFilename; //File names
-  fstream reactFile, tsFile, prodFile, pathFile; //File streams
-  int Nbeads = 3; //Default to react, ts, and prod
-  bool includeTS = 0; //Flag to use the TS structure
-  bool doQuit = 0; //Quit with an error
+  // Linearly interpolate a path from reactant and product geometries
+  // NB: Transition state structures are optional
+  stringstream call; // Stream for system calls and reading/writing files
+  string dummy; // Generic string
+  string reactFilename, tsFilename, prodFilename; // File names
+  fstream reactFile, tsFile, prodFile, pathFile; // File streams
+  int Nbeads = 3; // Default to react, ts, and prod
+  bool includeTS = 0; // Flag to use the TS structure
+  bool doQuit = 0; // Quit with an error
   reactFilename = "N/A";
   tsFilename = "N/A";
   prodFilename = "N/A";
-  //Read settings
+  // Read settings
   cout << "Reading LICHEM input:";
   for (int i=0;i<argc;i++)
   {
     dummy = string(argv[i]);
-    //Check number of beads
+    // Check number of beads
     if (dummy == "-b")
     {
       stringstream file;
-      file << argv[i+1]; //Save to the stream
-      file >> Nbeads; //Change to an int
+      file << argv[i+1]; // Save to the stream
+      file >> Nbeads; // Change to an int
     }
-    //Check reactant file
+    // Check reactant file
     if (dummy == "-r")
     {
       stringstream file;
@@ -127,10 +131,10 @@ void PathLinInterpolate(int& argc, char**& argv)
       reactFile.open(argv[i+1],ios_base::in);
       cout << " " << argv[i+1];
     }
-    //Check transition state file
+    // Check transition state file
     if (dummy == "-t")
     {
-      includeTS = 1; //Do a 3 point interpolation
+      includeTS = 1; // Do a 3 point interpolation
       stringstream file;
       file << argv[i+1];
       if (!CheckFile(file.str()))
@@ -143,7 +147,7 @@ void PathLinInterpolate(int& argc, char**& argv)
       tsFile.open(argv[i+1],ios_base::in);
       cout << " " << argv[i+1];
     }
-    //Check product file
+    // Check product file
     if (dummy == "-p")
     {
       stringstream file;
@@ -159,40 +163,40 @@ void PathLinInterpolate(int& argc, char**& argv)
       cout << " " << argv[i+1];
     }
   }
-  cout << '\n' << '\n'; //Terminate output
-  //Error check
+  cout << '\n' << '\n'; // Terminate output
+  // Error check
   if (!CheckFile(reactFilename))
   {
-    //Missing flag
+    // Missing flag
     cout << "Error: Missing reactant file!!!";
     cout << '\n' << '\n';
     doQuit = 1;
   }
   if ((!CheckFile(tsFilename)) and (includeTS))
   {
-    //Missing flag
+    // Missing flag
     cout << "Error: Missing transition state file!!!";
     cout << '\n' << '\n';
     doQuit = 1;
   }
   if (!CheckFile(prodFilename))
   {
-    //Missing flag
+    // Missing flag
     cout << "Error: Missing product file!!!";
     cout << '\n' << '\n';
     doQuit = 1;
   }
   if (doQuit)
   {
-    //Exit with errors
+    // Exit with errors
     exit(0);
   }
-  //Read geometries
-  vector<string> atTyps; //Element names
-  vector<Coord> reactPOS; //Reactant coordinates
-  vector<Coord> transPOS; //Transition state coordinates
-  vector<Coord> prodPOS; //Product coordinates
-  reactFile >> Natoms; //Read number of atoms
+  // Read geometries
+  vector<string> atTyps; // Element names
+  vector<Coord> reactPOS; // Reactant coordinates
+  vector<Coord> transPOS; // Transition state coordinates
+  vector<Coord> prodPOS; // Product coordinates
+  reactFile >> Natoms; // Read number of atoms
   for (int i=0;i<Natoms;i++)
   {
     string temptyp;
@@ -207,7 +211,7 @@ void PathLinInterpolate(int& argc, char**& argv)
   reactFile.close();
   if (includeTS)
   {
-    tsFile >> Natoms; //Read number of atoms
+    tsFile >> Natoms; // Read number of atoms
     for (int i=0;i<Natoms;i++)
     {
       string temptyp;
@@ -221,7 +225,7 @@ void PathLinInterpolate(int& argc, char**& argv)
     }
     tsFile.close();
   }
-  prodFile >> Natoms; //Read number of atoms
+  prodFile >> Natoms; // Read number of atoms
   for (int i=0;i<Natoms;i++)
   {
     string temptyp;
@@ -234,10 +238,10 @@ void PathLinInterpolate(int& argc, char**& argv)
     prodPOS.push_back(temppos);
   }
   prodFile.close();
-  //Check for more errors
+  // Check for more errors
   if (reactPOS.size() != prodPOS.size())
   {
-    //Incorrect number of atoms in the reactant or product
+    // Incorrect number of atoms in the reactant or product
     cout << "Error: Different number of atoms for the reactant";
     cout << " and product!!!";
     cout << '\n' << '\n';
@@ -247,7 +251,7 @@ void PathLinInterpolate(int& argc, char**& argv)
   {
     if (reactPOS.size() != transPOS.size())
     {
-      //Incorrect number of atoms in the reactant or product
+      // Incorrect number of atoms in the reactant or product
       cout << "Error: Different number of atoms for the reactant";
       cout << " and transition state!!!";
       cout << '\n' << '\n';
@@ -255,36 +259,35 @@ void PathLinInterpolate(int& argc, char**& argv)
     }
     if (transPOS.size() != prodPOS.size())
     {
-      //Incorrect number of atoms in the reactant or product
+      // Incorrect number of atoms in the reactant or product
       cout << "Error: Different number of atoms for the transition state";
       cout << " and product!!!";
       cout << '\n' << '\n';
       exit(0);
     }
   }
-  //Interpolate between points
+  // Interpolate between points
   pathFile.open("BeadStartStruct.xyz",ios_base::out);
   pathFile << (Natoms*Nbeads) << '\n' << '\n';
   if (includeTS)
   {
-    //Linear interpolation between the react, ts, and prod structures
+    // Linear interpolation between the react, ts, and prod structures
     if ((Nbeads%2) != 1)
     {
-      //Adjust number of beads
+      // Adjust number of beads
       Nbeads += 1;
       cout << "Warning: A three structure interpolation requires an odd";
       cout << " number of points." << '\n';
       cout << " Nbeads increased to " << Nbeads << '\n' << '\n';
     }
-    //Loop over first half of the beads
+    // Loop over first half of the beads
     for (int j=0;j<((Nbeads-1)/2);j++)
     {
       for (int i=0;i<Natoms;i++)
       {
-
-        //Print element
+        // Print element
         pathFile << atTyps[i] << " ";
-        //Print interpolated coordinates
+        // Print interpolated coordinates
         double x,y,z;
         x = reactPOS[i].x;
         x += (2*j*transPOS[i].x)/(Nbeads-1);
@@ -300,14 +303,14 @@ void PathLinInterpolate(int& argc, char**& argv)
         pathFile << LICHEMFormFloat(z,16) << '\n';
       }
     }
-    //Loop over second half of the beads
+    // Loop over second half of the beads
     for (int j=0;j<(((Nbeads-1)/2)+1);j++)
     {
       for (int i=0;i<Natoms;i++)
       {
-        //Print element
+        // Print element
         pathFile << atTyps[i] << " ";
-        //Print interpolated coordinates
+        // Print interpolated coordinates
         double x,y,z;
         x = transPOS[i].x;
         x += (2*j*prodPOS[i].x)/(Nbeads-1);
@@ -326,15 +329,15 @@ void PathLinInterpolate(int& argc, char**& argv)
   }
   else
   {
-    //Linear interpolation between the react and prod structures
-    //Loop over beads
+    // Linear interpolation between the react and prod structures
+    // Loop over beads
     for (int j=0;j<Nbeads;j++)
     {
-     for (int i=0;i<Natoms;i++)
-     {  
-        //Print element
+      for (int i=0;i<Natoms;i++)
+      {  
+        // Print element
         pathFile << atTyps[i] << " ";
-        //Print interpolated coordinates
+        // Print interpolated coordinates
         double x,y,z;
         x = reactPOS[i].x;
         x += (j*prodPOS[i].x)/(Nbeads-1);
@@ -353,43 +356,45 @@ void PathLinInterpolate(int& argc, char**& argv)
   }
   pathFile.flush();
   pathFile.close();
-  //Exit LICHEM
+  // Exit LICHEM
   exit(0);
   return;
 };
 
+/*-------------------------------------------------------------------------*/
+
 void SplitPathTraj(int& argc, char**& argv)
 {
-  //Function to separate a reaction path frame into a trajectory
-  stringstream call; //Stream for system calls and reading/writing files
-  string dummy; //Generic string
-  string pathFilename; //Name of the merged trajectory file
-  fstream pathFile, burstFile; //File streams
-  int ct; //Generic counter
-  int Nbeads = 1; //Default to a single bead
-  int frameID = 0; //The trajectory frame that will be separated
-  bool doQuit = 0; //Quit with an error
+  // Function to separate a reaction path frame into a trajectory
+  stringstream call; // Stream for system calls and reading/writing files
+  string dummy; // Generic string
+  string pathFilename; // Name of the merged trajectory file
+  fstream pathFile, burstFile; // File streams
+  int ct; // Generic counter
+  int Nbeads = 1; // Default to a single bead
+  int frameID = 0; // The trajectory frame that will be separated
+  bool doQuit = 0; // Quit with an error
   pathFilename = "N/A";
-  //Read settings
+  // Read settings
   cout << "Reading LICHEM input:";
   for (int i=0;i<argc;i++)
   {
     dummy = string(argv[i]);
-    //Check number of beads
+    // Check number of beads
     if (dummy == "-b")
     {
       stringstream file;
-      file << argv[i+1]; //Save to the stream
-      file >> Nbeads; //Change to an int
+      file << argv[i+1]; // Save to the stream
+      file >> Nbeads; // Change to an int
     }
-    //Check frame
+    // Check frame
     if (dummy == "-f")
     {
       stringstream file;
-      file << argv[i+1]; //Save to the stream
-      file >> frameID; //Change to an int
+      file << argv[i+1]; // Save to the stream
+      file >> frameID; // Change to an int
     }
-    //Read reaction path trajectory file name
+    // Read reaction path trajectory file name
     if (dummy == "-p")
     {
       stringstream file;
@@ -405,46 +410,46 @@ void SplitPathTraj(int& argc, char**& argv)
       cout << " " << argv[i+1];
     }
   }
-  cout << '\n' << '\n'; //Terminate output
-  //Print other settings
+  cout << '\n' << '\n'; // Terminate output
+  // Print other settings
   cout << "Number of beads: " << Nbeads << '\n';
   cout << "Frame ID: " << frameID << '\n';
   cout << '\n';
-  //Check for errors
+  // Check for errors
   if (!CheckFile(pathFilename))
   {
-    //Missing flag
+    // Missing flag
     cout << "Error: Missing trajectory file!!!";
     cout << '\n' << '\n';
     doQuit = 1;
   }
   if (doQuit)
   {
-    //Exit with errors
+    // Exit with errors
     exit(0);
   }
-  //Open new trajectory file
+  // Open new trajectory file
   call.str("");
   call << "BurstStruct.xyz";
-  ct = 0; //Start counting at the second file
+  ct = 0; // Start counting at the second file
   while (CheckFile(call.str()))
   {
-    //Avoids overwriting files
-    ct += 1; //Increase file counter
-    call.str(""); //Change file name
+    // Avoids overwriting files
+    ct += 1; // Increase file counter
+    call.str(""); // Change file name
     call << "BurstStruct_";
     call << ct << ".xyz";
   }
   burstFile.open(call.str().c_str(),ios_base::out);
   cout << "Trajectory output: " << call.str();
   cout << '\n' << '\n';
-  //Read the number of atoms
-  getline(pathFile,dummy); //Read the first line of the file
-  call.str(dummy); //Save to a stream
-  call >> Natoms; //Read number of atoms
+  // Read the number of atoms
+  getline(pathFile,dummy); // Read the first line of the file
+  call.str(dummy); // Save to a stream
+  call >> Natoms; // Read number of atoms
   if ((Natoms%Nbeads) != 0)
   {
-    //Check the number of particles
+    // Check the number of particles
     cout << "Error: Number of beads does not match the number of";
     cout << " particles!!!";
     cout << '\n' << '\n';
@@ -454,67 +459,69 @@ void SplitPathTraj(int& argc, char**& argv)
   {
     Natoms /= Nbeads;
   }
-  //Clear first comment line
-  getline(pathFile,dummy); //Read and discard junk
-  //Move to the correct frame
+  // Clear first comment line
+  getline(pathFile,dummy); // Read and discard junk
+  // Move to the correct frame
   for (int i=0;i<frameID;i++)
   {
     for (int j=0;j<(Natoms*Nbeads+2);j++)
     {
       string line;
-      getline(pathFile,line); //Read and discard junk
+      getline(pathFile,line); // Read and discard junk
     }
   }
-  //Create string array for the frames
+  // Create string array for the frames
   vector<string> allFrames;
   for (int i=0;i<Nbeads;i++)
   {
-    //Each element is a long string holding a single frame
+    // Each element is a long string holding a single frame
     stringstream line;
     line.str("");
     line << Natoms << '\n' << '\n';
     allFrames.push_back(line.str());
   }
-  //Separate coordinates
+  // Separate coordinates
   for (int j=0;j<Nbeads;j++)
   {
     for (int i=0;i<Natoms;i++)
     {
       string line;
-      getline(pathFile,line); //Read a line
-      allFrames[j] += line; //Append to the frame
-      allFrames[j] += '\n'; //Terminate the line
+      getline(pathFile,line); // Read a line
+      allFrames[j] += line; // Append to the frame
+      allFrames[j] += '\n'; // Terminate the line
     }
   }
-  //Write the output file
+  // Write the output file
   for (int i=0;i<Nbeads;i++)
   {
     burstFile << allFrames[i];
   }
-  //Close files
+  // Close files
   pathFile.close();
   burstFile.flush();
   burstFile.close();
-  //Exit
+  // Exit
   exit(0);
   return;
 };
 
+/*-------------------------------------------------------------------------*/
+
 void KabschRotation(MatrixXd& A, MatrixXd& B, int matSize)
 {
-  //Function to translate/rotate two structures for maximum overlap
-  MatrixXd coVar; //Covariance matrix
-  MatrixXd rotMat; //Rotation matrix
-  //Calculate the center of the structures
-  double Ax = 0; //Average x position of matrix A
-  double Ay = 0; //Average y position of matrix A
-  double Az = 0; //Average z position of matrix A
-  double Bx = 0; //Average x position of matrix B
-  double By = 0; //Average y position of matrix B
-  double Bz = 0; //Average z position of matrix B
+  // Function to translate/rotate two structures for maximum overlap
+  MatrixXd coVar; // Covariance matrix
+  MatrixXd rotMat; // Rotation matrix
+  // Calculate the center of the structures
+  double Ax = 0; // Average x position of matrix A
+  double Ay = 0; // Average y position of matrix A
+  double Az = 0; // Average z position of matrix A
+  double Bx = 0; // Average x position of matrix B
+  double By = 0; // Average y position of matrix B
+  double Bz = 0; // Average z position of matrix B
   #pragma omp parallel
   {
-    //Update sum of the atomic positions
+    // Update sum of the atomic positions
     #pragma omp for nowait schedule(dynamic) reduction(+:Ax)
     for (int i=0;i<matSize;i++)
     {
@@ -547,17 +554,17 @@ void KabschRotation(MatrixXd& A, MatrixXd& B, int matSize)
     }
   }
   #pragma omp barrier
-  //Take average
+  // Take average
   Ax /= matSize;
   Ay /= matSize;
   Az /= matSize;
   Bx /= matSize;
   By /= matSize;
   Bz /= matSize;
-  //Translate centroids
+  // Translate centroids
   #pragma omp parallel
   {
-    //Move A and B to (0,0,0)
+    // Move A and B to (0,0,0)
     #pragma omp for nowait schedule(dynamic)
     for (int i=0;i<matSize;i++)
     {
@@ -590,9 +597,9 @@ void KabschRotation(MatrixXd& A, MatrixXd& B, int matSize)
     }
   }
   #pragma omp barrier
-  //Calculate covariance matrix
+  // Calculate covariance matrix
   coVar = (B.transpose())*A;
-  //Compute SVD and identity matrix
+  // Compute SVD and identity matrix
   JacobiSVD<MatrixXd> SVDMat(coVar,ComputeFullU|ComputeFullV);
   MatrixXd detMat = SVDMat.matrixV()*(SVDMat.matrixU().transpose());
   double signVal = detMat.determinant();
@@ -606,77 +613,83 @@ void KabschRotation(MatrixXd& A, MatrixXd& B, int matSize)
   }
   MatrixXd Ident(3,3);
   Ident.setIdentity();
-  Ident(2,2) *= signVal; //Change sign for rotation
-  //Find optimal rotation matrix
+  Ident(2,2) *= signVal; // Change sign for rotation
+  // Find optimal rotation matrix
   rotMat = SVDMat.matrixV()*Ident*(SVDMat.matrixU().transpose());
-  //Rotate matrix A
+  // Rotate matrix A
   B *= rotMat;
-  //Return the modified positions
+  // Return the modified positions
   return;
 };
 
+/*-------------------------------------------------------------------------*/
+
 VectorXd KabschDisplacement(MatrixXd& A, MatrixXd& B, int matSize)
 {
-  //Returns the distance between two superimposed structures
+  // Returns the distance between two superimposed structures
   VectorXd dist(3*matSize);
-  //Rotate structures
+  // Rotate structures
   KabschRotation(A,B,matSize);
-  //Calculate displacement
+  // Calculate displacement
   #pragma omp parallel for schedule(dynamic)
   for (int i=0;i<(3*matSize);i++)
   {
-    //Find the correct location in the arrays
-    int direc = i%3; //Find the remainder: x=0,y=1,z=2
-    int atID = (i-direc)/3; //Find array index
-    //Calculate displacement
+    // Find the correct location in the arrays
+    int direc = i%3; // Find the remainder: x=0,y=1,z=2
+    int atID = (i-direc)/3; // Find array index
+    // Calculate displacement
     dist(i) = A(atID,direc)-B(atID,direc);
   }
-  //Return array
+  // Return array
   return dist;
 };
 
-//Physical property analysis functions
+/*-------------------------------------------------------------------------*/
+
+// Physical property analysis functions
 double LICHEMDensity(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts)
 {
-  //Function to calculate the density for periodic calculations
+  // Function to calculate the density for periodic calculations
   double rho = 0;
-  //Sum the masses
+  // Sum the masses
   #pragma omp parallel for schedule(dynamic) reduction(+:rho)
   for (int i=0;i<Natoms;i++)
   {
     rho += QMMMData[i].m;
   }
-  //Divide by the volume
+  // Divide by the volume
   rho /= (Lx*Ly*Lz);
-  //Change units to SI
+  // Change units to SI
   rho *= (amu2kg*m2Ang*m2Ang*m2Ang);
-  //Change to g/cm^3
-  rho /= 1000; //m^3 to cm^3
-  //Return density
+  // Change to g/cm^3
+  rho /= 1000; // m^3 to cm^3
+  // Return density
   return rho;
 };
+
+/*-------------------------------------------------------------------------*/
 
 VectorXd LICHEMFreq(vector<QMMMAtom>& QMMMData, MatrixXd& QMMMHess,
                     QMMMSettings& QMMMOpts, int bead, int& remCt)
 {
-  //Function to perform a QMMM frequency analysis
-  double projTol = 0.65; //Amount of overlap to remove a mode
-  double zeroTol = 1.00; //Smallest possible frequency (cm^-1)
-  int transRotCt = 0; //Number of deleted translation and rotational modes
-  //Define variables
-  int Ndof = 3*(Nqm+Npseudo); //Degrees of freedom
-  //Define arrays
+  // Function to perform a QMMM frequency analysis
+  double projTol = 0.65; // Amount of overlap to remove a mode
+  double zeroTol = 1.00; // Smallest possible frequency (cm^-1)
+  int transRotCt = 0; // Number of deleted translation and rotational modes
+  // Define variables
+  int Ndof = 3*(Nqm+Npseudo); // Degrees of freedom
+  // Define arrays
   EigenSolver<MatrixXd> freqAnalysis;
-  VectorXd QMMMFreqs(Ndof); //Vibrational frequencies (cm^-1)
-  MatrixXd QMMMNormModes(Ndof,Ndof); //Normal modes
-  MatrixXd freqMatrix(Ndof,Ndof); //Diagonal frequency matrix
-  VectorXd transX(Ndof); //X translation
-  VectorXd transY(Ndof); //Y translation
-  VectorXd transZ(Ndof); //Z translation
-  VectorXd rotX(Ndof); //X rotation
-  VectorXd rotY(Ndof); //Y rotation
-  VectorXd rotZ(Ndof); //Z rotation
-  //Initialize arrays
+  VectorXd QMMMFreqs(Ndof); // Vibrational frequencies (cm^-1)
+  MatrixXd QMMMNormModes(Ndof,Ndof); // Normal modes
+  MatrixXd freqMatrix(Ndof,Ndof); // Diagonal frequency matrix
+  VectorXd transX(Ndof); // X translation
+  VectorXd transY(Ndof); // Y translation
+  VectorXd transZ(Ndof); // Z translation
+  VectorXd rotX(Ndof); // X rotation
+  VectorXd rotY(Ndof); // Y rotation
+  VectorXd rotZ(Ndof); // Z rotation
+  // Initialize arrays
   QMMMFreqs.setZero();
   QMMMNormModes.setZero();
   freqMatrix.setZero();
@@ -686,44 +699,44 @@ VectorXd LICHEMFreq(vector<QMMMAtom>& QMMMData, MatrixXd& QMMMHess,
   rotX.setZero();
   rotY.setZero();
   rotZ.setZero();
-  //Collect QM and PB masses
+  // Collect QM and PB masses
   vector<double> masses;
   for (int i=0;i<Natoms;i++)
   {
-    //Locate QM and PB atoms
+    // Locate QM and PB atoms
     if (QMMMData[i].QMRegion or QMMMData[i].PBRegion)
     {
-      //Switch to a.u. and save mass
+      // Switch to a.u. and save mass
       double massVal = QMMMData[i].m/elecMass;
-      masses.push_back(massVal); //X component
-      masses.push_back(massVal); //Y component
-      masses.push_back(massVal); //Z component
+      masses.push_back(massVal); // X component
+      masses.push_back(massVal); // Y component
+      masses.push_back(massVal); // Z component
     }
   }
-  //Mass scale the Hessian matrix
+  // Mass scale the Hessian matrix
   #pragma omp parallel for
   for (int i=0;i<Ndof;i++)
   {
-    //Update diagonal matrix elements
+    // Update diagonal matrix elements
     QMMMHess(i,i) /= masses[i];
-    //Update off-diagonal matrix elements
+    // Update off-diagonal matrix elements
     for (int j=0;j<i;j++)
     {
-      //Mass scale
+      // Mass scale
       QMMMHess(i,j) /= sqrt(masses[i]*masses[j]);
-      //Apply symmetry
+      // Apply symmetry
       QMMMHess(j,i) = QMMMHess(i,j);
     }
   }
-  //Diagonalize Hessian matrix
+  // Diagonalize Hessian matrix
   freqAnalysis.compute(QMMMHess);
   QMMMFreqs = freqAnalysis.eigenvalues().real();
   QMMMNormModes = freqAnalysis.eigenvectors().real();
-  //Create model translation and rotation modes
+  // Create model translation and rotation modes
   #pragma omp parallel for
   for (int i=0;i<(Nqm+Npseudo);i++)
   {
-    //Translational modes
+    // Translational modes
     transX(3*i) = sqrt(masses[3*i]);
     transY(3*i+1) = sqrt(masses[3*i+1]);
     transZ(3*i+2) = sqrt(masses[3*i+2]);
@@ -731,14 +744,14 @@ VectorXd LICHEMFreq(vector<QMMMAtom>& QMMMData, MatrixXd& QMMMHess,
   transX.normalize();
   transY.normalize();
   transZ.normalize();
-  //Remove translation and rotation
-  transRotCt = 0; //Use as a counter
+  // Remove translation and rotation
+  transRotCt = 0; // Use as a counter
   #pragma omp parallel for reduction(+:transRotCt)
   for (int i=0;i<Ndof;i++)
   {
     bool isTransRot = 0;
-    double dotTest; //Saves overlap
-    //Locate translations
+    double dotTest; // Saves overlap
+    // Locate translations
     dotTest = abs(transX.dot(QMMMNormModes.col(i)));
     if (dotTest > projTol)
     {
@@ -754,7 +767,7 @@ VectorXd LICHEMFreq(vector<QMMMAtom>& QMMMData, MatrixXd& QMMMHess,
     {
       isTransRot = 1;
     }
-    //Locate rotations
+    // Locate rotations
     dotTest = abs(rotX.dot(QMMMNormModes.col(i)));
     if (dotTest > projTol)
     {
@@ -770,126 +783,128 @@ VectorXd LICHEMFreq(vector<QMMMAtom>& QMMMData, MatrixXd& QMMMHess,
     {
       isTransRot = 1;
     }
-    //Locate small frequencies
-    double smallFreq; //Temporary storage
-    smallFreq = zeroTol/har2Wavenum; //Convert tolerance to a.u.
-    smallFreq *= smallFreq; //Square tolerance
+    // Locate small frequencies
+    double smallFreq; // Temporary storage
+    smallFreq = zeroTol/har2Wavenum; // Convert tolerance to a.u.
+    smallFreq *= smallFreq; // Square tolerance
     if (abs(QMMMFreqs(i)) < smallFreq)
     {
       isTransRot = 1;
     }
-    //Adjust frequencies
+    // Adjust frequencies
     if (isTransRot and (!QMMM))
     {
-      //Remove frequency
+      // Remove frequency
       QMMMFreqs(i);
       freqMatrix(i,i) = 0;
       transRotCt += 1;
     }
     else
     {
-      //Save frequency
+      // Save frequency
       freqMatrix(i,i) = QMMMFreqs(i);
     }
   }
   if (transRotCt > 0)
   {
-    //Remove unwanted frequencies
+    // Remove unwanted frequencies
     QMMMHess = QMMMNormModes*freqMatrix*QMMMNormModes.inverse();
     freqAnalysis.compute(QMMMHess);
     QMMMFreqs = freqAnalysis.eigenvalues().real();
     QMMMNormModes = freqAnalysis.eigenvectors().real();
   }
-  //Take the square root and keep the sign
+  // Take the square root and keep the sign
   #pragma omp parallel for
   for (int i=0;i<Ndof;i++)
   {
-    //Save sign
+    // Save sign
     int freqSign = 1;
     if (QMMMFreqs(i) < 0)
     {
       freqSign = -1;
     }
-    //Remove sign
+    // Remove sign
     QMMMFreqs(i) = abs(QMMMFreqs(i));
-    //Take square root
+    // Take square root
     QMMMFreqs(i) = sqrt(QMMMFreqs(i));
-    //Replace sign
+    // Replace sign
     QMMMFreqs(i) *= freqSign;
   }
-  //Change units
+  // Change units
   QMMMFreqs *= har2Wavenum;
-  //Remove negligible frequencies
-  transRotCt = 0; //Reset counter
+  // Remove negligible frequencies
+  transRotCt = 0; // Reset counter
   #pragma omp parallel for reduction(+:transRotCt)
   for (int i=0;i<Ndof;i++)
   {
-    //Delete frequencies below the tolerance
+    // Delete frequencies below the tolerance
     if (abs(QMMMFreqs(i)) < zeroTol)
     {
       transRotCt += 1;
       QMMMFreqs(i) = 0;
     }
   }
-  //Write all normal modes
+  // Write all normal modes
   if ((!QMMM) and QMMMOpts.printNormModes)
   {
     WriteModes(QMMMData,0,QMMMFreqs,QMMMNormModes,QMMMOpts,bead);
   }
-  //Write modes for imaginary frequencies
+  // Write modes for imaginary frequencies
   else if (QMMM)
   {
     WriteModes(QMMMData,1,QMMMFreqs,QMMMNormModes,QMMMOpts,bead);
   }
-  //Return frequencies
+  // Return frequencies
   remCt = transRotCt;
   return QMMMFreqs;
 };
 
+/*-------------------------------------------------------------------------*/
+
 void WriteModes(vector<QMMMAtom>& QMMMData, bool imagOnly, VectorXd& Freqs,
                 MatrixXd& normModes, QMMMSettings& QMMMOpts, int bead)
 {
-  //Function to write normal modes
-  int Nframes = 5; //Trajectory files have (2N+1) frames
-  double ampFrac = 0.50; //Fractional amplitude of the mode
-  stringstream call; //Generic stream
-  fstream modeFile; //Normal mode output file
-  int Ndof = 3*(Nqm+Npseudo); //Number of vibrational modes
-  int ct; //Generic counter
-  double curAmp; //Stores the current amplitude for each frame
+  // Function to write normal modes
+  int Nframes = 5; // Trajectory files have (2N+1) frames
+  double ampFrac = 0.50; // Fractional amplitude of the mode
+  stringstream call; // Generic stream
+  fstream modeFile; // Normal mode output file
+  int Ndof = 3*(Nqm+Npseudo); // Number of vibrational modes
+  int ct; // Generic counter
+  double curAmp; // Stores the current amplitude for each frame
   for (int i=0;i<Ndof;i++)
   {
-    //Check print options
+    // Check print options
     if (((!imagOnly) or (Freqs(i) < 0)) and (Freqs(i) != 0))
     {
-      //Print normal mode
+      // Print normal mode
       call.str("");
-      //Create file
+      // Create file
       call << "NormModes_" << i << ".xyz";
       modeFile.open(call.str().c_str(),ios_base::out);
-      //Write file
+      // Write file
       for (int j=0;j<(2*Nframes+1);j++)
       {
-        //Loop over frames
-        curAmp = -1*ampFrac; //Current amplitude
-        curAmp += (j*ampFrac)/Nframes; //Move along the trajectory
-        ct = 0; //Keeps track of the atom IDs
+        // Loop over frames
+        curAmp = -1*ampFrac; // Current amplitude
+        curAmp += (j*ampFrac)/Nframes; // Move along the trajectory
+        ct = 0; // Keeps track of the atom IDs
         modeFile << (Nqm+Npseudo) << '\n' << '\n';
         for (int k=0;k<Natoms;k++)
         {
           if (QMMMData[k].QMRegion or QMMMData[k].PBRegion)
           {
-            //Write element
+            // Write element
             modeFile << QMMMData[k].QMTyp << " ";
-            //Write X component
+            // Write X component
             modeFile << QMMMData[k].P[bead].x+(curAmp*normModes(ct,i));
             modeFile << " ";
             ct += 1;
-            //Write Y component
+            // Write Y component
             modeFile << QMMMData[k].P[bead].y+(curAmp*normModes(ct,i));
             modeFile << " ";
             ct += 1;
-            //Write Z component
+            // Write Z component
             modeFile << QMMMData[k].P[bead].z+(curAmp*normModes(ct,i));
             modeFile << '\n';
             ct += 1;
@@ -902,4 +917,3 @@ void WriteModes(vector<QMMMAtom>& QMMMData, bool imagOnly, VectorXd& Freqs,
   }
   return;
 };
-

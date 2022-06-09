@@ -16,60 +16,61 @@
 
 */
 
-//Path integral Monte Carlo functions
+// Path integral Monte Carlo functions
 double Get_PI_Espring(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts)
 {
-  //Calculate total harmonic PI ring energy
-  double E = 0.0; //Final energy
-  double wZero; //Mass-independent force constant
+  // Calculate total harmonic PI ring energy
+  double E = 0.0; // Final energy
+  double wZero; // Mass-independent force constant
   wZero = 1/(QMMMOpts.beta*hbar);
   wZero *= wZero*toeV*QMMMOpts.NBeads;
   #pragma omp parallel for schedule(dynamic) reduction(+:E)
   for (int i=0;i<Natoms;i++)
   {
-    QMMMData[i].Ep = 0.0; //Reset safed energy
-    double w = wZero*QMMMData[i].m; //Mass-scaled force constant
+    QMMMData[i].Ep = 0.0; // Reset safed energy
+    double w = wZero*QMMMData[i].m; // Mass-scaled force constant
     for (int j=0;j<QMMMOpts.NBeads;j++)
     {
-      //Bead energy, one bond to avoid double counting
+      // Bead energy, one bond to avoid double counting
       int j2 = j-1;
       if (j2 == -1)
       {
-        j2 = QMMMOpts.NBeads-1; //Ring PBC
+        j2 = QMMMOpts.NBeads-1; // Ring PBC
       }
-      //Calculate displacement with PBC
-      double dr2; //Squared displacement
+      // Calculate displacement with PBC
+      double dr2; // Squared displacement
       dr2 = CoordDist2(QMMMData[i].P[j],QMMMData[i].P[j2]).vecMag();
-      QMMMData[i].Ep += 0.5*w*dr2; //Harmonic energy
+      QMMMData[i].Ep += 0.5*w*dr2; // Harmonic energy
     }
-    E += QMMMData[i].Ep; //Save energy
+    E += QMMMData[i].Ep; // Save energy
   }
   return E;
 };
 
-double Get_PI_Epot(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,fstream& logFile)
+double Get_PI_Epot(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
+                  fstream& logFile)
 {
-  //Potential for all beads
+  // Potential for all beads
   double E = 0.0;
-  //Fix parallel for classical MC
+  // Fix parallel for classical MC
   int mcThreads = Nthreads;
   if (QMMMOpts.NBeads == 1)
   {
     mcThreads = 1;
   }
-  //Calculate energy
+  // Calculate energy
   #pragma omp parallel for schedule(dynamic) num_threads(mcThreads) \
           reduction(+:E,QMTime,MMTime)
   for (int p=0;p<QMMMOpts.NBeads;p++)
   {
-    //Run the wrappers for all beads
+    // Run the wrappers for all beads
     double Es = 0.0;
-    //Timer variables
+    // Timer variables
     int t_qm_start = 0;
     int t_mm_start = 0;
     int times_qm = 0;
     int times_mm = 0;
-    //Calculate QM energy
+    // Calculate QM energy
     if (Gaussian)
     {
       t_qm_start = (unsigned)time(0);
@@ -81,7 +82,7 @@ double Get_PI_Epot(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,fstream& l
       t_qm_start = (unsigned)time(0);
       Es += PSI4Energy(QMMMData,QMMMOpts,p);
       times_qm += (unsigned)time(0)-t_qm_start;
-      //Delete annoying useless files
+      // Delete annoying useless files
       globalSys = system("rm -f psi.* timer.*");
     }
     if (NWChem)
@@ -90,7 +91,7 @@ double Get_PI_Epot(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,fstream& l
       Es += NWChemEnergy(QMMMData,QMMMOpts,p);
       times_qm += (unsigned)time(0)-t_qm_start;
     }
-    //Calculate MM energy
+    // Calculate MM energy
     if (TINKER)
     {
       t_mm_start = (unsigned)time(0);
@@ -103,33 +104,34 @@ double Get_PI_Epot(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,fstream& l
       Es += LAMMPSEnergy(QMMMData,QMMMOpts,p);
       times_mm += (unsigned)time(0)-t_mm_start;
     }
-    //Add temp variables to the totals
+    // Add temp variables to the totals
     E += Es;
     QMTime += times_qm;
     MMTime += times_mm;
   }
-  //Calculate the average energy
+  // Calculate the average energy
   E /= QMMMOpts.NBeads;
   return E;
 };
 
-bool MCMove(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, double& Emc,fstream& logFile)
+bool MCMove(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, 
+            double& Emc, fstream& logFile)
 {
-  //Function to perform Monte Carlo moves and accept/reject the moves
-  bool acc = 0; //Accept or reject
-  //Copy QMMMData
+  // Function to perform Monte Carlo moves and accept/reject the moves
+  bool acc = 0; // Accept or reject
+  // Copy QMMMData
   vector<QMMMAtom> QMMMData2;
   QMMMData2 = QMMMData;
-  //Pick random move and apply PBC
+  // Pick random move and apply PBC
   double randNum = (((double)rand())/((double)RAND_MAX));
   if (randNum > (1-centProb))
   {
-    //Move a centroid
+    // Move a centroid
     int p;
     bool frozenAt = 1;
     while (frozenAt)
     {
-      //Make sure the atom is not frozen
+      // Make sure the atom is not frozen
       p = (rand()%Natoms);
       if (QMMMData2[p].frozen == 0)
       {
@@ -165,12 +167,12 @@ bool MCMove(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, double& Emc,fstr
   }
   if (randNum < beadProb)
   {
-    //Move all beads in a centroid
+    // Move all beads in a centroid
     int p;
     bool frozenAt = 1;
     while (frozenAt)
     {
-      //Make sure the atom is not frozen
+      // Make sure the atom is not frozen
       p = (rand()%Natoms);
       if (QMMMData2[p].frozen == 0)
       {
@@ -179,7 +181,7 @@ bool MCMove(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, double& Emc,fstr
     }
     for (int i=0;i<QMMMOpts.NBeads;i++)
     {
-      //Randomly displace each bead
+      // Randomly displace each bead
       double randX = (((double)rand())/((double)RAND_MAX));
       double randY = (((double)rand())/((double)RAND_MAX));
       double randZ = (((double)rand())/((double)RAND_MAX));
@@ -191,21 +193,21 @@ bool MCMove(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, double& Emc,fstr
       QMMMData2[p].P[i].z += dz;
     }
   }
-  //Initialize energies
+  // Initialize energies
   double EOld = QMMMOpts.EOld;
   double ENew = 0;
-  //Save box lengths
+  // Save box lengths
   double LxSave = Lx;
   double LySave = Ly;
   double LzSave = Lz;
-  //Attempt a volume move
+  // Attempt a volume move
   randNum = (((double)rand())/((double)RAND_MAX));
   if (randNum < volProb)
   {
-    //Anisotropic volume change
+    // Anisotropic volume change
     if (isotrop == 0)
     {
-      //Assumes that MM cutoffs are safe
+      // Assumes that MM cutoffs are safe
       randNum = (((double)rand())/((double)RAND_MAX));
       Lx += 2*(randNum-0.5)*mcStep;
       randNum = (((double)rand())/((double)RAND_MAX));
@@ -213,24 +215,24 @@ bool MCMove(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, double& Emc,fstr
       randNum = (((double)rand())/((double)RAND_MAX));
       Lz += 2*(randNum-0.5)*mcStep;
     }
-    //Isotropic volume change
+    // Isotropic volume change
     if (isotrop == 1)
     {
-      //Assumes that MM cutoffs are safe
+      // Assumes that MM cutoffs are safe
       randNum = (((double)rand())/((double)RAND_MAX));
       Lx += 2*(randNum-0.5)*mcStep;
       Ly += 2*(randNum-0.5)*mcStep;
       Lz += 2*(randNum-0.5)*mcStep;
     }
-    //Decide how to scale the centroids
+    // Decide how to scale the centroids
     bool scaleRing = 0; //Shift the ring
     randNum = (((double)rand())/((double)RAND_MAX));
     if (randNum >= 0.5)
     {
-      //Evenly scale the size of the ring
+      // Evenly scale the size of the ring
       scaleRing = 1;
     }
-    //Scale positions
+    // Scale positions
     if (scaleRing)
     {
       #pragma omp parallel
@@ -242,11 +244,11 @@ bool MCMove(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, double& Emc,fstr
           {
             double shift;
             shift = QMMMData2[i].P[j].x;
-            //Check PBC without wrapping the molecules
-            bool check = 1; //Continue the PBC checks
+            // Check PBC without wrapping the molecules
+            bool check = 1; // Continue the PBC checks
             while (check)
             {
-              //Check the value
+              // Check the value
               check = 0;
               if (shift > Lx)
               {
@@ -270,11 +272,11 @@ bool MCMove(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, double& Emc,fstr
           {
             double shift;
             shift = QMMMData2[i].P[j].y;
-            //Check PBC without wrapping the molecules
-            bool check = 1; //Continue the PBC checks
+            // Check PBC without wrapping the molecules
+            bool check = 1; // Continue the PBC checks
             while (check)
             {
-              //Check the value
+              // Check the value
               check = 0;
               if (shift > Ly)
               {
@@ -298,11 +300,11 @@ bool MCMove(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, double& Emc,fstr
           {
             double shift;
             shift = QMMMData2[i].P[j].z;
-            //Check PBC without wrapping the molecules
-            bool check = 1; //Continue the PBC checks
+            // Check PBC without wrapping the molecules
+            bool check = 1; // Continue the PBC checks
             while (check)
             {
-              //Check the value
+              // Check the value
               check = 0;
               if (shift > Lz)
               {
@@ -329,18 +331,18 @@ bool MCMove(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, double& Emc,fstr
         #pragma omp for nowait schedule(dynamic)
         for (int i=0;i<Natoms;i++)
         {
-          //Find centroids
-          double shift = 0; //Change of position for the centroid
+          // Find centroids
+          double shift = 0; // Change of position for the centroid
           for (int j=0;j<QMMMOpts.NBeads;j++)
           {
-            shift += QMMMData2[i].P[j].x; //Add to the position sum
+            shift += QMMMData2[i].P[j].x; // Add to the position sum
           }
-          shift /= QMMMOpts.NBeads; //Average position
-          //Check PBC without wrapping the molecules
-          bool check = 1; //Continue the PBC checks
+          shift /= QMMMOpts.NBeads; // Average position
+          // Check PBC without wrapping the molecules
+          bool check = 1; // Continue the PBC checks
           while (check)
           {
-            //Check the value
+            // Check the value
             check = 0;
             if (shift > Lx)
             {
@@ -353,29 +355,29 @@ bool MCMove(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, double& Emc,fstr
               check = 1;
             }
           }
-          //Calculate the change in position
+          // Calculate the change in position
           shift = ((Lx/LxSave)-1)*shift;
           for (int j=0;j<QMMMOpts.NBeads;j++)
           {
-            //Update the position
+            // Update the position
             QMMMData2[i].P[j].x += shift;
           }
         }
         #pragma omp for nowait schedule(dynamic)
         for (int i=0;i<Natoms;i++)
         {
-          //Find centroids
-          double shift = 0; //Change of position for the centroid
+          // Find centroids
+          double shift = 0; // Change of position for the centroid
           for (int j=0;j<QMMMOpts.NBeads;j++)
           {
-            shift += QMMMData2[i].P[j].y; //Add to the position sum
+            shift += QMMMData2[i].P[j].y; // Add to the position sum
           }
-          shift /= QMMMOpts.NBeads; //Average position
-          //Check PBC without wrapping the molecules
-          bool check = 1; //Continue the PBC checks
+          shift /= QMMMOpts.NBeads; // Average position
+          // Check PBC without wrapping the molecules
+          bool check = 1; // Continue the PBC checks
           while (check)
           {
-            //Check the value
+            // Check the value
             check = 0;
             if (shift > Ly)
             {
@@ -388,29 +390,29 @@ bool MCMove(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, double& Emc,fstr
               check = 1;
             }
           }
-          //Calculate the change in position
+          // Calculate the change in position
           shift = ((Ly/LySave)-1)*shift;
           for (int j=0;j<QMMMOpts.NBeads;j++)
           {
-            //Update the position
+            // Update the position
             QMMMData2[i].P[j].y += shift;
           }
         }
         #pragma omp for nowait schedule(dynamic)
         for (int i=0;i<Natoms;i++)
         {
-          //Find centroids
-          double shift = 0; //Change of position for the centroid
+          // Find centroids
+          double shift = 0; // Change of position for the centroid
           for (int j=0;j<QMMMOpts.NBeads;j++)
           {
-            shift += QMMMData2[i].P[j].z; //Add to the position sum
+            shift += QMMMData2[i].P[j].z; // Add to the position sum
           }
-          shift /= QMMMOpts.NBeads; //Average position
-          //Check PBC without wrapping the molecules
-          bool check = 1; //Continue the PBC checks
+          shift /= QMMMOpts.NBeads; // Average position
+          // Check PBC without wrapping the molecules
+          bool check = 1; // Continue the PBC checks
           while (check)
           {
-            //Check the value
+            // Check the value
             check = 0;
             if (shift > Lz)
             {
@@ -423,11 +425,11 @@ bool MCMove(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, double& Emc,fstr
               check = 1;
             }
           }
-          //Calculate the change in position
+          // Calculate the change in position
           shift = ((Lz/LzSave)-1)*shift;
           for (int j=0;j<QMMMOpts.NBeads;j++)
           {
-            //Update the position
+            // Update the position
             QMMMData2[i].P[j].z += shift;
           }
         }
@@ -435,31 +437,31 @@ bool MCMove(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, double& Emc,fstr
       #pragma omp barrier
     }
   }
-  //Update energies
+  // Update energies
   ENew += Get_PI_Epot(QMMMData2,QMMMOpts,logFile);
   ENew += Get_PI_Espring(QMMMData2,QMMMOpts);
   if (QMMMOpts.ensemble == "NPT")
   {
-    //Add PV energy term
+    // Add PV energy term
     ENew += QMMMOpts.press*Lx*Ly*Lz;
   }
-  //Accept or reject
+  // Accept or reject
   double dE = QMMMOpts.beta*(ENew-EOld);
   if (QMMMOpts.ensemble == "NPT")
   {
-    //Add Nln(V) term
+    // Add Nln(V) term
     double volTerm;
-    volTerm = Lx*Ly*Lz; //New volume
-    volTerm /= LxSave*LySave*LzSave; //Divide by old volume
-    volTerm = log(volTerm); //Take the natural logarithm
-    volTerm *= Natoms*QMMMOpts.NBeads; //Scale by number of particles
-    dE -= volTerm; //Subtract from the energy
+    volTerm = Lx*Ly*Lz; // New volume
+    volTerm /= LxSave*LySave*LzSave; // Divide by old volume
+    volTerm = log(volTerm); // Take the natural logarithm
+    volTerm *= Natoms*QMMMOpts.NBeads; // Scale by number of particles
+    dE -= volTerm; // Subtract from the energy
   }
   double prob = exp(-1*dE);
   randNum = (((double)rand())/((double)RAND_MAX));
   if (randNum <= prob)
   {
-    //Accept
+    // Accept
     QMMMData = QMMMData2;
     Emc = ENew;
     QMMMOpts.EOld = ENew;
@@ -467,14 +469,13 @@ bool MCMove(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, double& Emc,fstr
   }
   else
   {
-    //Reject
+    // Reject
     Emc = EOld;
-    //Revert to old box sizes
+    // Revert to old box sizes
     Lx = LxSave;
     Ly = LySave;
     Lz = LzSave;
   }
-  //Return decision
+  // Return decision
   return acc;
 };
-

@@ -11,43 +11,44 @@
 */
 
 /*
-  ###############################################################################
-  #                                                                             #
-  # Hatice GOKCAN                                                               #
-  #                                                                             #
-  # Functions for TINKER in parallel LICHEM                                     #
-  # Includes:                                                                   #
-  #                                                                             #
-  #            for master proc:                                                 #
-  #                                                                             #
-  #                            Writing input files :                            #
-  #                                   void TINKERForcesMPIWrite                 #
-  #                                   void TINKERPolForcesMPIWrite              #
-  #                                   double TINKEREnergyMPIWrite               #
-  #                                   double TINKERPolEnergyMPIWrite            #
-  #                                   void TINKEROptMPIWrite                    #
-  #                                                                             #
-  #                            Reading output files:                            #
-  #                                   void TINKERForcesMPIRead                  #
-  #                                   void TINKERPolForcesMPIRead               #
-  #                                   double TINKEREnergyMPIRead                #
-  #                                   double TINKERPolEnergyMPIRead             #
-  #                                   void TINKEROptMPIRead                     #
-  #                                                                             #
-  #            for all procs:                                                   #
-  #                            Running local beads :                            #
-  #                                   void TINKERForcesMPI                      #
-  #                                   void TINKERPolForcesMPI                   #
-  #                                   double TINKEREnergyMPI                    #
-  #                                   double TINKERPolEnergyMPI                 #
-  #                                   void TINKEROptMPI                         #
-  #                                                                             #
-  ###############################################################################
+  #############################################################################
+  #                                                                           #
+  # Hatice GOKCAN                                                             #
+  #                                                                           #
+  # Functions for TINKER in parallel LICHEM                                   #
+  # Includes:                                                                 #
+  #                                                                           #
+  #            for master proc:                                               #
+  #                                                                           #
+  #                            Writing input files :                          #
+  #                                   void TINKERForcesMPIWrite               #
+  #                                   void TINKERPolForcesMPIWrite            #
+  #                                   double TINKEREnergyMPIWrite             #
+  #                                   double TINKERPolEnergyMPIWrite          #
+  #                                   void TINKEROptMPIWrite                  #
+  #                                                                           #
+  #                            Reading output files:                          #
+  #                                   void TINKERForcesMPIRead                #
+  #                                   void TINKERPolForcesMPIRead             #
+  #                                   double TINKEREnergyMPIRead              #
+  #                                   double TINKERPolEnergyMPIRead           #
+  #                                   void TINKEROptMPIRead                   #
+  #                                                                           #
+  #            for all procs:                                                 #
+  #                            Running local beads :                          #
+  #                                   void TINKERForcesMPI                    #
+  #                                   void TINKERPolForcesMPI                 #
+  #                                   double TINKEREnergyMPI                  #
+  #                                   double TINKERPolEnergyMPI               #
+  #                                   void TINKEROptMPI                       #
+  #                                                                           #
+  #############################################################################
 */
 
 
 void TINKERForcesMPIWrite(vector<QMMMAtom>& QMMMData,
-                    QMMMSettings& QMMMOpts, int bead,int& mystat,fstream& logFile)
+                          QMMMSettings& QMMMOpts, int bead,int& mystat,
+                          fstream& logFile)
 {
   //Function for calculating the MM forces on a set of QM atoms
   fstream outFile,inFile; //Generic file streams
@@ -243,7 +244,8 @@ void TINKERForcesMPIWrite(vector<QMMMAtom>& QMMMData,
 };
 
 void TINKERPolForcesMPIWrite(vector<QMMMAtom>& QMMMData, 
-                       QMMMSettings& QMMMOpts, int bead,int& mystat,fstream& logFile)
+                             QMMMSettings& QMMMOpts, int bead,int& mystat,
+                             fstream& logFile)
 {
   //Function for calculating the MM forces on a set of QM atoms
   fstream outFile,inFile; //Generic file streams
@@ -424,7 +426,7 @@ void TINKERPolForcesMPIWrite(vector<QMMMAtom>& QMMMData,
 };/*finish write*/  
 
 void TINKEREnergyMPIWrite(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
-                    int bead)
+                          int bead)
 {
   //Runs TINKER MM energy calculations
   fstream outFile,inFile; //Generic file streams
@@ -604,7 +606,7 @@ void TINKEREnergyMPIWrite(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
 };
 
 void TINKERPolEnergyMPIWrite(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
-                       int bead,int& mystat,fstream& logFile)
+                             int bead,int& mystat,fstream& logFile)
 {
   //Function to extract the polarization energy
   fstream outFile,inFile; //Generic file streams
@@ -787,8 +789,8 @@ void TINKERPolEnergyMPIWrite(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   
 };
 
-void TINKEROptMPIWrite(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
-                       int& mystat,fstream& logFile)
+void TINKEROptMPIWrite(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, 
+                       int bead,int& mystat,fstream& logFile)
 {
 
   //Runs TINKER MM optimization
@@ -882,18 +884,20 @@ void TINKEROptMPIWrite(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int b
       if (QMMMData[i].MMRegion or QMMMData[i].BARegion)
       {
 
-       /*Start:Hatice GOKCAN*/
-       /*if( (Nmm + Nbound) != Nfreeze ){
-           logFile << "             ";
-           logFile << "Error:\n";
-           logFile << "             ";
-           logFile << "Total number of MM atoms and boundary atoms\n";
-           logFile << "             ";
-           logFile << "are not equal to the number of frozen atoms.\n";
-           mystat=1;
-           return;
-       }*/
-       /*End: Hatice GOKCAN*/
+        /*Start:Hatice GOKCAN*/
+        /*
+          if ( (Nmm + Nbound) != Nfreeze ){
+            logFile << "             ";
+            logFile << "Error:\n";
+            logFile << "             ";
+            logFile << "Total number of MM atoms and boundary atoms\n";
+            logFile << "             ";
+            logFile << "are not equal to the number of frozen atoms.\n";
+            mystat=1;
+            return;
+          }
+        */
+        /*End: Hatice GOKCAN*/
 
         if (!QMMMData[i].frozen)
         {
@@ -1124,16 +1128,18 @@ void TINKEROptRestrainMPIWrite(vector<QMMMAtom>& QMMMData,
       if (QMMMData[i].MMRegion or QMMMData[i].BARegion)
       {
 
-       /*if( (Nmm + Nbound) != Nfreeze ){
-           logFile << "             ";
-           logFile << "Error:\n";
-           logFile << "             ";
-           logFile << "Total number of MM atoms and boundary atoms\n";
-           logFile << "             ";
-           logFile << "are not equal to the number of frozen atoms.\n";
-           mystat=1;
-           return;
-       }*/
+        /*
+          if ( (Nmm + Nbound) != Nfreeze ){
+            logFile << "             ";
+            logFile << "Error:\n";
+            logFile << "             ";
+            logFile << "Total number of MM atoms and boundary atoms\n";
+            logFile << "             ";
+            logFile << "are not equal to the number of frozen atoms.\n";
+            mystat=1;
+            return;
+          }
+        */
         if (!QMMMData[i].frozen)
         {
           if (ct == 0)
@@ -1230,8 +1236,10 @@ void TINKEROptRestrainMPIWrite(vector<QMMMAtom>& QMMMData,
     }
   }
 
-/*Start: Hatice
- * input restraints*/
+  /*
+    Start: Hatice
+    * input restraints
+  */
   
   if (QMMM or (Nfreeze > 0))
   {
@@ -1244,26 +1252,25 @@ void TINKEROptRestrainMPIWrite(vector<QMMMAtom>& QMMMData,
         if (!QMMMData[i].frozen)
         {
 
-            /*Start a new active line*/
-            /*ofile << "active ";*/
-            ofile << "restrain-position ";
-            ofile << setw(6) << (QMMMData[i].id+1);
-	    ofile << " ";
-            ofile << LICHEMFormFloat(QMMMData[i].P[bead].x,12);
-            ofile << " ";
-            ofile << LICHEMFormFloat(QMMMData[i].P[bead].y,12);
-            ofile << " ";
-            ofile << LICHEMFormFloat(QMMMData[i].P[bead].z,12);
-            ofile << " ";
-            ofile << setw(6) << restr;
-            ofile << '\n';
+          /*Start a new active line*/
+          /*ofile << "active ";*/
+          ofile << "restrain-position ";
+          ofile << setw(6) << (QMMMData[i].id+1);
+	        ofile << " ";
+          ofile << LICHEMFormFloat(QMMMData[i].P[bead].x,12);
+          ofile << " ";
+          ofile << LICHEMFormFloat(QMMMData[i].P[bead].y,12);
+          ofile << " ";
+          ofile << LICHEMFormFloat(QMMMData[i].P[bead].z,12);
+          ofile << " ";
+          ofile << setw(6) << restr;
+          ofile << '\n';
         }
       }
     }
-
   }
 
-/*End: Hatice*/
+  /*End: Hatice*/
   ofile.flush();
   ofile.close();
 
@@ -1308,13 +1315,12 @@ void TINKEROptRestrainMPIWrite(vector<QMMMAtom>& QMMMData,
   ofile.flush();
   ofile.close();
 
-
 }
 /*-----------------------*/
 /*-----------------------*/
 
 void TINKERForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
-                    QMMMSettings& QMMMOpts, int bead)
+                         QMMMSettings& QMMMOpts, int bead)
 {  
   stringstream call; //Stream for system calls and reading/writing files
   call.copyfmt(cout); //Copy settings from cout
@@ -1376,7 +1382,7 @@ void TINKERForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   }
   MMGrad.close();
   //Clean up files
-  if(!QMMMOpts.KeepFiles){
+  if (!QMMMOpts.KeepFiles){
     call.str("");
     call << "rm -f";
     call << " LICHM_TINKERForces_" << bead << ".xyz";
@@ -1390,14 +1396,14 @@ void TINKERForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
 };
 
 void TINKERPolForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
-                       QMMMSettings& QMMMOpts, int bead)
+                            QMMMSettings& QMMMOpts, int bead)
 {
 
   stringstream call; //Stream for system calls and reading/writing files
   call.copyfmt(cout); //Copy settings from cout
   string dummy; //Generic string
   double Emm = 0.0;
- 
+
   //Collect MM forces
   fstream MMGrad; //QMMM output
   //Open files
@@ -1453,7 +1459,7 @@ void TINKERPolForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   }
   MMGrad.close();
   //Clean up files
-  if(!QMMMOpts.KeepFiles){
+  if (!QMMMOpts.KeepFiles){
     call.str("");
     call << "rm -f";
     call << " LICHM_TINKERPolForces_" << bead << ".xyz";
@@ -1468,7 +1474,7 @@ void TINKERPolForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
 };
 
 double TINKEREnergyMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
-                    int bead)  
+                           int bead)  
 {  
   stringstream call; //Stream for system calls and reading/writing files
   call.copyfmt(cout); //Copy settings from cout
@@ -1506,7 +1512,7 @@ double TINKEREnergyMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   inFile.close();
   //Clean up files
-  if(!QMMMOpts.KeepFiles){
+  if (!QMMMOpts.KeepFiles){
     call.str("");
     call << "rm -f";
     call << " LICHM_TINKEREnergy_" << bead << ".xyz";
@@ -1520,7 +1526,7 @@ double TINKEREnergyMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
 };
 
 double TINKERPolEnergyMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
-                    int bead)  
+                              int bead)  
 {
 
   stringstream call; //Stream for system calls and reading/writing files
@@ -1575,7 +1581,7 @@ double TINKERPolEnergyMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts
   inFile.close();
   //Clean up files
   
-  if(!QMMMOpts.KeepFiles){
+  if (!QMMMOpts.KeepFiles){
     call.str("");
     call << "rm -f";
     call << " LICHM_TINKERPolEnergy_" << bead << ".xyz";
@@ -1591,7 +1597,8 @@ double TINKERPolEnergyMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts
   return Emmpol;
 };
 
-void TINKEROptMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead)
+void TINKEROptMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, 
+                      int bead)
 {
 
   fstream outFile,inFile; //Generic file streams
@@ -1623,7 +1630,7 @@ void TINKEROptMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int be
   inFile.close();
   //Clean up files
   
-  if(!QMMMOpts.KeepFiles){
+  if (!QMMMOpts.KeepFiles){
     call.str("");
     call << "rm -f";
     call << " LICHM_TINKEROpt_" << bead << ".xyz";
@@ -1639,7 +1646,7 @@ void TINKEROptMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int be
 
 /*-----------------------*/
 void TINKERForcesMPI(vector<int> mybead_list,
-                  int mysize,int pathstart, int pathend)
+                     int mysize,int pathstart, int pathend)
 { 
 
   //Function for calculating the forces on a set of atoms
@@ -1655,53 +1662,52 @@ void TINKERForcesMPI(vector<int> mybead_list,
   MPI_Status stat;
 
 
-  for(int jj=0; jj<mysize;jj++)
+  for (int jj=0; jj<mysize;jj++)
   {
 
-        int p=mybead_list[jj];
+    int p=mybead_list[jj];
 
-        /* ensure that it starts from pathstart*/
-        /* in root proc */
-        /* so that no extra calc will be performed */
-        if(p<pathstart){
-           p=pathstart;
-        }
-        /* ensure that it ends at pathend*/
-        /* in last proc */
-        /* so that no extra calc will be performed */
-        if(p>pathend){
-           /* opt is finished, break loop */
-           /* and convert force to hartree */
-           break;
-        }
+    /* ensure that it starts from pathstart*/
+    /* in root proc */
+    /* so that no extra calc will be performed */
+    if (p<pathstart){
+        p=pathstart;
+    }
+    /* ensure that it ends at pathend*/
+    /* in last proc */
+    /* so that no extra calc will be performed */
+    if (p>pathend){
+      /* opt is finished, break loop */
+      /* and convert force to hartree */
+      break;
+    }
 
-        /* input file */ 
-        call.str("");
-        call << "testgrad ";
-        call << "LICHM_TINKERForces_" << p << ".xyz";
-        call << " Y N N > ";
-        call << "LICHM_TINKERForces_" << p << ".grad";
+    /* input file */ 
+    call.str("");
+    call << "testgrad ";
+    call << "LICHM_TINKERForces_" << p << ".xyz";
+    call << " Y N N > ";
+    call << "LICHM_TINKERForces_" << p << ".grad";
 
-        globalSys = system(call.str().c_str());
+    globalSys = system(call.str().c_str());
 
   }
 
   int lastdone=0;
-  if(myrank==wsize-1){
+  if (myrank==wsize-1){
     lastdone=1;
     MPI_Send(&lastdone, 0, MPI_INT, 0, 44, MPI_COMM_WORLD);
   }
-  if(myrank==0){
+  if (myrank==0){
     MPI_Recv(&lastdone, 0, MPI_INT, wsize-1, 44, MPI_COMM_WORLD, &stat);
   }
 
-
   /* ensure that no one exits the loop before finishing */
   int value;
-  if(myrank==0){
+  if (myrank==0){
     value=1;
-    for(int i = 1; i < wsize; i++){
-       MPI_Send(&value, 0, MPI_INT, i, 42, MPI_COMM_WORLD);
+    for (int i = 1; i < wsize; i++){
+      MPI_Send(&value, 0, MPI_INT, i, 42, MPI_COMM_WORLD);
     }
 
   }
@@ -1710,13 +1716,11 @@ void TINKERForcesMPI(vector<int> mybead_list,
     MPI_Recv(&value, 0, MPI_INT, 0, 42, MPI_COMM_WORLD, &stat);
   }
   MPI_Barrier(MPI_COMM_WORLD);
-
-
 
 }; 
 
 void TINKERPolForcesMPI(vector<int> mybead_list,
-                  int mysize,int pathstart, int pathend)
+                        int mysize,int pathstart, int pathend)
 { 
 
   //Function for calculating the forces on a set of atoms
@@ -1731,52 +1735,52 @@ void TINKERPolForcesMPI(vector<int> mybead_list,
   
   MPI_Status stat;
 
-  for(int jj=0; jj<mysize;jj++)
+  for (int jj=0; jj<mysize;jj++)
   {
 
-        int p=mybead_list[jj];
+    int p=mybead_list[jj];
 
-        /* ensure that it starts from pathstart*/
-        /* in root proc */
-        /* so that no extra calc will be performed */
-        if(p<pathstart){
-           p=pathstart;
-        }
-        /* ensure that it ends at pathend*/
-        /* in last proc */
-        /* so that no extra calc will be performed */
-        if(p>pathend){
-           /* opt is finished, break loop */
-           /* and convert force to hartree */
-           break;
-        }
+    /* ensure that it starts from pathstart*/
+    /* in root proc */
+    /* so that no extra calc will be performed */
+    if (p<pathstart){
+        p=pathstart;
+    }
+    /* ensure that it ends at pathend*/
+    /* in last proc */
+    /* so that no extra calc will be performed */
+    if (p>pathend){
+      /* opt is finished, break loop */
+      /* and convert force to hartree */
+      break;
+    }
 
-        /* input file */ 
-        call.str("");
-        call << "testgrad ";
-        call << "LICHM_TINKERPolForces_" << p << ".xyz";
-        call << " Y N N > ";
-        call << "LICHM_TINKERPolForces_" << p << ".grad";
+    /* input file */ 
+    call.str("");
+    call << "testgrad ";
+    call << "LICHM_TINKERPolForces_" << p << ".xyz";
+    call << " Y N N > ";
+    call << "LICHM_TINKERPolForces_" << p << ".grad";
 
-        globalSys = system(call.str().c_str());
+    globalSys = system(call.str().c_str());
   }
 
   int lastdone=0;
-  if(myrank==wsize-1){
+  if (myrank==wsize-1){
     lastdone=1;
     MPI_Send(&lastdone, 0, MPI_INT, 0, 44, MPI_COMM_WORLD);
   }
-  if(myrank==0){
+  if (myrank==0){
     MPI_Recv(&lastdone, 0, MPI_INT, wsize-1, 44, MPI_COMM_WORLD, &stat);
   }
 
 
   /* ensure that no one exits the loop before finishing */
   int value;
-  if(myrank==0){
+  if (myrank==0){
     value=1;
-    for(int i = 1; i < wsize; i++){
-       MPI_Send(&value, 0, MPI_INT, i, 42, MPI_COMM_WORLD);
+    for (int i = 1; i < wsize; i++){
+      MPI_Send(&value, 0, MPI_INT, i, 42, MPI_COMM_WORLD);
     }
 
   }
@@ -1785,8 +1789,6 @@ void TINKERPolForcesMPI(vector<int> mybead_list,
     MPI_Recv(&value, 0, MPI_INT, 0, 42, MPI_COMM_WORLD, &stat);
   }
   MPI_Barrier(MPI_COMM_WORLD);
-
-
 
 };/* finish run */ 
 
@@ -1807,24 +1809,24 @@ void TINKEREnergyMPI(vector<int> mybead_list,
   
   MPI_Status stat;
 
-  for(int jj=0; jj<mysize;jj++)
+  for (int jj=0; jj<mysize;jj++)
   {
 
-        int p=mybead_list[jj];
+    int p=mybead_list[jj];
 
-        /* ensure that it starts from pathstart*/
-        /* in root proc */
-        /* so that no extra calc will be performed */
-        if(p<pathstart){
-           p=pathstart;
-        }
+    /* ensure that it starts from pathstart*/
+    /* in root proc */
+    /* so that no extra calc will be performed */
+    if (p<pathstart){
+        p=pathstart;
+    }
         /* ensure that it ends at pathend*/
         /* in last proc */
         /* so that no extra calc will be performed */
-        if(p>pathend){
-           /* opt is finished, break loop */
-           /* and convert force to hartree */
-           break;
+        if (p>pathend){
+          /* opt is finished, break loop */
+          /* and convert force to hartree */
+          break;
         }
 
         /* input file */ 
@@ -1833,28 +1835,26 @@ void TINKEREnergyMPI(vector<int> mybead_list,
         call << p << ".xyz E > LICHM_TINKEREnergy_";
         call << p << ".log";
 
-
         globalSys = system(call.str().c_str());
-
 
   }
 
   int lastdone=0;
-  if(myrank==wsize-1){
+  if (myrank==wsize-1){
     lastdone=1;
     MPI_Send(&lastdone, 0, MPI_INT, 0, 44, MPI_COMM_WORLD);
   }
-  if(myrank==0){
+  if (myrank==0){
     MPI_Recv(&lastdone, 0, MPI_INT, wsize-1, 44, MPI_COMM_WORLD, &stat);
   }
 
 
   /* ensure that no one exits the loop before finishing */
   int value;
-  if(myrank==0){
+  if (myrank==0){
     value=1;
-    for(int i = 1; i < wsize; i++){
-       MPI_Send(&value, 0, MPI_INT, i, 42, MPI_COMM_WORLD);
+    for (int i = 1; i < wsize; i++){
+      MPI_Send(&value, 0, MPI_INT, i, 42, MPI_COMM_WORLD);
     }
 
   }
@@ -1864,13 +1864,11 @@ void TINKEREnergyMPI(vector<int> mybead_list,
   }
   MPI_Barrier(MPI_COMM_WORLD);
 
-
-
 };/* finish run */ 
 
 
 void TINKERPolEnergyMPI(vector<int> mybead_list,
-                     int mysize,int pathstart, int pathend)  
+                        int mysize,int pathstart, int pathend)  
 {  
 
   //Function for calculating the forces on a set of atoms
@@ -1885,53 +1883,51 @@ void TINKERPolEnergyMPI(vector<int> mybead_list,
   
   MPI_Status stat;
 
-  for(int jj=0; jj<mysize;jj++)
+  for (int jj=0; jj<mysize;jj++)
   {
 
-        int p=mybead_list[jj];
+    int p=mybead_list[jj];
 
-        /* ensure that it starts from pathstart*/
-        /* in root proc */
-        /* so that no extra calc will be performed */
-        if(p<pathstart){
-           p=pathstart;
-        }
-        /* ensure that it ends at pathend*/
-        /* in last proc */
-        /* so that no extra calc will be performed */
-        if(p>pathend){
-           /* opt is finished, break loop */
-           /* and convert force to hartree */
-           break;
-        }
+    /* ensure that it starts from pathstart*/
+    /* in root proc */
+    /* so that no extra calc will be performed */
+    if (p<pathstart){
+      p=pathstart;
+    }
+    /* ensure that it ends at pathend*/
+    /* in last proc */
+    /* so that no extra calc will be performed */
+    if (p>pathend){
+      /* opt is finished, break loop */
+      /* and convert force to hartree */
+      break;
+    }
 
-        /* input file */ 
-        call.str("");
-        call << "analyze LICHM_TINKERPolEnergy_";
-        call << p << ".xyz E > LICHM_TINKERPolEnergy_";
-        call << p << ".log";
+    /* input file */ 
+    call.str("");
+    call << "analyze LICHM_TINKERPolEnergy_";
+    call << p << ".xyz E > LICHM_TINKERPolEnergy_";
+    call << p << ".log";
 
-        globalSys = system(call.str().c_str());
-
+    globalSys = system(call.str().c_str());
 
   }
 
   int lastdone=0;
-  if(myrank==wsize-1){
+  if (myrank==wsize-1){
     lastdone=1;
     MPI_Send(&lastdone, 0, MPI_INT, 0, 44, MPI_COMM_WORLD);
   }
-  if(myrank==0){
+  if (myrank==0){
     MPI_Recv(&lastdone, 0, MPI_INT, wsize-1, 44, MPI_COMM_WORLD, &stat);
   }
 
-
   /* ensure that no one exits the loop before finishing */
   int value;
-  if(myrank==0){
+  if (myrank==0){
     value=1;
-    for(int i = 1; i < wsize; i++){
-       MPI_Send(&value, 0, MPI_INT, i, 42, MPI_COMM_WORLD);
+    for (int i = 1; i < wsize; i++){
+      MPI_Send(&value, 0, MPI_INT, i, 42, MPI_COMM_WORLD);
     }
 
   }
@@ -1940,8 +1936,6 @@ void TINKERPolEnergyMPI(vector<int> mybead_list,
     MPI_Recv(&value, 0, MPI_INT, 0, 42, MPI_COMM_WORLD, &stat);
   }
   MPI_Barrier(MPI_COMM_WORLD);
-
-
 
 };/* finish run */ 
 
@@ -1962,55 +1956,54 @@ void TINKEROptMPI(vector<int> mybead_list,
   
   MPI_Status stat;
 
-
-  for(int jj=0; jj<mysize;jj++)
+  for (int jj=0; jj<mysize;jj++)
   {
 
-        int p=mybead_list[jj];
+    int p=mybead_list[jj];
 
-        /* ensure that it starts from pathstart*/
-        /* in root proc */
-        /* so that no extra calc will be performed */
-        if(p<pathstart){
-           p=pathstart;
-        }
-        /* ensure that it ends at pathend*/
-        /* in last proc */
-        /* so that no extra calc will be performed */
-        if(p>pathend){
-           /* opt is finished, break loop */
-           /* and convert force to hartree */
-           break;
-        }
+    /* ensure that it starts from pathstart*/
+    /* in root proc */
+    /* so that no extra calc will be performed */
+    if (p<pathstart){
+      p=pathstart;
+    }
+    /* ensure that it ends at pathend*/
+    /* in last proc */
+    /* so that no extra calc will be performed */
+    if (p>pathend){
+      /* opt is finished, break loop */
+      /* and convert force to hartree */
+      break;
+    }
 
-        /* input file */ 
-        call.str("");
-        call << "minimize LICHM_TINKEROpt_";
-        call << p << ".xyz ";
-        call << QMMMOpts.MMOptTol << " > LICHM_TINKEROpt_";
-        call << p << ".log";
+    /* input file */ 
+    call.str("");
+    call << "minimize LICHM_TINKEROpt_";
+    call << p << ".xyz ";
+    call << QMMMOpts.MMOptTol << " > LICHM_TINKEROpt_";
+    call << p << ".log";
 
-        globalSys = system(call.str().c_str());
+    globalSys = system(call.str().c_str());
 
   }
 
 
   int lastdone=0;
-  if(myrank==wsize-1){
+  if (myrank==wsize-1){
     lastdone=1;
     MPI_Send(&lastdone, 0, MPI_INT, 0, 44, MPI_COMM_WORLD);
   }
-  if(myrank==0){
+  if (myrank==0){
     MPI_Recv(&lastdone, 0, MPI_INT, wsize-1, 44, MPI_COMM_WORLD, &stat);
   }
 
 
   /* ensure that no one exits the loop before finishing */
   int value;
-  if(myrank==0){
+  if (myrank==0){
     value=1;
-    for(int i = 1; i < wsize; i++){
-       MPI_Send(&value, 0, MPI_INT, i, 42, MPI_COMM_WORLD);
+    for (int i = 1; i < wsize; i++){
+      MPI_Send(&value, 0, MPI_INT, i, 42, MPI_COMM_WORLD);
     }
 
   }
@@ -2019,6 +2012,5 @@ void TINKEROptMPI(vector<int> mybead_list,
     MPI_Recv(&value, 0, MPI_INT, 0, 42, MPI_COMM_WORLD, &stat);
   }
   MPI_Barrier(MPI_COMM_WORLD);
-
 
 };
