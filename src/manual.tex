@@ -39,11 +39,58 @@
 \usepackage[default,scale=0.95]{opensans}
 \usepackage[T1]{fontenc}
 
+% Formatting code (with included listings)
+
+\usepackage{listings}
+\usepackage{upquote} % Straight quotes
+
+% - Define colors
+\definecolor{violet}{rgb}{0.5, 0.0, 1.0}
+\definecolor{seagreen}{rgb}{0.18, 0.55, 0.34}
+
+% Basic c++ code
+\lstnewenvironment{cppcode}
+  {\lstset{language=C++, keywordstyle=\color{blue},
+           stringstyle=\color{seagreen},
+           commentstyle=\color{violet},
+           basicstyle=\ttfamily\small, showstringspaces=false}
+  }
+  {}
+
+% For smaller c++ code
+\lstnewenvironment{lwcppcode}
+  {\lstset{language=C++, keywordstyle=\color{blue},
+           stringstyle=\color{seagreen},
+           commentstyle=\color{violet},
+           basicstyle=\ttfamily\scriptsize, showstringspaces=false}
+  }
+  {}
+
+% Basic python code
+\lstnewenvironment{pycode}
+  {\lstset{language=python, keywordstyle=\color{blue},
+           stringstyle=\color{seagreen},
+           commentstyle=\color{violet},
+           basicstyle=\ttfamily\small,
+           upquote=true, showstringspaces=false}
+  }
+  {}
+
 % Formatting settings
 \setlength\parindent{0cm}
 \widowpenalty=10000
 \clubpenalty=10000
 \raggedbottom
+
+% Disallow word hyphenation
+\tolerance=1
+\emergencystretch=\maxdimen
+\hyphenpenalty=10000
+\hbadness=10000
+
+% Number subsections and include in table of contents
+\setcounter{tocdepth}{5}
+\setcounter{secnumdepth}{5}
 
 % Title page
 \title{{\color{blue}LICHEM:} {\color{red}L}ayered {\color{red}I}nteracting
@@ -95,29 +142,31 @@ G. Andr\'{e}s Cisneros, \\
 \section{Design principles}
 
 LICHEM is in development with four guiding principles: \\
-\begin{quote}
- \normalfont{
- 1) {\textbf{LICHEM should primarily be an interface.}}
- In order to allow the code to communicate with a variety of (continuously
- updated) software packages, LICHEM for general applications
- should not require modifications to other
- software packages or tools. \\
- 2) {\textbf{LICHEM should be a single executable.}}
- Since LICHEM is an interface, there is no need for a large collection of
- binaries.
- Furthermore, LICHEM can be statically linked to ease distribution of the
- software. \\
- 3) {\textbf{LICHEM should be easy to read and modify.}}
- Most scientists are not experts in computer programming.
- In order to allow for rapid collaborative development of LICHEM, the source
- code needs to be easy to read.
- To that end, the code should be simple, well commented, and avoid linking to
- libraries. \\
- 4) {\textbf{LICHEM should be open-source.}}
- LICHEM is licensed under the GPLv3.
- Science can benefit everyone, and hence, should be shared as widely as
- possible.}
-\end{quote}
+\begin{enumerate}
+  \item \textbf{LICHEM should primarily be an interface.} \\
+  In order to allow the code to communicate with a variety of (continuously
+  updated) software packages, LICHEM for general applications
+  should not require modifications to other
+  software packages or tools.
+  
+  \item \textbf{LICHEM should be a single executable.} \\
+  Since LICHEM is an interface, there is no need for a large collection of
+  binaries.
+  Furthermore, LICHEM can be statically linked to ease distribution of the
+  software.  
+  
+  \item \textbf{LICHEM should be easy to read and modify.} \\
+  Most scientists are not experts in computer programming.
+  In order to allow for rapid collaborative development of LICHEM, the source
+  code needs to be easy to read.
+  To that end, the code should be simple, well commented, and avoid linking to
+  libraries.  
+
+  \item \textbf{LICHEM should be open-source.} \\
+  LICHEM is licensed under the GPLv3.
+  Science can benefit everyone, and hence, should be shared as widely as
+  possible.
+\end{enumerate}
 
 \section{Notes for developers}
 
@@ -131,6 +180,110 @@ the code readable on smaller portable devices such as tablets and netbooks.
 Also for readability purposes, tabulars should not be used to indent the code.
 Tabulars can appear to be different sizes in some text editors. \\
 
+\subsubsection{C++ Code}
+
+While C++ is a very flexible language, having more rigid style guidelines makes
+the code more readable and easier to debug. \\
+
+Guidelines:
+\begin{itemize}
+\item Use the 80-character line limit.
+\item Use the 2-space style for indentation.
+\item Use the ``\texttt{// }'' style for text-based comments.
+\item Start text-based comments with a capital letter, unless the first portion
+      is about a lowercase variable.
+\item Use the ``\texttt{/*  */}'' style for code-based comments.
+\item For multi-line code-based comments, keep \texttt{/*} and \texttt{*/}
+      paired at the current line indentation. \\
+      Example:
+	  \begin{cppcode}
+logFile << " | Step: " << setw(simCharLen) << 0;
+/*
+  logFile << " | Energy: " << LICHEMFormFloat(Et,12);
+  logFile << " eV";
+*/
+logFile << " | Energy: " << LICHEMFormFloat(Et/har2eV,12);
+	  \end{cppcode}
+
+\item For loops and conditionals, the brackets should be on their on line. \\
+      Example:
+	  \begin{cppcode}
+if (foo)
+{
+  stuff
+}
+else if (bar)
+{
+  other stuff
+}
+else
+{
+  different stuff
+}
+	  \end{cppcode}
+
+\item Include fencing to break up long files.
+      \begin{itemize}
+      \item Between functions:
+          \begin{lwcppcode}
+/*-------------------------------------------------------------------------*/
+          \end{lwcppcode}
+
+      \item Between class items:
+          \begin{cppcode}
+/*...*/
+          \end{cppcode}
+      \end{itemize}
+
+\item Separate arguments with spaces in the function definition, and indent 
+      line continuations to the parentheses. \\
+      Example:
+	  \begin{cppcode}
+void calc_react_coord(QMMMSettings& QMMMOpts, 
+                      vector<QMMMAtom>& QMMMData, 
+                      VectorXd& reactCoord)
+	  \end{cppcode}
+
+\item End each file with a single blank line.
+
+\end{itemize}
+
+
+\subsubsection{Python Code}
+
+When updating the Python-based test suite, verify that it is within the PEP8
+standard with an external checker, such as autopep8 or pycodestyle. \\
+
+Guidelines:
+\begin{itemize}
+\item Use the 79-character line limit.
+\item Use the 4-space standard for indentation.
+\item Use ``\texttt{\# }'' for comments.
+\item All in-line comments need at least 2 spaces of separation from the line. \\
+      Example:
+	  \begin{pycode}
+print(thing)  # Print the thing!
+	  \end{pycode}
+
+\item Start text-based comments with a capital letter, unless the first portion
+      is about a lowercase variable.
+
+\item Each function should use a docstring (see \ref{subsec:add-tests}).
+      These docstrings should then be commented out with ``\texttt{\# }'',
+      because comments are removed from the executable.
+      One notable exception of this is the docstring at the beginning, which
+      tells users to look at the original for comments! \\
+      Function Example:
+	  \begin{pycode}
+    # '''
+    # This way
+    # '''
+	  \end{pycode}
+
+\end{itemize}
+
+\subsubsection{LaTeX Documentation}
+
 When updating the \LaTeX\ documentation, there should be a newline after each
 sentence.
 This makes the documentation files very long, but it makes tracking/merging
@@ -140,11 +293,7 @@ Paragraphs are ended with a \LaTeX\ newline followed by a blank line. \\
 Bibliography information should match the American Chemical Society style,
 with titles in Title Case, journal names given as their
 \href{https://cassi.cas.org/search.jsp}{CASSI} abbreviation,
-and DOIs for articles or URLs for software (if available). \\
-
-When updating the Python-based test suite, verify that it is within the PEP8
-standard with an external checker, such as autopep8 or pycodestyle.
-Use the 4-space standard for indentation.
+and DOIs for articles or URLs for software (if available).
 
 \subsection{Updating LICHEM}
 
@@ -183,7 +332,15 @@ distorted structures were employed to make sure that crashes were rare. \\
 
 A simple way to avoid modifying the QM and MM packages is to search for
 iterative or perturbative approximations for the QM/MM equations.
-This is extremely useful for multipolar/polarizable force fields.
+This is extremely useful for multipolar/polarizable force fields. \\
+
+\subsubsection{Git Guidelines}
+
+Commit messages should be short and informative.
+``Modified parameter in loop'' is \emph{much} more informative than ``update''.
+
+We strongly discourage squashing commits, because keeping a history makes it
+easier to revert changes or understand how things were modified together.
 
 \subsection{Parallelization}
 
@@ -200,7 +357,7 @@ replicas.
 In MPI QSM simulations (hybrid--parallel), the number of CPUs given as a
 command line argument define the number of available nodes for MPI.
 
-\subsection{Adding Tests}
+\subsection{Adding Tests}\label{subsec:add-tests}
 
 The test suite executable is created from \texttt{./src/runtests.py}.
 The script uses
@@ -297,17 +454,18 @@ QM/MM calculations.
 
 \begin{table}[hbt]
  \centering
- \begin{tabular}{|c|c|c|c|}
+ \begin{tabular}{|c|l|c|c|}
  \hline
+% Use -{}- because -- gets converted to an en-dash
  Short Flag & Long Flag   & Description                     & Default\\ \hline
- -h         & \-\-help    & Print help                      & \\
- -v         & \-\-verbose & Use developer/debugging options & False \\
- -n         & \-\-ncpus   & Number of CPUs                  & 1 \\
- -d         & \-\-dry     & Perform a dry run of all tests  & False \\
- -t         & \-\-tests   & Explicit tests to run           & 'all' \\
- -a         & \-\-all     & Auto-run all tests              & False \\
- -q         & \-\-qm      & QM wrapper to test              & 'all' \\
- -m         & \-\-mm      & MM wrapper to test              & 'all' \\
+ -h         & -{}-help    & Print help                      & \\
+ -v         & -{}-verbose & Use developer/debugging options & False \\
+ -n         & -{}-ncpus   & Number of CPUs                  & 1 \\
+ -d         & -{}-dry     & Perform a dry run of all tests  & False \\
+ -t         & -{}-tests   & Explicit tests to run           & 'all' \\
+ -a         & -{}-all     & Auto-run all tests              & False \\
+ -q         & -{}-qm      & QM wrapper to test              & 'all' \\
+ -m         & -{}-mm      & MM wrapper to test              & 'all' \\
  \hline
  \end{tabular}
  \caption{
@@ -393,7 +551,7 @@ The help and usage information can be given with: \\
 
 or
 
-\texttt{user:\$ ./runtests --help} \\
+\texttt{user:\$ ./runtests -{}-help} \\
 
 with additional flags and options explained in Table \ref{tab:TestOpts}. \\
 
@@ -1219,7 +1377,8 @@ Required keywords:
 \end{itemize}
 
 Currently, these keywords must be spelled and formatted exactly as given
-above, including the colon (\texttt{:}) but without the bullet point. \\
+above, including the colon (\texttt{:}) but without the bullet point. 
+They must also be included in the same exact order. \\
 
 {\textbf{Multi-replica trajectories:}} \\
 

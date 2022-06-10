@@ -93,7 +93,7 @@ tests:	title deltests testexe
 
 clean:	title delbin compclean
 
-gitclean:	title delbin deltests gitmk
+gitclean:	title delbin deltests mandel gitmk
 
 ##################################
 ### Combine Settings Variables ###
