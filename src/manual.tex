@@ -195,7 +195,8 @@ Special care must be taken to avoid creating too many threads when calling
 multiple hybrid--parallel functions with the wrappers. \\
 
 In NEB and OpenMP--QSM (OpenMP) simulations the number of CPUs given as a
-command line argument is used to divide the OpenMP threads between the replicas.
+command line argument is used to divide the OpenMP threads between the 
+replicas.
 In MPI QSM simulations (hybrid--parallel), the number of CPUs given as a
 command line argument define the number of available nodes for MPI.
 
@@ -215,8 +216,8 @@ A notable exception is the `Frequencies' test, which uses the
 in finding the minimum frequency. \\
 
 All functions make use of 
-\href{https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard}{
-Numpy-style docstrings} 
+\href{https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard}
+{Numpy-style docstrings} 
 to descripe input and output variables.
 These docstrings are then commented out using the single-comment style
 (with a hashtag and space), so that they are not included in the executable
@@ -1335,8 +1336,8 @@ format.
 \subsection{Restart files}
 
 While restarting incomplete geometry optimizations only requires changing
-the initial structure given with the \texttt{-x} flag, multi-replica simulations
-require structural information for each replica.
+the initial structure given with the \texttt{-x} flag, multi-replica 
+simulations require structural information for each replica.
 When a multi-replica (PIMC or reaction path) simulation is started LICHEM
 checks the working directory for a restart file named ``BeadStartStruct.xyz''
 which will be used as the initial structure.

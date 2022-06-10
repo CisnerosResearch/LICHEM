@@ -775,7 +775,8 @@ double TINKERForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     for (int i=0;i<Natoms;i++)
     {
       // Add nuclear charges
-      if (QMMMData[i].QMRegion or QMMMData[i].PBRegion or QMMMData[i].BARegion)
+      if (QMMMData[i].QMRegion or QMMMData[i].PBRegion or 
+          QMMMData[i].BARegion)
       {
         // New charges are needed for QM and PB atoms
         outFile << "charge " << (-1*(QMMMData[i].id+1)) << " ";
@@ -789,7 +790,8 @@ double TINKERForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     for (int i=0;i<Natoms;i++)
     {
       // Add nuclear charges
-      if (QMMMData[i].QMRegion or QMMMData[i].PBRegion or QMMMData[i].BARegion)
+      if (QMMMData[i].QMRegion or QMMMData[i].PBRegion or 
+          QMMMData[i].BARegion)
       {
         double qi = 0;
         // Remove charge
@@ -1415,7 +1417,8 @@ double TINKERPolForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     outFile << " ";
     outFile << setw(3) << QMMMData[i].MMTyp;
     outFile << " ";
-    outFile << LICHEMFormFloat(QMMMData[i].P[bead].x,12); // Replaced 16 with 12
+    // Replaced 16 with 12
+    outFile << LICHEMFormFloat(QMMMData[i].P[bead].x,12);
     outFile << " ";
     outFile << LICHEMFormFloat(QMMMData[i].P[bead].y,12);
     outFile << " ";
@@ -1649,7 +1652,8 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     for (int i=0;i<Natoms;i++)
     {
       // Add nuclear charges
-      if (QMMMData[i].QMRegion or QMMMData[i].PBRegion or QMMMData[i].BARegion)
+      if (QMMMData[i].QMRegion or QMMMData[i].PBRegion or 
+          QMMMData[i].BARegion)
       {
         // New charges are only needed for QM atoms
         outFile << "charge " << (-1*(QMMMData[i].id+1)) << " ";
@@ -1662,7 +1666,8 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     for (int i=0;i<Natoms;i++)
     {
       // Add multipoles
-      if (QMMMData[i].QMRegion or QMMMData[i].PBRegion or QMMMData[i].BARegion)
+      if (QMMMData[i].QMRegion or QMMMData[i].PBRegion or 
+          QMMMData[i].BARegion)
       {
         double qi = 0;
         // Remove charge

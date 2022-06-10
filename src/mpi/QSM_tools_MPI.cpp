@@ -70,15 +70,12 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     PathEnd=QMMMOpts.NBeads;
   }
 
-
   // Get local bead list
   vector<int> mybead_list;
 
-  /*
-    Create local bead lists
-    Bead info
-    root will always have 0th and 1st beads
-  */
+  // Create local bead lists
+  // Bead info
+  // root will always have 0th and 1st beads
   if (wrank==0)
   {
     if (first_time)
@@ -89,12 +86,12 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   
   int owner;
-  /* First and second beads are on root */
-  //for (int j=2; j<QMMMOpts.NBeads;j++)
+  // First and second beads are on root
+  /* for (int j=2; j<QMMMOpts.NBeads;j++) */
   for (int j=2; j<PathEnd;j++)
   {
     owner = (j%wsize)-1;
-    /*product is on last proc*/
+    // Product is on last proc
     if (j==QMMMOpts.NBeads-1)
     {
       // Last proc
@@ -111,33 +108,33 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       // Push back bead j to mybead_list
       mybead_list.push_back(j);
     }
-  }/* end bead info*/
+  }// End bead info
   mysize=mybead_list.size();
 
   // Forces
   VectorXd Forces(QMdim*3); // Local forces
 
-  //force.setZero();
+  /* force.setZero(); */
 
   int NewTS = 0; // Storage for new TS ID
   double NewTSEnergy = -1*hugeNum;
 
-  /* START: WRITING GAUSSIAN */
+  // START: WRITING GAUSSIAN
   if (wrank==0){
     if (Gaussian)
     {
-      for(int j=PathStart; j<PathEnd;j++)
+      for (int j=PathStart; j<PathEnd;j++)
       {
         GaussianForcesMPIWrite(QMMMData,QMMMOpts,j); 
       }     
     }
-  }/*end if wrank==0*/
+  }// End if wrank==0
 
-  /* END: WRITING GAUSSIAN */
+  // END: WRITING GAUSSIAN
   MPI_Barrier(MPI_COMM_WORLD);
 
 
-  /* START: RUN GAUSSIAN */
+  // START: RUN GAUSSIAN
   // Calculate forces and energies (QM part)
   if (Gaussian)
   {
@@ -145,17 +142,16 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     GaussianForcesMPI(mybead_list,mysize,PathStart,PathEnd);
     QMTime += (unsigned)time(0)-tstart;
 
-  }/* end if Gaussian */
-  /* END: RUN GAUSSIAN */
+  }// End if Gaussian
+  // END: RUN GAUSSIAN
 
-  /* START: READ GAUSSIAN OUT */
-  /* Need to read Gaussian output 
-      since we need charges for polarization
-  */
+  // START: READ GAUSSIAN OUT
+  // Need to read Gaussian output 
+  //  since we need charges for polarization
   if (wrank==0)
   {
 
-    for(int j=PathStart; j<PathEnd;j++)
+    for (int j=PathStart; j<PathEnd;j++)
     {
 
       Forces.setZero();
@@ -170,7 +166,7 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
 
       Forces = Forces/har2eV;
       
-      /* get global forces */
+      // Get global forces
       for (int ii=0;ii<QMdim;ii++)
       {
         
@@ -183,27 +179,24 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
           force[(j*beadsize)+(ii*3)+1] = ceil(Forces(3*ii+1)* 1.0e9) / 1.0e9;
           force[(j*beadsize)+(ii*3)+2] = ceil(Forces(3*ii+2)* 1.0e9) / 1.0e9;
         */
-
       }
-
     }
-
   }
-  /* END: READ GAUSSIAN OUT */
+  // END: READ GAUSSIAN OUT
 
-  /* Charges are updated after QM 
-     send QMMData to everyone */
+  // Charges are updated after QM 
+  //  send QMMData to everyone
   Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,master,Natoms);
   MPI_Barrier(MPI_COMM_WORLD);
 
 
-  /*START: WRITING TINKER */
+  // START: WRITING TINKER
   int mystat=0;
   if (wrank==0)
   {
     if (TINKER)
     {
-      for(int j=PathStart; j<PathEnd;j++)
+      for (int j=PathStart; j<PathEnd;j++)
       {
         // Forces
         TINKERForcesMPIWrite(QMMMData,QMMMOpts, j,mystat,logFile);
@@ -262,13 +255,13 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     }
     // END: FORCES
 
-    //START: ENERGY 
+    // START: ENERGY 
     TINKEREnergyMPI(mybead_list,mysize,PathStart,PathEnd);
     if ((AMOEBA or GEM or QMMMOpts.useImpSolv) and QMMM)
     {        
       TINKERPolEnergyMPI(mybead_list,mysize,PathStart,PathEnd);
     }
-    //END: ENERGY
+    // END: ENERGY
 
     MMTime += (unsigned)time(0)-tstart;
 
@@ -280,7 +273,7 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   // START: READ TINKER OUT
   if (wrank==0)
   {
-    for(int j=PathStart; j<PathEnd;j++)
+    for (int j=PathStart; j<PathEnd;j++)
     {
     
       Forces.setZero();
@@ -288,20 +281,20 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       if(TINKER)
       {
 
-        /* read forces */
+        // Read forces
           TINKERForcesMPIRead(QMMMData, Forces, QMMMOpts,j);
           if(AMOEBA)
           {
             TINKERPolForcesMPIRead(QMMMData,Forces,QMMMOpts,j);
           }
 
-          /* read energies */
+          // Read energies
           Emm=TINKEREnergyMPIRead(QMMMData, QMMMOpts, j);
           if ((AMOEBA or GEM or QMMMOpts.useImpSolv) and QMMM)
           {
             Emm+=TINKERPolEnergyMPIRead(QMMMData, QMMMOpts, j);
           }
-          Emm = (Emm*kcal2eV)/har2eV;//in a.u
+          Emm = (Emm*kcal2eV)/har2eV; // In a.u.
       }
 
       Emm_images[j]=Emm;
@@ -312,15 +305,13 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
         QMMMOpts.ETrans = Eqmmm_images[j];
       }
 
-      /* 
-        Get the forces of all images from local Forces
-        since we already read qm forces now add Forces 
-        to global force array
-      */
+      // Get the forces of all images from local Forces
+      //  since we already read qm forces now add Forces 
+      //  to global force array
 
       Forces = Forces/har2eV;
       // Forces = Forces*bohrRad/har2eV;
-      for(int ii=0;ii<QMdim;ii++)
+      for (int ii=0;ii<QMdim;ii++)
       {   
       
         force[(j*beadsize)+(ii*3)] += Forces(3*ii);
@@ -333,24 +324,21 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
           force[(j*beadsize)+(ii*3)+2] += ceil(Forces(3*ii+2)* 1.0e9) / 1.0e9;
         */
       }
-
-
     }
     // End for beads
-
   }
   // End if wrank==0
   // START: READ TINKER OUT
 
 
-  /* Update QMMMData on cores */ 
+  // Update QMMMData on cores
   Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,master,Natoms);
   MPI_Barrier(MPI_COMM_WORLD);
 
 }
 
+/*-------------------------------------------------------------------------*/
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 double runMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                    bool before_qsm, fstream& logFile)
 {
@@ -377,11 +365,9 @@ double runMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   // Get local bead list
   vector<int> mybead_list;
 
-  /* 
-    Create local bead lists
-    Bead info
-    root will always have 0th and 1st beads
-  */
+  // Create local bead lists
+  // Bead info
+  // root will always have 0th and 1st beads
   if (wrank==0)
   {
     if(PathStart==0)
@@ -392,12 +378,12 @@ double runMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   
   int owner;
-  /* First and second beads are on root */
-  //for(int j=2; j<QMMMOpts.NBeads;j++)
+  // First and second beads are on root
+  /* for (int j=2; j<QMMMOpts.NBeads;j++) */
   for (int j=2; j<PathEnd;j++)
   {
     owner = (j%wsize)-1;
-    /*product is on last proc*/
+    // Product is on last proc
     if(j==QMMMOpts.NBeads-1)
     {
       // Last processor
@@ -414,7 +400,7 @@ double runMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       // Push back bead j to mybead_list
       mybead_list.push_back(j);
     }
-  }/* end bead info*/
+  } // End bead info
   mysize=mybead_list.size();
 
   int root=0;
@@ -433,14 +419,14 @@ double runMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   MPI_Barrier(MPI_COMM_WORLD);
   
   // Run MM optimization
-  //for (int p=0;p<QMMMOpts.NBeads;p++)
+  /* for (int p=0;p<QMMMOpts.NBeads;p++) */
   if (TINKER)
   {
     int mystat=0;
     if(wrank==0)
     {
       // Write
-      for(int j=PathStart; j<PathEnd;j++)
+      for (int j=PathStart; j<PathEnd;j++)
       {
         TINKEROptMPIWrite(QMMMData, QMMMOpts,j,mystat,logFile);
       }
@@ -467,12 +453,12 @@ double runMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     if(wrank==0)
     { 
       // Write
-      for(int j=PathStart; j<PathEnd;j++)
+      for (int j=PathStart; j<PathEnd;j++)
       {
           TINKEROptMPIRead(QMMMData, QMMMOpts, j);
       }
     }        
-    //END: ENERGY
+    // END: ENERGY
   } 
   
   if (wrank==0)
@@ -490,7 +476,8 @@ double runMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
 
 }
 
-//---------------------------------------------------------------------------
+/*-------------------------------------------------------------------------*/
+
 double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                         double restr, fstream& logFile)
 {
@@ -517,11 +504,9 @@ double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   // Get local bead list
   vector<int> mybead_list;
 
-  /* 
-    Create local bead lists
-    Bead info
-    root will always have 0th and 1st beads
-   */
+  // Create local bead lists
+  // Bead info
+  // root will always have 0th and 1st beads
   if(wrank==0)
   {
     if(PathStart==0)
@@ -532,9 +517,9 @@ double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   
   int owner;
-  /* First and second beads are on root */
-  //for(int j=2; j<QMMMOpts.NBeads;j++)
-  for(int j=2; j<PathEnd;j++)
+  // First and second beads are on root
+  /* for (int j=2; j<QMMMOpts.NBeads;j++) */
+  for (int j=2; j<PathEnd;j++)
   {
     owner = (j%wsize)-1;
     // Product is on last processor
@@ -554,7 +539,7 @@ double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       // Push back bead j to mybead_list
       mybead_list.push_back(j);
     }
-  }/* end bead info*/
+  }// End bead info
   mysize=mybead_list.size();
 
   int root=0;
@@ -576,14 +561,14 @@ double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   MPI_Barrier(MPI_COMM_WORLD);
   
   // Run MM optimization
-  //for (int p=0;p<QMMMOpts.NBeads;p++)
+  /* for (int p=0;p<QMMMOpts.NBeads;p++) */
   if (TINKER)
   {
     int mystat=0;
     if (wrank==0)
     { 
-      //write
-      for(int j=PathStart; j<PathEnd;j++)
+      // Write
+      for (int j=PathStart; j<PathEnd;j++)
       {
         TINKEROptRestrainMPIWrite(QMMMData,QMMMOpts,j,restr,mystat,logFile);
       }
@@ -609,7 +594,7 @@ double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     if (wrank==0)
     {
       // Write
-      for(int j=PathStart; j<PathEnd;j++)
+      for (int j=PathStart; j<PathEnd;j++)
       {
         TINKEROptMPIRead(QMMMData, QMMMOpts, j);
       }
@@ -634,7 +619,8 @@ double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
 
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/*-------------------------------------------------------------------------*/
+
 void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
                     vector<QMMMAtom>& OldQMMMData,
                     int stepct, QMMMSettings& QMMMOpts, 
@@ -674,15 +660,12 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
     PathEnd = QMMMOpts.NBeads-1;
   }
 
-
   // Get local bead list
   vector<int> mybead_list;
 
-  /*
-    Create local bead lists
-    Bead info
-    root will always have 0th and 1st beads
-  */
+  // Create local bead lists
+  // Bead info
+  // root will always have 0th and 1st beads
   if (wrank==0)
   {
     if(PathStart==0)
@@ -693,12 +676,12 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
   }
   
   int owner;
-  /* First and second beads are on root */
-  //for(int j=2; j<QMMMOpts.NBeads;j++)
+  // First and second beads are on root
+  /* for(int j=2; j<QMMMOpts.NBeads;j++) */
   for(int j=2; j<PathEnd;j++)
   {
     owner = (j%wsize)-1;
-    /* Product is on last processor */
+    // Product is on last processor
     if(j==QMMMOpts.NBeads-1)
     {
       // Last proc
@@ -715,7 +698,7 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
       // Push back bead j to mybead_list
       mybead_list.push_back(j);
     }
-  }/* end bead info*/
+  }// End bead info
   mysize=mybead_list.size();
 
 
@@ -730,7 +713,7 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
   Emm.setZero();
   Eqm.setZero();
 
-  /* START: WRITING GAUSSIAN */
+  // START: WRITING GAUSSIAN
   if(wrank==0)
   {
     if (Gaussian)
@@ -741,49 +724,47 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
       }
     }
   }
-  /* END: WRITING GAUSSIAN */
+  // END: WRITING GAUSSIAN
   MPI_Barrier(MPI_COMM_WORLD);
 
-  /* START: RUN GAUSSIAN */
+  // START: RUN GAUSSIAN
   // Calculate Energy (QM part)
   if (Gaussian)
   {
-    /* If global master, write input files */ 
+    // If global master, write input files
     int tstart = (unsigned)time(0);
     GaussianEnergyMPI(mybead_list,mysize,PathStart,PathEnd);
     QMTime += (unsigned)time(0)-tstart;
     
-  }/*end if Gaussian */
-  /* START: RUN GAUSSIAN */
+  }// End if Gaussian
+  // START: RUN GAUSSIAN
 
-  /* START: READ GAUSSIAN OUT */
+  // START: READ GAUSSIAN OUT
   if (wrank==0)
   {
     for (int p=PathStart;p<PathEnd;p++)
     {
-      /* Read energy */
+      // Read energy
       if (Gaussian)
       {
         Eqm[p]=GaussianEnergyMPIRead(QMMMData,QMMMOpts,p);
-      }/* End if Gaussian */
+      } // End if Gaussian
     }
   }
-  /*END: READ GAUSSIAN OUT */
+  // END: READ GAUSSIAN OUT
 
-  /*
-    charges are updated after QM 
-    send QMMData to everyone
-  */
+  // Charges are updated after QM 
+  // Send QMMData to everyone
   Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,master,Natoms);
   MPI_Barrier(MPI_COMM_WORLD);
 
-  /* START: WRITING TINKER */
+  // START: WRITING TINKER
   int mystat=0;
   if (wrank==0)
   {
     if (TINKER)
     {
-      for(int j=PathStart; j<PathEnd;j++)
+      for (int j=PathStart; j<PathEnd;j++)
       {
         TINKEREnergyMPIWrite(QMMMData, QMMMOpts,j);
       }
@@ -800,7 +781,7 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
       }
     }
   }
-  /* END: WRITING TINKER */
+  // END: WRITING TINKER
   MPI_Barrier(MPI_COMM_WORLD);
   
   MPI_Bcast(&mystat,1,MPI_INT,0,MPI_COMM_WORLD);     
@@ -810,8 +791,7 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
     exit(0);
   }
 
-
-  /* START: RUN TINKER */
+  // START: RUN TINKER
   // Calculate energy (MM part)
   if (TINKER)
   {
@@ -825,8 +805,8 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
       TINKERPolEnergyMPI(mybead_list,mysize,PathStart,PathEnd);
     }
     MMTime += (unsigned)time(0)-tstart;
-  }/* End if TINKER */
-  /* END: RUN TINKER */
+  } // End if TINKER
+  // END: RUN TINKER
 
   if (wrank==0)
   {
@@ -841,10 +821,10 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
         {
           Emm[p]+=TINKERPolEnergyMPIRead(QMMMData, QMMMOpts,p);
         }
-      }/* End if TINKER */
+      } // End if TINKER
   
-      //Eqm[p] = Eqm[p]/har2eV;//to a.u.
-      Emm[p] = (Emm[p]*kcal2eV)/har2eV;//in a.u 
+      /* Eqm[p] = Eqm[p]/har2eV; // To a.u. */
+      Emm[p] = (Emm[p]*kcal2eV)/har2eV; // In a.u.
       Eqmmm_images[p] = Emm[p] + Eqm[p];
 
       // Calculate RMS displacement
@@ -892,7 +872,7 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
   }
 
   // Flush output
-  //logFile.flush();
+  /* logFile.flush(); */
 
   MPI_Barrier(MPI_COMM_WORLD);
   MPI_Bcast(&PathDone,1,MPI::BOOL,root,MPI_COMM_WORLD);
@@ -901,5 +881,5 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
   Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,master,Natoms);
   MPI_Barrier(MPI_COMM_WORLD);
 
-  // return PathDone;
+  /* return PathDone; */
 };

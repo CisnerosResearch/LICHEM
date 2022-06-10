@@ -208,9 +208,11 @@ module:
 	sed $(SEDI) 's:MOD_FIX_PATH:$(INSTALLBIN):g' ./modules/lichem.tcl; \
 	echo ""; \
 	echo "Remember to add or copy the module to your module path!"; \
-	echo "  Use '.lua' for LMOD modules and '.tcl' for environment modules."; \
+	echo "  LMOD modules:        use '.lua'"; \
+	echo "  Environment modules: use '.tcl'";\
 	echo "";\
-	echo "And don't forget to modify the file to load the QM and MM packages!";\
+	echo "And don't forget to modify the file to load the";\
+	echo "  QM and MM packages!";\
 	echo ""
 
 title:
@@ -269,7 +271,7 @@ vroom:
 	echo '             |_________\'; \
 	echo '             |__________|  ..,  ,.,. .,.,, ,..'; \
 	echo ""; \
- 	fi; \
+	fi; \
         echo "";
 
 delbin:	vroom

@@ -166,6 +166,8 @@ void ExtractTINKpoles(vector<QMMMAtom>& QMMMData, int bead)
   return;
 };
 
+/*-------------------------------------------------------------------------*/
+
 void RotateTINKCharges(vector<QMMMAtom>& QMMMData, int bead)
 {
   // Switches from the local frame of reference to the global frame
@@ -511,6 +513,8 @@ void RotateTINKCharges(vector<QMMMAtom>& QMMMData, int bead)
   return;
 };
 
+/*-------------------------------------------------------------------------*/
+
 void WriteTINKMPole(vector<QMMMAtom>& QMMMData, fstream& outFile, int i,
                     int bead)
 {
@@ -561,6 +565,8 @@ void WriteTINKMPole(vector<QMMMAtom>& QMMMData, fstream& outFile, int i,
   outFile << '\n';
   return;
 };
+
+/*-------------------------------------------------------------------------*/
 
 // General routines
 void WriteChargeFile(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
@@ -883,6 +889,8 @@ void WriteChargeFile(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   // Return to the QM calculations
   return;
 };
+
+/*-------------------------------------------------------------------------*/
 
 void ExtractGlobalPoles(int& argc, char**& argv)
 {
@@ -1296,6 +1304,8 @@ void ExtractGlobalPoles(int& argc, char**& argv)
   return;
 };
 
+/*-------------------------------------------------------------------------*/
+
 RedMPole Cart2SphHarm(MPole& pole)
 {
   // Converts Cartesian multipoles to spherical harmonic multipoles
@@ -1353,6 +1363,8 @@ RedMPole Cart2SphHarm(MPole& pole)
   SHPole.Q20 = SHTensor(2); // Diagonal Qzz
   return SHPole;
 };
+
+/*-------------------------------------------------------------------------*/
 
 OctCharges SphHarm2Charges(RedMPole pole)
 {

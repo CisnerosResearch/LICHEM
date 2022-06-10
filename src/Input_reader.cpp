@@ -25,17 +25,15 @@ void ReadArgs(int& argc, char**& argv, fstream& xyzFile,
   // Function to read arguments
   string dummy; // Generic string
   stringstream call; // Stream for system calls and reading/writing files
-  //fstream errFile;
+  /* fstream errFile; */
   // Set given tinker key name as False (assume file named `tinker.key` if 0)
   bool tkeysetBool=0;
   // Set up basic error message
   const char * base_err =
     "Error occurred while executing LICHEM.\n"
     "Check the LICHEM.err file for further explanation.\n";
-  /* 
-    Set up usage instructions separately from help_instructions so you
-    can have different information in the help section 
-  */
+  // Set up usage instructions separately from help_instructions so you
+  //  can have different information in the help section 
   string usage_instructions =
     "Usage: lichem -n Ncpus -x Input.xyz -c Connectivity.inp\n"
     "       -k Tinker.key -r Regions.inp -o Output.xyz -l Logfile.log\n\n";
@@ -174,7 +172,7 @@ void ReadArgs(int& argc, char**& argv, fstream& xyzFile,
       errFile << "   $ lichem -convert -t Tinker.xyz -k Tinker.key -p Yes\n\n";
       errFile << " > Create TINKER XYZ files\n";
       errFile << "   $ lichem -tinker -x xyzfile.xyz -c Connectivity.inp\n\n";
-      //errFile << "--- LAMMPS ---\n";
+      /* errFile << "--- LAMMPS ---\n"; */
       errFile << '\n';
       errFile << "When using LICHEM for Calculations\n";
       errFile << "==================================\n\n";
@@ -231,20 +229,20 @@ void ReadArgs(int& argc, char**& argv, fstream& xyzFile,
       regFilename = string(argv[i+1]);
       regionFile.open(argv[i+1],ios_base::in);
     }
-    /* EML Add */
+    // EML Add
     if (dummy == "-k")
     {
       // Read the tinker key filename
       keyFilename = string(argv[i+1]);
       tkeysetBool = 1;
     }
-    /* End EML */
+    // End EML
     if (dummy == "-o")
     {
       // Read the output XYZ filename
       outFile.open(argv[i+1],ios_base::out);
     }
-    /* Start: Hatice GOKCAN */
+    // Start: Hatice GOKCAN
     if (dummy == "-l")
     {
       // Read the output XYZ filename
@@ -799,12 +797,12 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
         QMMMOpts.KeepFiles=true;
       }
     }
-    /* Keep file per macro iteration */
+    // Keep file per macro iteration
     else if (keyword == "per_opt_step:")
     {
       regionFile >> QMMMOpts.perOpt;
     }
-    /* Keep file per micro iteration */
+    // Keep file per micro iteration
     else if (keyword == "per_qm_step:")
     {
       regionFile >> QMMMOpts.perQM;
@@ -934,7 +932,7 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
       {
         NWChem = 1;
       }
-      /* Start: Hatice */
+      // Start: Hatice
       /*
         if ((dummy == "gaussian") or (dummy == "g09"))
         {
@@ -950,7 +948,7 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
       {
         Gaussian = 1;
       }
-      /* End: Hatice */
+      // End: Hatice
     }
     else if (keyword == "qm_units:")
     {
@@ -1203,11 +1201,9 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
     }
   }
   // START: Hatice GOKCAN
-  /*
-    For QSM
-    Read initial structures for all beads or create new ones if QSM simulation
-  */
-  //if (CheckFile("QSMBeadStruct.xyz") and (!GauExternal))
+  // For QSM
+  // Read initial structures for all beads or create new ones if QSM simulation
+  /* if (CheckFile("QSMBeadStruct.xyz") and (!GauExternal)) */
   if (CheckFile("BeadStartStruct.xyz") and (!GauExternal))
   {
     // Print output
@@ -1215,7 +1211,7 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
     logFile << '\n' << '\n';;
     // Open file
     fstream beadfile;
-    //beadfile.open("QSMBeadStruct.xyz",ios_base::in);
+    /* beadfile.open("QSMBeadStruct.xyz",ios_base::in); */
     beadfile.open("BeadStartStruct.xyz",ios_base::in);
 
     if(QSMSim)

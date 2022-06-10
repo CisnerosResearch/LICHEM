@@ -25,7 +25,7 @@
   #                             5. Finalize                                   #
   #                                                                           #
   #  !!! Reading and writing to outputs are performed only by master proc     #
-  #  !!! If any type of calculation except QSM, please use serial verison     #             
+  #  !!! If any type of calculation except QSM, please use serial verison     #
   #############################################################################
 */
 
@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
   int nbeads;
 
   MPI_Init(NULL, NULL);
-  MPI_Comm_size(MPI_COMM_WORLD, &Worldsize);  // mpirun -np all cores 
+  MPI_Comm_size(MPI_COMM_WORLD, &Worldsize);  // mpirun -np all cores
                                               // (ncores*nthreads)
   MPI_Comm_rank(MPI_COMM_WORLD, &Worldrank);
   MPI_Status stat;
@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
     }
   }
 
-  MPI_Bcast(&mystat,1,MPI_INT,root,MPI_COMM_WORLD); 
+  MPI_Bcast(&mystat,1,MPI_INT,root,MPI_COMM_WORLD);
   if (mystat!=0)
   {
     MPI_Finalize();
@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
 
   }
 
-  MPI_Bcast(&mystat,1,MPI_INT,root,MPI_COMM_WORLD);      
+  MPI_Bcast(&mystat,1,MPI_INT,root,MPI_COMM_WORLD);
   if (mystat!=0)
   {
     MPI_Finalize();
@@ -146,7 +146,8 @@ int main(int argc, char* argv[])
   }
 
   MPI_Bcast(&mystat,1,MPI_INT,root,MPI_COMM_WORLD);
-  if (mystat!=0){
+  if (mystat!=0)
+  {
     MPI_Finalize();
     exit(0);
   }
@@ -180,10 +181,10 @@ int main(int argc, char* argv[])
     // End of section
 
     // NB: All optional simulation types should be wrapped in comments and
-    //     else-if statements. 
-    //     The first comment should define what calculation is going to be 
+    //     else-if statements.
+    //     The first comment should define what calculation is going to be
     //     performed, then the simulation should be enclosed in an
-    //     else-if statement. 
+    //     else-if statement.
     //     After the else-if, an "// End of section" comment should be
     //     added to mark where the next simulation type begins.
 
@@ -216,7 +217,7 @@ int main(int argc, char* argv[])
     bool dostep=true;
     bool PathDone = 0;
     bool QMDone = false; // Will be used if only QM region
-    bool before_qsm = true; // In order to compute react and prod  
+    bool before_qsm = true; // In order to compute react and prod
     
     int optct = 0; // Counter for optimization steps
     /* int macroiter=15; */
@@ -297,11 +298,12 @@ int main(int argc, char* argv[])
     VectorXd spaceout_path(beadsize);
     
     rpath.segment(0,beadsize)=wholepath.segment(0,beadsize);
-    ppath.segment(0,beadsize)=wholepath.segment((Nimages+1)*beadsize,beadsize);
+    ppath.segment(0,beadsize)=wholepath.segment((Nimages+1)*beadsize,
+                                                beadsize);
     spaceout_path=rpath-ppath;
     spaceout_dist = (spaceout_path.norm())/(10*Nimages);
     /*
-      spaceout_dist = ceil(((spaceout_path.norm())/(10*Nimages))* 1.0e9) / 
+      spaceout_dist = ceil(((spaceout_path.norm())/(10*Nimages))* 1.0e9) /
       1.0e9;
     */
 
@@ -309,15 +311,15 @@ int main(int argc, char* argv[])
     { 
       logFile << '\n';
       logFile << "   -----------------------------";
-      logFile << "-----------------------------------"<< '\n'; 
+      logFile << "-----------------------------------"<< '\n';
       logFile << "                              ";
       logFile << "QSM OPTIMIZATION " << '\n';
       logFile << "   ---------------------------------";
-      logFile << "-------------------------------"<< '\n'; 
+      logFile << "-------------------------------"<< '\n';
       logFile.flush(); // Print progress
       
       logFile << '\n';
-      logFile << "     Max. number of QSM Macro iterations  \n"; 
+      logFile << "     Max. number of QSM Macro iterations  \n";
       logFile << "     is set to ";
       logFile << QMMMOpts.maxOptSteps << '\n' << endl;
       
@@ -377,7 +379,7 @@ int main(int argc, char* argv[])
     if (master)
     {
       logFile << '\n' << endl;
-      logFile << "     > Optimization Steps < " << endl; 
+      logFile << "     > Optimization Steps < " << endl;
     }
 
     // To enter optimization together
@@ -387,7 +389,7 @@ int main(int argc, char* argv[])
     {
       if (master)
       {
-        logFile << "\n"; 
+        logFile << "\n";
         logFile << "       ";
         logFile << "| Opt. step : ";
         logFile << iter;
@@ -399,9 +401,9 @@ int main(int argc, char* argv[])
       // If it is just OldQMMMData = QMMMData; it gives error
       // Should use send
       if (Worldrank==0)
-      {         
+      {
         OldQMMMData = QMMMData;
-      } 
+      }
 
       if (iter==1)
       {
@@ -431,9 +433,9 @@ int main(int argc, char* argv[])
         QMMMOpts.MMOptTol = SavedMMOptTol;
         QMMMOpts.QMRMSForceTol = SavedOptTol2;
         QMMMOpts.QMMaxForceTol = SavedOptTol3;
-      }   
+      }
       
-      // Everyone needs to wait so that 
+      // Everyone needs to wait so that
       // OldQMMMData and tolerances are
       // same in every core
       MPI_Barrier(MPI_COMM_WORLD);
@@ -459,7 +461,7 @@ int main(int argc, char* argv[])
             MPI_Barrier(MPI_COMM_WORLD);
 
             restr=restr/2; // Update restr for the next iteration
-            PathDone=0; 
+            PathDone=0;
           }
           // End: do if restrain is > 2
           // Start: do if restrain is < 2
@@ -473,9 +475,9 @@ int main(int argc, char* argv[])
 
           if (master)
           {
-            if (QMMMOpts.KeepFiles  and 
-                (((iter%QMMMOpts.perOpt)==0) or 
-                PathDone or 
+            if (QMMMOpts.KeepFiles  and
+                (((iter%QMMMOpts.perOpt)==0) or
+                PathDone or
                 iter==QMMMOpts.maxOptSteps or
                 iter==1))
             {
@@ -485,13 +487,13 @@ int main(int argc, char* argv[])
           }
         } // END: restrain
         // START: if !QMMMOpts.restrMM
-        //        QMMMOpts.restrMM became false 
+        //        QMMMOpts.restrMM became false
         //        when restrain is < 2
         else
         {
           // Counter for MM without restraints
           // mmstep starts from 0
-          mmstep = mmstep+1; 
+          mmstep = mmstep+1;
 
           runMMoptMPI(QMMMData,QMMMOpts,before_qsm,logFile);
 
@@ -520,9 +522,9 @@ int main(int argc, char* argv[])
           
           if (master)
           {
-            if (QMMMOpts.KeepFiles  and 
-                (((iter%QMMMOpts.perOpt)==0) or 
-                PathDone or 
+            if (QMMMOpts.KeepFiles  and
+                (((iter%QMMMOpts.perOpt)==0) or
+                PathDone or
                 iter==QMMMOpts.maxOptSteps or
                 iter==1))
             {
@@ -532,7 +534,7 @@ int main(int argc, char* argv[])
           }
           MPI_Barrier(MPI_COMM_WORLD);
         } // END: if !QMMMOpts.restrMM
-      } // End: if QMMM 
+      } // End: if QMMM
       else
       {
         // If only QM
@@ -541,7 +543,7 @@ int main(int argc, char* argv[])
         {
           QMDone=0;
           PathDone=0;
-        }  
+        }
       } // End: if only QM
       
       // Print optimized geometry
@@ -562,13 +564,13 @@ int main(int argc, char* argv[])
       
       if (master)
       {
-        if (QMMMOpts.KeepFiles  and 
-            (((iter%QMMMOpts.perOpt)==0) or 
-            PathDone or 
-            iter==QMMMOpts.maxOptSteps or 
+        if (QMMMOpts.KeepFiles  and
+            (((iter%QMMMOpts.perOpt)==0) or
+            PathDone or
+            iter==QMMMOpts.maxOptSteps or
             iter==1))
         {
-          // Save optimization step directories    
+          // Save optimization step directories
           save_files(2,iter,logFile);
         }
       }
@@ -636,7 +638,7 @@ int main(int argc, char* argv[])
   }
   // End of section
 
-  // Start: HATICE 
+  // Start: HATICE
   if (master)
   {
     // Clean up
@@ -648,7 +650,7 @@ int main(int argc, char* argv[])
       {
         stringstream call;
         call.str("");
-        call << "rm -f LICHM*"; 
+        call << "rm -f LICHM*";
         globalSys = system(call.str().c_str());
       }
     }

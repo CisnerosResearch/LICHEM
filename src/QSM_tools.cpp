@@ -92,9 +92,9 @@ void DBFGS(MatrixXd& Hess, VectorXd& pathdiff, VectorXd& graddiff, int ndim)
   double theta;
   double shs;
   VectorXd r((ndim)); //*3);
-  MatrixXd Ann(ndim,ndim); //((ndim)*3,(ndim)*3);
-  MatrixXd Ann2(ndim,ndim); //((ndim)*3,(ndim)*3);
-  MatrixXd Ht(ndim,ndim); //((ndim)*3,(ndim)*3);
+  MatrixXd Ann(ndim,ndim);  /* ((ndim)*3,(ndim)*3); */
+  MatrixXd Ann2(ndim,ndim); /* ((ndim)*3,(ndim)*3); */
+  MatrixXd Ht(ndim,ndim);   /* ((ndim)*3,(ndim)*3); */
 
   if(pathdiff.norm() > 1e-6)
 	{
@@ -173,7 +173,7 @@ void spaceoutcubic(VectorXd& wholepath,bool nebatoms[],
 
   dists(0)=0;
   x=wholepath.cwiseProduct(weight);   
-   
+  
   VectorXd xcurr(Ndim);
   VectorXd xprev(Ndim);
   //#pragma omp parallel for schedule(dynamic)
@@ -182,8 +182,7 @@ void spaceoutcubic(VectorXd& wholepath,bool nebatoms[],
     // image
     xcurr = x.segment(Ndim*k,Ndim); 
     xprev = x.segment(Ndim*(k-1),Ndim);
-    dists(k) = dists(k-1) + (xcurr-xprev).norm(); //pathdiff.norm();
- 
+    dists(k) = dists(k-1) + (xcurr-xprev).norm(); /* pathdiff.norm(); */
   }
   //#pragma omp barrier
 
@@ -221,7 +220,6 @@ void spaceoutcubic(VectorXd& wholepath,bool nebatoms[],
       tmpcoeff.col(2) = coeffmat.col(2);
       tmpcoeff.col(3) = coeffmat.col(3);
     }
-
 
     int srow=i*N; // Starting row of current image
     int rsize=N;  // Number of rows
@@ -482,7 +480,7 @@ void ODESolve(VectorXd& path, MatrixXd& H, VectorXd& g, VectorXd& energy,
       {
         done = true;
       }
-      //allswitch = allswitch and (!currswitch(i));
+      /* allswitch = allswitch and (!currswitch(i)); */
       allswitch = (allswitch and (not currswitch[i]));
 
     }

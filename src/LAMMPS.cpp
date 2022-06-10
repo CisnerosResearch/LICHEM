@@ -18,7 +18,7 @@
 
 */
 
-//MM utility functions
+// MM utility functions
 void LAMMPSTopology(vector<QMMMAtom>& QMMMData, stringstream& topology,
                     int bead)
 {
@@ -27,15 +27,17 @@ void LAMMPSTopology(vector<QMMMAtom>& QMMMData, stringstream& topology,
   return;
 };
 
-//MM wrapper functions
+/*-------------------------------------------------------------------------*/
+
+// MM wrapper functions
 double LAMMPSEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                     int bead)
 {
-  //Function for calculating the MM forces on a set of QM atoms
-  fstream outFile,inFile; //Generic file streams
-  string dummy; //Generic string
-  stringstream call; //Stream for system calls and reading/writing files
-  call.copyfmt(cout); //Copy settings from cout
+  // Function for calculating the MM forces on a set of QM atoms
+  fstream outFile,inFile; // Generic file streams
+  string dummy; // Generic string
+  stringstream call; // Stream for system calls and reading/writing files
+  call.copyfmt(cout); // Copy settings from cout
   double E = 0.0;
   int ct; //Generic counter
   //Construct LAMMPS data file
@@ -59,22 +61,22 @@ double LAMMPSEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   while (!inFile.eof())
   {
-     //Copy the potential line by line
-     getline(inFile,dummy);
-     call << dummy << '\n';
+    // Copy the potential line by line
+    getline(inFile,dummy);
+    call << dummy << '\n';
   }
   inFile.close();
-  //Add PBC info
+  // Add PBC info
   call << "Atoms";
   call << '\n' << '\n';
   for (int i=0;i<Natoms;i++)
   {
     call << (QMMMData[i].id+1);
-    call << " 1 "; //Dummy molecule ID
+    call << " 1 "; // Dummy molecule ID
     call << QMMMData[i].numTyp << " ";
     if (QMMMData[i].QMRegion or QMMMData[i].PBRegion or QMMMData[i].BARegion)
     {
-      //Add zero charge
+      // Add zero charge
       call << 0.0;
     }
     else
@@ -93,21 +95,21 @@ double LAMMPSEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   inFile.open("TOPO",ios_base::in);
   while (!inFile.eof())
   {
-     //Copy the potential line by line
-     getline(inFile,dummy);
-     call << dummy << '\n';
+    // Copy the potential line by line
+    getline(inFile,dummy);
+    call << dummy << '\n';
   }
   inFile.close();
   outFile << call.str();
   outFile.flush();
   outFile.close();
-  //Construct input file
+  // Construct input file
   call.str("");
   call << "LICHM_" << bead << ".in";
   outFile.open(call.str().c_str(),ios_base::out);
   call.str("");
   call << "atom_style full" << '\n';
-  call << "units metal"; //eV,Ang,ps,bar,K
+  call << "units metal"; // eV,Ang,ps,bar,K
   call << '\n';
   if (PBCon)
   {
@@ -124,31 +126,31 @@ double LAMMPSEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   inFile.open("POTENTIAL",ios_base::in);
   while (!inFile.eof())
   {
-     //Copy the potential line by line
-     getline(inFile,dummy);
-     call << dummy << '\n';
+    // Copy the potential line by line
+    getline(inFile,dummy);
+    call << dummy << '\n';
   }
   inFile.close();
   if (Nqm > 0)
   {
-    //Partition atoms into groups
+    // Partition atoms into groups
     call << "group qm id "; //QM and PB
     ct = 0;
     for (int i=0;i<Natoms;i++)
     {
       if (QMMMData[i].QMRegion or QMMMData[i].PBRegion)
       {
-        call << (QMMMData[i].id+1); //LAMMPS id
+        call << (QMMMData[i].id+1); // LAMMPS id
         ct += 1;
         if (ct == 10)
         {
-          //Break up lines
+          // Break up lines
           call << " \\" << '\n';
           ct = 0;
         }
         else
         {
-          //Add spaces
+          // Add spaces
           call << " ";
         }
       }
@@ -157,24 +159,24 @@ double LAMMPSEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     {
       call << '\n';
     }
-    //Partition atoms into MM group
-    call << "group mm id "; //MM and BA
+    // Partition atoms into MM group
+    call << "group mm id "; // MM and BA
     ct = 0;
     for (int i=0;i<Natoms;i++)
     {
       if (QMMMData[i].MMRegion or QMMMData[i].BARegion)
       {
-        call << (QMMMData[i].id+1); //LAMMPS id
+        call << (QMMMData[i].id+1); // LAMMPS id
         ct += 1;
         if (ct == 10)
         {
-          //Break up lines
+          // Break up lines
           call << " \\" << '\n';
           ct = 0;
         }
         else
         {
-          //Add spaces
+          // Add spaces
           call << " ";
         }
       }
@@ -195,11 +197,11 @@ double LAMMPSEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     call << "compute qmmme mm group/group qm" << '\n';
     call << "thermo_style custom step c_mme c_qmmme" << '\n';
   }
-  call << "run 0" << '\n'; //Only uses the initial energy
+  call << "run 0" << '\n'; // Only uses the initial energy
   outFile << call.str();
   outFile.flush();
   outFile.close();
-  //Run calculation
+  // Run calculation
   call.str("");
   call << "lammps -suffix omp -log LICHM_";
   call << bead;
@@ -209,10 +211,10 @@ double LAMMPSEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   call << bead;
   call << ".txt";
   globalSys = system(call.str().c_str());
-  //Extract energy
+  // Extract energy
   exit(0);
   
-  //Clean up files
+  // Clean up files
   call.str("");
   call << "rm -f LICHM";
   call << "_" << bead;
@@ -228,7 +230,7 @@ double LAMMPSEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
 double LAMMPSForces(vector<QMMMAtom>& QMMMData, VectorXd& Forces,
                     QMMMSettings& QMMMOpts, int bead)
 {
-  //Function for calculating the MM forces on a set of QM atoms
+  // Function for calculating the MM forces on a set of QM atoms
   double E = 0.0;
   
   return E;
@@ -237,7 +239,7 @@ double LAMMPSForces(vector<QMMMAtom>& QMMMData, VectorXd& Forces,
 MatrixXd LAMMPSHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                        int bead)
 {
-  //Function for calculating the MM Hessian for the QM atoms
+  // Function for calculating the MM Hessian for the QM atoms
   MatrixXd MMHess((3*(Nqm+Npseudo)),(3*(Nqm+Npseudo)));
   MMHess.setZero();
   
@@ -247,22 +249,22 @@ MatrixXd LAMMPSHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
 double LAMMPSOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                  int bead)
 {
-  //Function for optimizing with LAMMPS
-  fstream outFile,inFile; //Generic file streams
-  string dummy; //Generic string
-  stringstream call; //Stream for system calls and reading/writing files
-  call.copyfmt(cout); //Copy settings from cout
+  // Function for optimizing with LAMMPS
+  fstream outFile,inFile; // Generic file streams
+  string dummy; // Generic string
+  stringstream call; // Stream for system calls and reading/writing files
+  call.copyfmt(cout); // Copy settings from cout
   double E = 0.0;
-  int ct; //Generic counter
-  //Construct LAMMPS data file
+  int ct; // Generic counter
+  // Construct LAMMPS data file
   call.str("");
   call << "LICHM_" << bead << ".data";
   inFile.open("DATA",ios_base::in);
   while (!inFile.eof())
   {
-     //Copy the potential line by line
-     getline(inFile,dummy);
-     call << dummy << '\n';
+    // Copy the potential line by line
+    getline(inFile,dummy);
+    call << dummy << '\n';
   }
   inFile.close();
   call << '\n';
@@ -271,7 +273,7 @@ double LAMMPSOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   for (int i=0;i<Natoms;i++)
   {
     call << (QMMMData[i].id+1);
-    call << " 1 "; //Dummy molecule ID
+    call << " 1 "; // Dummy molecule ID
     call << QMMMData[i].numTyp << " ";
     call << QMMMData[i].MP[bead].q << " ";
     call << QMMMData[i].P[bead].x;
@@ -284,13 +286,13 @@ double LAMMPSOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   outFile << call.str();
   outFile.flush();
   outFile.close();
-  //Construct input file
+  // Construct input file
   call.str("");
   call << "LICHM_" << bead << ".in";
   outFile.open(call.str().c_str(),ios_base::out);
   call.str("");
   call << "atom_style full" << '\n';
-  call << "units metal"; //eV,Ang,ps,bar,K
+  call << "units metal"; // eV,Ang,ps,bar,K
   call << '\n';
   call << "read_data ";
   call << "LICHM_" << bead << ".data";
@@ -298,32 +300,32 @@ double LAMMPSOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   inFile.open("POTENTIAL",ios_base::in);
   while (!inFile.eof())
   {
-     //Copy the potential line by line
-     getline(inFile,dummy);
-     call << dummy << '\n';
+    // Copy the potential line by line
+    getline(inFile,dummy);
+    call << dummy << '\n';
   }
   inFile.close();
   call << '\n';
   if (Nqm > 0)
   {
-    //Partition atoms into groups
-    call << "group qm id "; //QM and PB
+    // Partition atoms into groups
+    call << "group qm id "; // QM and PB
     ct = 0;
     for (int i=0;i<Natoms;i++)
     {
       if (QMMMData[i].QMRegion or QMMMData[i].PBRegion)
       {
-        call << (QMMMData[i].id+1); //LAMMPS id
+        call << (QMMMData[i].id+1); // LAMMPS id
         ct += 1;
         if (ct == 10)
         {
-          //Break up lines
+          // Break up lines
           call << " \\" << '\n';
           ct = 0;
         }
         else
         {
-          //Add spaces
+          // Add spaces
           call << " ";
         }
       }
@@ -332,24 +334,24 @@ double LAMMPSOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     {
       call << '\n';
     }
-    //Partition atoms into MM group
-    call << "group mm id "; //MM and BA
+    // Partition atoms into MM group
+    call << "group mm id "; // MM and BA
     ct = 0;
     for (int i=0;i<Natoms;i++)
     {
       if (QMMMData[i].MMRegion or QMMMData[i].BARegion)
       {
-        call << (QMMMData[i].id+1); //LAMMPS id
+        call << (QMMMData[i].id+1); // LAMMPS id
         ct += 1;
         if (ct == 10)
         {
-          //Break up lines
+          // Break up lines
           call << " \\" << '\n';
           ct = 0;
         }
         else
         {
-          //Add spaces
+          // Add spaces
           call << " ";
         }
       }
@@ -363,22 +365,22 @@ double LAMMPSOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   call << "thermo_style step etotal" << '\n';
   call << "compute mme mm pe" << '\n';
   call << "compute qmmme mm group/group qm" << '\n';
-  //FIX THIS!!!!
+  // FIX THIS!!!!
   call << "min_style cg" << '\n';
   call << "minimize ";
-  //Energy tolerance
+  // Energy tolerance
   call << QMMMOpts.MMOptTol << " ";
-  //Force tolerance
+  // Force tolerance
   call << QMMMOpts.MMOptTol << " ";
-  //Max steps
+  // Max steps
   call << QMMMOpts.maxOptSteps << " ";
-  //Max force iterations
+  // Max force iterations
   call << (3*Natoms*QMMMOpts.maxOptSteps);
   call << '\n';
   outFile << call.str();
   outFile.flush();
   outFile.close();
-  //Run calculation
+  // Run calculation
   call.str("");
   call << "lammps -suffix omp -log ";
   call << "LICHM_" << bead;
@@ -386,9 +388,9 @@ double LAMMPSOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   call << ".in > LICHMlog_" << bead;
   call << ".txt";
   globalSys = system(call.str().c_str());
-  //Extract new geometry
+  // Extract new geometry
   
-  //Clean up files
+  // Clean up files
   call.str("");
   call << "rm -f LICHM";
   call << "_" << bead;
@@ -400,4 +402,3 @@ double LAMMPSOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   call << bead << ".txt";
   return E;
 };
-

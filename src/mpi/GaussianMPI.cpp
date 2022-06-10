@@ -112,31 +112,32 @@ void GaussianForcesMPIWrite(vector<QMMMAtom>& QMMMData,
 
 };
 
+/*-------------------------------------------------------------------------*/
 
 void GaussianEnergyMPIWrite(vector<QMMMAtom>& QMMMData,
                             QMMMSettings& QMMMOpts, int bead)
 {
-  /* Calculates the QM energy with Gaussian */
+  // Calculates the QM energy with Gaussian
   fstream QMLog;  // Generic file streams
   string dummy;  // Generic string
   stringstream call;  // Stream for system calls and reading/writing files
   call.copyfmt(cout);  // Copy print settings
   double E = 0.0;  // QM energy
   double Eself = 0.0;  // External field self-energy
-  /* Check if there is a checkpoint file */
+  // Check if there is a checkpoint file
   call.str("");
   call << "LICHM_" << bead << ".chk";
   bool useCheckPoint = CheckFile(call.str());
   if (QMMMOpts.func == "SemiEmp")
   {
-    /* Disable checkpoints for the SemiEmp force calculations */
+    // Disable checkpoints for the SemiEmp force calculations
     useCheckPoint = 0;
-    /* Remove SemiEmp checkpoints to avoid errors */
+    // Remove SemiEmp checkpoints to avoid errors
     call.str("");
     call << "rm -f LICHM_" << bead << ".chk";
     globalSys = system(call.str().c_str());
   }
-  /* Construct Gaussian input */
+  // Construct Gaussian input
 
   call.str("");
 
@@ -153,32 +154,32 @@ void GaussianEnergyMPIWrite(vector<QMMMAtom>& QMMMData,
   call << "#P ";
   if (QMMMOpts.func != "SemiEmp")
   {
-    /* Avoids defining both a basis set and method for semi-empirical */
+    // Avoids defining both a basis set and method for semi-empirical
     call << QMMMOpts.func << "/"; // Print the method
   }
   call << QMMMOpts.basis << " SP Symmetry=None" << '\n';
-  //call << "Int=Fine SCF=Big";
+  /* call << "Int=Fine SCF=Big"; */
   if (useCheckPoint)
   {
     call << " Guess=TCheck";
     call << '\n';
   }
-  //call << '\n';
+  /* call << '\n'; */
   if (QMMM)
   {
     if ((Npseudo > 0) and (QMMMOpts.func != "SemiEmp"))
     {
-      /* Read pseudo potential */
+      // Read pseudo potential
       call << "Pseudo=Read ";
     }
     if (Nmm > 0)
     {
-      /* Read charges */
+      // Read charges
       call << "Charge=angstroms ";
     }
     if (QMMMOpts.func != "SemiEmp")
     {
-      /* Avoids calculating ESP charges for semi-empirical */
+      // Avoids calculating ESP charges for semi-empirical
       call << "Population=(MK,ReadRadii)";
     }
     call << '\n';
@@ -187,7 +188,7 @@ void GaussianEnergyMPIWrite(vector<QMMMAtom>& QMMMData,
 
 }
 
-
+/*-------------------------------------------------------------------------*/
 
 double GaussianForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
                             QMMMSettings& QMMMOpts, int bead)
@@ -237,7 +238,6 @@ double GaussianForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
           forces(3*i) += fX*har2eV/bohrRad;
           forces(3*i+1) += fY*har2eV/bohrRad;
           forces(3*i+2) += fZ*har2eV/bohrRad;
-
         }
       }
     }
@@ -305,7 +305,6 @@ double GaussianForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
         }
       }
     }
-
   }
   QMLog.close();
 
@@ -324,14 +323,14 @@ double GaussianForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   }
 
   // Clean up files
-  if(!QMMMOpts.KeepFiles){
+  if(!QMMMOpts.KeepFiles)
+  {
     call.str("");
     call << "rm -f ";
     call << "LICHM_GauForce_" << bead;
     call << ".com ";
     call << "LICHM_GauForce_" << bead << ".log ";
     globalSys = system(call.str().c_str());
-  
   }
   // Change units and return
   Eqm -= Eself;
@@ -339,6 +338,7 @@ double GaussianForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   return Eqm;
 };
 
+/*-------------------------------------------------------------------------*/
 
 double GaussianEnergyMPIRead(vector<QMMMAtom>& QMMMData,
                             QMMMSettings& QMMMOpts, int bead)
@@ -457,7 +457,8 @@ double GaussianEnergyMPIRead(vector<QMMMAtom>& QMMMData,
     call << " "; // Extra blank space before the next command
   }
 
-  if(!QMMMOpts.KeepFiles){
+  if(!QMMMOpts.KeepFiles)
+  {
     call.str("");
     call << "rm -f ";
     call << "LICHM_GauEner_" << bead;
@@ -466,13 +467,14 @@ double GaussianEnergyMPIRead(vector<QMMMAtom>& QMMMData,
     globalSys = system(call.str().c_str());
   }
 
-  /* Change units and return */
-  //cout << "QME2:" << E << " SE2:" << Eself << "\n" << endl;
+  // Change units and return
+  /* cout << "QME2:" << E << " SE2:" << Eself << "\n" << endl; */
   E -= Eself;
-  //E *= har2eV;
+  /* E *= har2eV; */
   return E;
 };
 
+/*-------------------------------------------------------------------------*/
 
 void GaussianForcesMPI(vector<int> mybead_list,
                        int mysize,int pathstart, int pathend)
@@ -493,33 +495,26 @@ void GaussianForcesMPI(vector<int> mybead_list,
 
   for (int jj=0; jj<mysize;jj++)
   {
-
     int p=mybead_list[jj];
 
-    /*
-      Ensure that it starts from pathstart
-      in root proc
-      so that no extra calc will be performed
-    */
+    // Ensure that it starts from pathstart
+    //  in root proc
+    //  so that no extra calc will be performed
     if (p<pathstart)
     {
       p=pathstart;
     }
-    /* 
-      Ensure that it ends at pathend
-      in last proc
-      so that no extra calc will be performed
-    */
+    // Ensure that it ends at pathend
+    //  in last proc
+    //  so that no extra calc will be performed
     if (p>pathend)
     {
-      /*
-        Opt is finished, break loop
-        and convert force to hartree
-      */
+      // Opt is finished, break loop
+      //  and convert force to hartree
       break;
     }
 
-    /* Input file */ 
+    // Input file
     call.str("");
     if (g09)
     {
@@ -529,7 +524,6 @@ void GaussianForcesMPI(vector<int> mybead_list,
       call << "g16 " << "LICHM_GauForce_" << p;
     }
     globalSys = system(call.str().c_str());
-
   }
 
   int lastdone=0;
@@ -543,8 +537,7 @@ void GaussianForcesMPI(vector<int> mybead_list,
     MPI_Recv(&lastdone, 0, MPI_INT, wsize-1, 44, MPI_COMM_WORLD, &stat);
   }
 
-
-  /* Ensure that no one exits the loop before finishing */
+  // Ensure that no one exits the loop before finishing
   int value;
   if (myrank==0)
   {
@@ -564,10 +557,12 @@ void GaussianForcesMPI(vector<int> mybead_list,
 
 };
 
+/*-------------------------------------------------------------------------*/
+
 void GaussianEnergyMPI(vector<int> mybead_list,
                        int mysize,int pathstart, int pathend)
 {
-  /* Function for calculating the forces on a set of atoms */
+  // Function for calculating the forces on a set of atoms
   stringstream call; // Stream for system calls and reading/writing files
   call.copyfmt(cout); // Copy print settings
   string dummy; // Generic string
@@ -579,37 +574,31 @@ void GaussianEnergyMPI(vector<int> mybead_list,
   
   MPI_Status stat;
 
-  /* Synch */
+  // Synch
   MPI_Barrier(MPI_COMM_WORLD);
 
   for (int jj=0; jj<mysize;jj++)
   {
     int p=mybead_list[jj];
 
-    /*
-      Ensure that it starts from pathstart
-      in root proc
-      so that no extra calc will be performed 
-    */
+    // Ensure that it starts from pathstart
+    //  in root proc
+    //  so that no extra calc will be performed 
     if (p<pathstart)
     {
       p=pathstart;
     }
-    /*
-      Ensure that it ends at pathend
-      in last proc
-      so that no extra calc will be performed
-    */
+    // Ensure that it ends at pathend
+    //  in last proc
+    //  so that no extra calc will be performed
     if (p>pathend)
     {
-      /*
-        Opt is finished, break loop
-        and convert force to hartree
-      */
+      // Opt is finished, break loop
+      // and convert force to hartree
       break;
     }
 
-    /* Input file */ 
+    // Input file 
     call.str("");
     if (g09)
     {
@@ -635,7 +624,7 @@ void GaussianEnergyMPI(vector<int> mybead_list,
     MPI_Recv(&lastdone, 0, MPI_INT, wsize-1, 44, MPI_COMM_WORLD, &stat);
   }
 
-  /* Ensure that no one exits the loop before finishing */
+  // Ensure that no one exits the loop before finishing
   int value;
   if (myrank==0)
   {

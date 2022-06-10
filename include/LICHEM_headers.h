@@ -197,7 +197,8 @@ MatrixXd PSI4Hessian(vector<QMMMAtom>&,QMMMSettings&,int);
 
 double PSI4Opt(vector<QMMMAtom>&,QMMMSettings&,int);
 
-void ReadArgs(int&,char**&,fstream&,fstream&,fstream&,fstream&,fstream&,fstream&);
+void ReadArgs(int&,char**&,
+              fstream&,fstream&,fstream&,fstream&,fstream&,fstream&);
 
 void ReadLICHEMInput(fstream&,fstream&,fstream&,
                      vector<QMMMAtom>&,QMMMSettings&,fstream&,int&);

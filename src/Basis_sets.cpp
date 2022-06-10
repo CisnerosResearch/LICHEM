@@ -18,15 +18,15 @@
 
 */
 
-//Basis set definitions
+// Basis set definitions
 vector<HermGau> HermBasis(string Typ, string basName)
 {
-  //Function to set specific Hermite basis sets
-  bool badBasis = 0; //Flag to exit if no basis set is found
+  // Function to set specific Hermite basis sets
+  bool badBasis = 0; // Flag to exit if no basis set is found
   vector<HermGau> newBasis;
-  //NB: Organized by basis name, then element
+  // NB: Organized by basis name, then element
   
-  //Check for errors
+  // Check for errors
   if (badBasis)
   {
     cerr << "Error: Basis set " << basName;
@@ -35,7 +35,6 @@ vector<HermGau> HermBasis(string Typ, string basName)
     cerr.flush();
     exit(0);
   }
-  //Return basis set if it was found in the database
+  // Return basis set if it was found in the database
   return newBasis;
 };
-

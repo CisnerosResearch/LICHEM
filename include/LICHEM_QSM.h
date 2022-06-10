@@ -38,7 +38,7 @@ void quad_app(VectorXd& wholepath, VectorXd& oldpath, MatrixXd& Hessmat,
               int beadsize, VectorXd& equad,VectorXd& gquad);
 
 void updateTR (MatrixXd& Hessmat, VectorXd& glast, VectorXd& oldpath,
-               VectorXd& wholepath, VectorXd& Eqmmm_images, 
+               VectorXd& wholepath, VectorXd& Eqmmm_images,
                VectorXd& lastenergy, VectorXd& trs,
                VectorXd& maxtr, int beadsize,int Nimages);
 
@@ -92,23 +92,22 @@ bool QSMConverged(vector<QMMMAtom>& QMMMData, vector<QMMMAtom>& OldQMMMData,
                   int stepct, QMMMSettings& QMMMOpts, VectorXd& Eqmmm_images,
                   fstream& logFile);
 
-                  
 double CalcForces(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
                   VectorXd& Eqm_images, VectorXd& Emm_images,
                   VectorXd& Eqmmm_images,VectorXd& force,
                   int beadsize, int QMdim, bool first_time,fstream& logFile);
-                
 
 bool QMConverged(vector<QMMMAtom>& QMMMData,vector<QMMMAtom>& OldQMMMData,
                  MatrixXd& ForceStats, int stepct, QMMMSettings& QMMMOpts,
                  double &rmsdiff, double &rmsforce, double &maxforce);
 
-
-void print_progress(QMMMSettings& QMMMOpts, int print_level, VectorXd& Eqmmm_images,
+void print_progress(QMMMSettings& QMMMOpts, int print_level,
+                    VectorXd& Eqmmm_images,
                     double RMSdiff, double MAXforce, double RMSforce,
                     VectorXd& reactCoord,fstream&);
 
-double runRestrMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,double restr,fstream&);
+double runRestrMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
+                     double restr,fstream&);
 
 void calc_react_coord(QMMMSettings& QMMMOpts, vector<QMMMAtom>& QMMMData,
                       VectorXd& reactCoord);

@@ -190,6 +190,8 @@ bool OptConverged(vector<QMMMAtom>& QMMMData, vector<QMMMAtom>& oldQMMMData,
   return optDone;
 };
 
+/*-------------------------------------------------------------------------*/
+
 // Optimizer functions
 void LICHEMSteepest(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                     int bead, fstream& logFile)
@@ -315,7 +317,8 @@ void LICHEMSteepest(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     // Print structure
     Print_traj(QMMMData,qmFile,QMMMOpts);
     // Check convergence
-    optDone = OptConverged(QMMMData,oldQMMMData,forces,stepCt,QMMMOpts,bead,1,logFile);
+    optDone = OptConverged(QMMMData,oldQMMMData,forces,stepCt,
+                           QMMMOpts,bead,1,logFile);
     stepCt += 1;
     // Increase step size
     stepScale *= 1.05;
@@ -334,14 +337,14 @@ void LICHEMSteepest(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   return;
 };
 
+/*-------------------------------------------------------------------------*/
+
 void LICHEMDFP(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
               fstream& logFile)
 {
-  /*
-    A simple Davidon-Fletcher-Powell optimizer.
-    NB: This optimizer does not have a true line search, instead
-    a steepest descent step is performed if the optimizer is unstable
-  */
+  // A simple Davidon-Fletcher-Powell optimizer.
+  // NB: This optimizer does not have a true line search, instead
+  //     a steepest descent step is performed if the optimizer is unstable
   stringstream call; // Stream for system calls and reading/writing files
   int stepCt = 0; // Counter for optimization steps
   fstream qmFile,inFile,outFile; // Generic file streams
@@ -628,7 +631,8 @@ void LICHEMDFP(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
     EOld = E;
     // Check convergence
     stepCt += 1;
-    optDone = OptConverged(QMMMData,oldQMMMData,forces,stepCt,QMMMOpts,bead,1,logFile);
+    optDone = OptConverged(QMMMData,oldQMMMData,forces,stepCt,
+                           QMMMOpts,bead,1,logFile);
   }
   // Clean up files
   /*

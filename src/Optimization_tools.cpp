@@ -1055,7 +1055,8 @@ bool QMConverged(vector<QMMMAtom>& QMMMData, vector<QMMMAtom>& OldQMMMData,
             double Rnew = 0;
             double Rold = 0;
             Rnew = CoordDist2(QMMMData[i].P[p],QMMMData[j].P[p]).vecMag();
-            Rold = CoordDist2(OldQMMMData[i].P[p],OldQMMMData[j].P[p]).vecMag();
+            Rold = CoordDist2(OldQMMMData[i].P[p],
+                              OldQMMMData[j].P[p]).vecMag();
             Rnew = sqrt(Rnew);
             Rold = sqrt(Rold);
             // Update local sum

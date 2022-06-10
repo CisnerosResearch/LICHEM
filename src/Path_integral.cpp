@@ -47,6 +47,8 @@ double Get_PI_Espring(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts)
   return E;
 };
 
+/*-------------------------------------------------------------------------*/
+
 double Get_PI_Epot(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                   fstream& logFile)
 {
@@ -113,6 +115,8 @@ double Get_PI_Epot(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   E /= QMMMOpts.NBeads;
   return E;
 };
+
+/*-------------------------------------------------------------------------*/
 
 bool MCMove(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, 
             double& Emc, fstream& logFile)

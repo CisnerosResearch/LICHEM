@@ -86,7 +86,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
   int rsize; // Number of rows
   int csize; // Number of columns
   int qsmiter = 0; // For QM part
-  //int maxiter = 50;//should be 50
+  /* int maxiter = 50; // Should be 50 */
   int maxiter = QMMMOpts.MaxQMSteps;
 
   bool first_time = true;
@@ -170,11 +170,11 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
         if(QMMMData[i].NEBActive)
         {
           nebatoms[index]=true;
-          for(int k=0; k<QMMMOpts.NBeads; k++)
+          for (int k=0; k<QMMMOpts.NBeads; k++)
           { 
-            weight(k*beadsize + index*3) = 1.0; //x
-            weight(k*beadsize + index*3 + 1) = 1.0;//y
-            weight(k*beadsize + index*3 + 2) = 1.0;//z
+            weight(k*beadsize + index*3) = 1.0;     // x
+            weight(k*beadsize + index*3 + 1) = 1.0; // y
+            weight(k*beadsize + index*3 + 2) = 1.0; // z
           }
         }
         index=index+1;  
@@ -211,9 +211,10 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
     }
   }
 
-  while ( (!PathDoneQM) and (qsmiter < maxiter)){
-
-      if(master){
+  while ( (!PathDoneQM) and (qsmiter < maxiter))
+  {
+      if (master)
+      {
         logFile << '\n';    
         logFile << "            ";
         logFile << "| QM step : ";
@@ -221,7 +222,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
         logFile << '\n';
         logFile.flush(); // Print progress
         
-        /* Calculate reaction coordinate */
+        // Calculate reaction coordinate
         calc_react_coord(QMMMOpts, QMMMData,reactCoord);
         if (QMMMOpts.debug)
         {
@@ -242,18 +243,16 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
           gfile.open(call.str().c_str(),ios_base::out);
         }
 
-      }// End if master
+      } // End if master
 
       // qsm iter start from 1
-      if(macroiter==1 and qsmiter==0)
-      /*
-        Do not compute forces since 
-        it is already computed before
-        starting optimization
-      */
+      if (macroiter==1 and qsmiter==0)
+      // Do not compute forces since 
+      // it is already computed before
+      // starting optimization
       {
 
-        if(master)
+        if (master)
         {
           logFile << '\n';
           logFile << "               ";
@@ -281,12 +280,12 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
           // Run optimization
           logFile << '\n';
           logFile.flush(); // Print progress
-        }// End if master
+        } // End if master
 
         CalcForcesMPI(QMMMData,QMMMOpts,Eqm_images, Emm_images,
                       Eqmmm_images,force,beadsize,QMdim,false,logFile);
 
-        if(master)
+        if (master)
         {
           // Print bead energies
           print_progress(QMMMOpts, 0,Eqmmm_images,
@@ -297,12 +296,10 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
           print_progress(QMMMOpts, 1,Eqmmm_images,
                         RMSdiff, MAXforce, RMSforce,reactCoord,logFile);
 
-          //force *= -1;
-          /* 
-            Convert to gradient. 
-            only beads btw react and prod
-            since react and prod was send when we entered
-          */
+          /* force *= -1; */
+          // Convert to gradient. 
+          // Only beads btw react and prod
+          //  since react and prod was send when we entered
           for (int k = 1; k < Nimages+1; k++)
           {
             force.segment(beadsize*k,beadsize) =
@@ -310,12 +307,15 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
           }
           
 
-          /*if(QMMMOpts.KeepFiles and ((qsmiter%QMMMOpts.perQM)=0)){
-            save_files(0,qsmiter,logFile);
-          }*/
-        }/* End if master */
+          /*
+            if (QMMMOpts.KeepFiles and ((qsmiter%QMMMOpts.perQM)=0))
+            {
+              save_files(0,qsmiter,logFile);
+            }
+          */
+        } // End if master
 
-      }/* End if(macroiter==1 and qsmiter==0)*/
+      } // End if(macroiter==1 and qsmiter==0)
 
       if (master)
       { 
@@ -324,20 +324,16 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
         {
           for (int i = 0; i < beadsize; i++)
           {
-            /*
-              Forces involves all beads
-              get only beads btw react and prod
-            */
+            // Forces involves all beads
+            // Get only beads btw react and prod
             forcefrz(i+(k-1)*beadsize) = force(i+k*beadsize);
           }
-          /*
-            Eqmmm_images involves all beads
-            get only beads btw react and prod
-          */
+          // Eqmmm_images involves all beads
+          // Get only beads btw react and prod
           energy(k-1) = Eqmmm_images(k);
         }
         //#pragma omp barrier
-      }/* End if master */
+      } // End if master
 
       // Start:: if first time
       if (first_time)
@@ -346,7 +342,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
         { 
           // Initialize hessians as identity matrices
           init_Hess(Hessmat,beadsize,Nimages);
-          //Hessmat = forcefrz.squaredNorm()*Hessmat; 
+          /* Hessmat = forcefrz.squaredNorm()*Hessmat; */
           Hessmat = forcefrz.norm()*Hessmat;
           
           for (int k = 1; k < Nimages+1; k++)
@@ -358,9 +354,9 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
             forcediff = force.segment(beadsize*k,beadsize)
                       - force.segment(beadsize*(k-1),beadsize);
             // Get hessian of the current image
-            srow=k*beadsize;//starting row of current image
-            rsize=beadsize;//number of rows
-            csize=beadsize;//number of columns
+            srow=k*beadsize; // Starting row of current image
+            rsize=beadsize;  // Number of rows
+            csize=beadsize;  // Number of columns
             tmpH=Hessmat.block(srow,0,rsize,csize);    
             
             // Use DBFGS algorithm to update current hessian   
@@ -379,17 +375,16 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
             Hessmat.block(srow,0,rsize,csize)=tmpH;   
           
           }
-        }/* End if master*/
+        } // End if master
         first_time = false;
 
-      }// End:: first time
+      } // End:: first time
 
       else
       {
 
         if (master)
         {
-
           // Computes equad&gquad of images btw react and prod
           quad_app(wholepath,oldpath,Hessmat,forcefrz,Eqmmm_images,
                   Nimages,beadsize,equad,gquad);
@@ -416,36 +411,35 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
             
             // Update the matrix (Hessmat) that contains all hessians 
             Hessmat.block(srow,0,rsize,csize)=tmpH;   
-            
           }
           
           funupwind(wholepath,forcefrz,energy,Nimages,beadsize,gtan,weight);
           
           //#pragma omp parallel for
           //Frozen ends
-          for(int k=0; k<Nimages; k++)
+          for (int k=0; k<Nimages; k++)
           {
             gtan_curr=gtan.segment(beadsize*k,beadsize);
-            /* 
-              frozen ends: fill force stats for 
-              images between react and product 
-            */
+            // frozen ends: fill force stats for 
+            //  images between react and product 
             MAXforce = abs(gtan_curr.maxCoeff());
             if (abs(gtan_curr.minCoeff()) > MAXforce)
             {
               // Update max
               MAXforce = abs(gtan_curr.minCoeff());
             } 
-            //MAXforce = abs(Forces.maxCoeff());
+            /* MAXforce = abs(Forces.maxCoeff()); */
             /*
               ForceStats(k+1,0) = MAXforce;
-              ForceStats(k+1,1) = (gtan_curr).squaredNorm(); //RMS force           
+              // RMS force
+              ForceStats(k+1,1) = (gtan_curr).squaredNorm();
             */
             ForceStats(k+1,0) = MAXforce*bohrRad;
-            ForceStats(k+1,1) = (gtan_curr*bohrRad).squaredNorm(); //RMS force
+            // RMS force
+            ForceStats(k+1,1) = (gtan_curr*bohrRad).squaredNorm();
 
             dfvals(k) =  gtan_curr.norm();
-                        //sqrt((gtan_curr.array().square()).sum());
+                        /*sqrt((gtan_curr.array().square()).sum()); */
           }
           //#pragma omp barrier
           
@@ -473,18 +467,20 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
           print_progress(QMMMOpts, 2, Eqmmm_images,
                         RMSdiff, MAXforce, RMSforce,reactCoord,logFile);
 
-        }/* End if master */
+        } // End if master
 
         /* bcast PathDone to everyone*/
-        MPI_Bcast(&PathDoneQM,1,MPI::BOOL,root,MPI_COMM_WORLD);//group_comm);
+        MPI_Bcast(&PathDoneQM,1,MPI::BOOL,root,MPI_COMM_WORLD);
+                                                            /* group_comm); */
 
-        MPI_Bcast(&max_dfval,1,MPI_DOUBLE,root,MPI_COMM_WORLD);//group_comm);
+        MPI_Bcast(&max_dfval,1,MPI_DOUBLE,root,MPI_COMM_WORLD);
+                                                            /* group_comm); */
 
-        /* Wait, since there is an update and return below */
+        // Wait, since there is an update and return below
         MPI_Barrier(MPI_COMM_WORLD);
         
 
-        //if(PathDoneQM or (max_dfval<ftol)){
+        /* if (PathDoneQM or (max_dfval<ftol)) */
         if (PathDoneQM or (max_dfval*bohrRad<ftol))
         {  
           if (master)
@@ -541,13 +537,13 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
 
           Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,master,Natoms);
           MPI_Barrier(MPI_COMM_WORLD);
-          //F inish and return
-          return; //break;
+          // Finish and return
+          return; /* break; */
         }
 
-      } //End::not first time
+      } // End::not first time
 
-      //alignment(wholepath,Nimages,beadsize,aligned);
+      /* alignment(wholepath,Nimages,beadsize,aligned); */
       // Integrate to TRs or until finished ###
       // Copy old structure and forces
       if (master)
@@ -619,7 +615,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
           // Update QMMMData
           Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,master,Natoms);
           MPI_Barrier(MPI_COMM_WORLD);
-          break; //return;
+          break; /* return; */
         }
       } 
 
@@ -631,14 +627,14 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
         eqconst(wholepath,Nimages,beadsize,eqcons);
         eqcons=eqcons/Nimages;
         
-        /* Start: Aug 17 2018*/
-        /* Do not spaceout if it is the last qsmiter */
+        // Start: Aug 17 2018
+        // Do not spaceout if it is the last qsmiter
         if (eqcons > spaceout_dist)
         {
-          //if((eqcons > spaceout_dist) and ((qsmiter+1) < maxiter)){
-          /* End: Aug 17 2018*/
+          /* if((eqcons > spaceout_dist) and ((qsmiter+1) < maxiter)) {*/
+          // End: Aug 17 2018
 
-          //if(QMMMOpts.debug){
+          /* if(QMMMOpts.debug) {*/
           logFile << '\n' << '\n';
           logFile << "                ";         
           logFile << "spaceout distance = " << spaceout_dist << "\n";
@@ -647,7 +643,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
           logFile << "                ";
           logFile << "Spacing out... " << "\n" ;
           logFile << "\n";
-          //}
+          /* } */
           // Computes equad&gquad of images btw react and prod
           quad_app(wholepath,oldpath,Hessmat,forcefrz,Eqmmm_images,
                    Nimages,beadsize,equad,gquad);
@@ -667,7 +663,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
           }
           //#pragma omp barrier
           
-          //spaceoutcubic     
+          // spaceoutcubic     
           for (int k=0; k<3;k++)
           {
             spaceoutcubic(wholepath,nebatoms,QMMMOpts.NBeads,beadsize,weight);
@@ -692,7 +688,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
         } // End:: Space out if necessary
         logFile << '\n';
       
-      } /* End if master */       
+      } // End if master
 
       if (master)
       {
@@ -722,31 +718,31 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
 
     if(QMMMOpts.debug)
     {
-/*    
-      call.str("");
-      call << "mkdir debug_" << macroiter;
-      globalSys = system(call.str().c_str());
+      /*    
+        call.str("");
+        call << "mkdir debug_" << macroiter;
+        globalSys = system(call.str().c_str());
 
-      call.str("");
-      call << "mv " << hessfile << " ";
-      call << "debug_" << macroiter << "/ ";
-      globalSys = system(call.str().c_str());
+        call.str("");
+        call << "mv " << hessfile << " ";
+        call << "debug_" << macroiter << "/ ";
+        globalSys = system(call.str().c_str());
 
-      call.str("");
-      call << "mv " << pathfile << " ";
-      call << "debug_" << macroiter << "/ ";
-      globalSys = system(call.str().c_str());
+        call.str("");
+        call << "mv " << pathfile << " ";
+        call << "debug_" << macroiter << "/ ";
+        globalSys = system(call.str().c_str());
 
-      call.str("");
-      call << "mv " << gfile << " ";
-      call << "debug_" << macroiter << "/ ";
-      globalSys = system(call.str().c_str());
+        call.str("");
+        call << "mv " << gfile << " ";
+        call << "debug_" << macroiter << "/ ";
+        globalSys = system(call.str().c_str());
 
-      call.str("");
-      call << "mv " << p0file << " ";
-      call << "debug_" << macroiter << "/ ";
-      globalSys = system(call.str().c_str());
-*/
+        call.str("");
+        call << "mv " << p0file << " ";
+        call << "debug_" << macroiter << "/ ";
+        globalSys = system(call.str().c_str());
+      */
       call.str("");
       call << "mv *.txt debug_" << macroiter << "/ ";
       globalSys = system(call.str().c_str());
