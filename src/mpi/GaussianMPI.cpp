@@ -66,10 +66,12 @@ void GaussianForcesMPIWrite(vector<QMMMAtom>& QMMMData,
 
   // Construct Gaussian input
   call.str("");
-  if(g09){
+  if (g09)
+  {
     call << "%Nprocshared=" << Ncpus << '\n';
   }
-  else{
+  else
+  {
     call << "%CPU=0-" << Ncpus-1 << '\n';
   }
   // End: Hatice
@@ -141,7 +143,7 @@ void GaussianEnergyMPIWrite(vector<QMMMAtom>& QMMMData,
 
   call.str("");
 
-  if(g09)
+  if (g09)
   {
     call << "%Nprocshared=" << Ncpus << '\n';
   }
@@ -197,6 +199,7 @@ double GaussianForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   stringstream call; // Stream for system calls and reading/writing files
   call.copyfmt(cout); //Copy print settings
   string dummy; // Generic string
+  int ct; // Generic counter
   fstream QMLog; // Generic input files
 
   double Eqm = 0; // QM energy
@@ -323,7 +326,7 @@ double GaussianForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   }
 
   // Clean up files
-  if(!QMMMOpts.KeepFiles)
+  if (!QMMMOpts.KeepFiles)
   {
     call.str("");
     call << "rm -f ";
@@ -332,6 +335,30 @@ double GaussianForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     call << "LICHM_GauForce_" << bead << ".log ";
     globalSys = system(call.str().c_str());
   }
+  // EML add
+  else
+  {
+    call.str("");
+    call << "LICHM_GauForce_" << bead << ".com";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_GauForce_bead_" << bead << "_com_";
+      call << ct << ".com";
+    }
+    call.str("");
+    // Rename com
+    call << "mv LICHM_GauForce_" << bead << ".com";
+    call << " LICHM_GauForce_bead_" << bead << "_com_" << ct << ".com; ";
+    // Rename log
+    call << " mv LICHM_GauForce_" << bead << ".log";
+    call << " LICHM_GauForce_bead_" << bead << "_com_";
+    call << ct << ".log;";
+    globalSys = system(call.str().c_str());
+  }
+  // EML done
   // Change units and return
   Eqm -= Eself;
 
@@ -345,6 +372,7 @@ double GaussianEnergyMPIRead(vector<QMMMAtom>& QMMMData,
 {
   fstream QMLog; // Generic file streams
   string dummy; // Generic string
+  int ct; // Generic counter
   stringstream call; // Stream for system calls and reading/writing files
   call.copyfmt(cout); // Copy print settings
   double E = 0.0; // QM energy
@@ -457,7 +485,7 @@ double GaussianEnergyMPIRead(vector<QMMMAtom>& QMMMData,
     call << " "; // Extra blank space before the next command
   }
 
-  if(!QMMMOpts.KeepFiles)
+  if (!QMMMOpts.KeepFiles)
   {
     call.str("");
     call << "rm -f ";
@@ -466,6 +494,30 @@ double GaussianEnergyMPIRead(vector<QMMMAtom>& QMMMData,
     call << "LICHM_GauEner_" << bead << ".log ";
     globalSys = system(call.str().c_str());
   }
+  // EML add
+  else
+  {
+    call.str("");
+    call << "LICHM_GauEner_" << bead << ".com";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_GauEner_bead_" << bead << "_com_";
+      call << ct << ".com";
+    }
+    call.str("");
+    // Rename com
+    call << "mv LICHM_GauEner_" << bead << ".com";
+    call << " LICHM_GauEner_bead_" << bead << "_com_" << ct << ".com; ";
+    // Rename log
+    call << " mv LICHM_GauEner_" << bead << ".log";
+    call << " LICHM_GauEner_bead_" << bead << "_com_";
+    call << ct << ".log;";
+    globalSys = system(call.str().c_str());
+  }
+  // EML done
 
   // Change units and return
   /* cout << "QME2:" << E << " SE2:" << Eself << "\n" << endl; */
@@ -520,7 +572,8 @@ void GaussianForcesMPI(vector<int> mybead_list,
     {
       call << "g09 " << "LICHM_GauForce_" << p;
     }
-    else{
+    else
+    {
       call << "g16 " << "LICHM_GauForce_" << p;
     }
     globalSys = system(call.str().c_str());

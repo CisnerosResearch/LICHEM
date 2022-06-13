@@ -59,7 +59,10 @@ void TINKERForcesMPIWrite(vector<QMMMAtom>& QMMMData,
   int ct; // Generic counter
   // Construct MM forces input for TINKER
   call.str("");
-  call << "cp tinker.key LICHM_TINKERForces_";
+  // EML allow uniquely named tinker.key
+  /* call << "cp tinker.key LICHM_TINKERForces_"; */
+  call << "cp " << keyFilename << "LICHM_TINKERForces";
+  // EML end
   call << bead << ".key";
   globalSys = system(call.str().c_str());
   // Update key file
@@ -1332,6 +1335,7 @@ void TINKERForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   stringstream call; // Stream for system calls and reading/writing files
   call.copyfmt(cout); // Copy settings from cout
   string dummy; // Generic string
+  int ct; // Generic counter
   // Collect MM forces
   fstream MMGrad; // QMMM output
   // Open files
@@ -1399,6 +1403,27 @@ void TINKERForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     call << " LICHM_TINKERForces_" << bead << ".err";
     globalSys = system(call.str().c_str());
   }
+  // EML add
+  else
+  {
+    // Name files based on number existing
+    call.str("");
+    call << "LICHM_" << bead << ".grad";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_bead_" << bead << "_TINKERForces_";
+      call << ct << ".grad";
+    }
+    call.str("");
+    call << "mv ";
+    call << "LICHM_" << bead << ".grad ";
+    call << "LICHM_bead_" << bead << "_TINKERForces_" << ct << ".grad ";
+    globalSys = system(call.str().c_str());
+  }
+  // EML DONE
   // Return
   Emm *= kcal2eV;
 };
@@ -1412,6 +1437,7 @@ void TINKERPolForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   stringstream call; // Stream for system calls and reading/writing files
   call.copyfmt(cout); // Copy settings from cout
   string dummy; // Generic string
+  int ct; // Generic counter
   double Emm = 0.0;
 
   // Collect MM forces
@@ -1479,7 +1505,26 @@ void TINKERPolForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     call << " LICHM_TINKERPolForces_" << bead << ".err";
     globalSys = system(call.str().c_str());
   }
-
+  // EML add
+  else
+  {
+    call.str("");
+    call << "LICHM_" << bead << ".grad";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_bead_" << bead << "_TINKERPolForces_";
+      call << ct << ".grad";
+    }
+    call.str("");
+    call << "mv ";
+    call << "LICHM_" << bead << ".grad ";
+    call << "LICHM_bead_" << bead << "_TINKERPolForces_" << ct << ".grad ";
+    globalSys = system(call.str().c_str());
+  }
+  // EML DONE
   // Return
   Emm *= kcal2eV;
 };
@@ -1492,6 +1537,7 @@ double TINKEREnergyMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   stringstream call; // Stream for system calls and reading/writing files
   call.copyfmt(cout); //Copy settings from cout
   string dummy; // Generic string
+  int ct; // Generic counter
   fstream inFile;
   double E=0.0;
 
@@ -1535,6 +1581,26 @@ double TINKEREnergyMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     call << " LICHM_TINKEREnergy_" << bead << ".err";
     globalSys = system(call.str().c_str());
   }
+  // EML add
+  else
+  {
+    call.str("");
+    call << "LICHM_" << bead << ".log";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_bead_" << bead << "_TINKEREnergy_";
+      call << ct << ".log";
+    }
+    call.str("");
+    call << "mv ";
+    call << "LICHM_" << bead << ".log ";
+    call << "LICHM_bead_" << bead << "_TINKEREnergy_" << ct << ".log ";
+    globalSys = system(call.str().c_str());
+  }
+  // EML DONE
 
   return E;
 };
@@ -1547,6 +1613,7 @@ double TINKERPolEnergyMPIRead(vector<QMMMAtom>& QMMMData,
   stringstream call; // Stream for system calls and reading/writing files
   call.copyfmt(cout); // Copy settings from cout
   string dummy; // Generic string
+  int ct; // Generic counter
   fstream inFile;
   double EPol = 0; // Polarization energy
   double ESolv = 0; // Solvation energy
@@ -1606,6 +1673,26 @@ double TINKERPolEnergyMPIRead(vector<QMMMAtom>& QMMMData,
     call << " LICHM_TINKERPolEnergy_" << bead << ".err";
     globalSys = system(call.str().c_str());
   }
+  // EML add
+  else
+  {
+    call.str("");
+    call << "LICHM_" << bead << ".log";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_bead_" << bead << "_TINKERPolEnergy_";
+      call << ct << ".log";
+    }
+    call.str("");
+    call << "mv ";
+    call << "LICHM_" << bead << ".log ";
+    call << "LICHM_bead_" << bead << "_TINKERPolEnergy_" << ct << ".log ";
+    globalSys = system(call.str().c_str());
+  }
+  // EML done
   // Return polarization and solvation energy in kcal/mol
   double Emmpol=(EPol+ESolv); /* *kcal2eV; */
   /*
@@ -1625,6 +1712,7 @@ void TINKEROptMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   stringstream call; // Stream for system calls and reading/writing files
   call.copyfmt(cout); // Copy settings from cout
   string dummy; // Generic string
+  int ct; // Generic counter
   double E = 0;
 
   // Read new structure
@@ -1661,6 +1749,27 @@ void TINKEROptMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     call << " LICHM_TINKEROpt_" << bead << ".err";
     globalSys = system(call.str().c_str());
   }
+  // EML add
+  else
+  {
+    // Name files based on number existing
+    call.str("");
+    call << "LICHM_" << bead << ".log";
+    ct = 0; // Start counting at the second file
+    while (CheckFile(call.str()))
+    {
+      ct += 1; // Increase file counter
+      call.str(""); // Change file name
+      call << "LICHM_bead_" << bead << "_TINKEROpt_";
+      call << ct << ".log";
+    }
+    call.str("");
+    call << "mv ";
+    call << "LICHM_" << bead << ".log ";
+    call << "LICHM_bead_" << bead << "_TINKEROpt_" << ct << ".log ";
+    globalSys = system(call.str().c_str());
+  }
+  // EML DONE
   // Change units
   E *= kcal2eV;
 };
@@ -1738,7 +1847,8 @@ void TINKERForcesMPI(vector<int> mybead_list,
     }
 
   }
-  else{
+  else
+  {
     value=-1;
     MPI_Recv(&value, 0, MPI_INT, 0, 42, MPI_COMM_WORLD, &stat);
   }

@@ -261,7 +261,7 @@ void TINKERInduced(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       vector<int> boundaries;
       int mystat=0;
       boundaries = TraceBoundary(QMMMData,i,mystat,logFile);
-      if(mystat!=0)
+      if (mystat!=0)
       {
         exit(0);
       }
@@ -317,7 +317,7 @@ void TINKERInduced(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   inFile.close();
   // Delete junk files
-  if(!QMMMOpts.KeepFiles)
+  if (!QMMMOpts.KeepFiles)
   {
     call.str("");
     call << "rm -f";
@@ -520,7 +520,7 @@ double TINKERPolEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
 
       int mystat=0;
       boundaries = TraceBoundary(QMMMData,i,mystat,logFile);
-      if(mystat!=0)
+      if (mystat!=0)
       {
         exit(0);
       }
@@ -906,7 +906,7 @@ double TINKERForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   }
   MMGrad.close();
   // Clean up files
-  if(!QMMMOpts.KeepFiles)
+  if (!QMMMOpts.KeepFiles)
   {
     call.str("");
     call << "rm -f";
@@ -916,7 +916,8 @@ double TINKERForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     call << " LICHM_" << bead << ".err";
     globalSys = system(call.str().c_str());
   }
-  else{
+  else
+  {
     // EML Fix
     /*
       call.str("");
@@ -1074,7 +1075,7 @@ double TINKERMMForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
 
         int mystat=0;
         boundaries = TraceBoundary(QMMMData,i,mystat,logFile);
-        if(mystat!=0)
+        if (mystat!=0)
         {
           exit(0);
         }
@@ -1204,7 +1205,7 @@ double TINKERMMForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   }
   MMGrad.close();
   // Clean up files
-  if(!QMMMOpts.KeepFiles)
+  if (!QMMMOpts.KeepFiles)
   {
     call.str("");
     call << "rm -f";
@@ -1214,7 +1215,8 @@ double TINKERMMForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     call << " LICHM_" << bead << ".err";
     globalSys = system(call.str().c_str());
   }
-  else{
+  else
+  {
     // EML Fix
     /*
       call.str("");
@@ -1369,7 +1371,7 @@ double TINKERPolForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
         vector<int> boundaries;
         int mystat=0;
         boundaries = TraceBoundary(QMMMData,i,mystat,logFile);
-        if(mystat!=0)
+        if (mystat!=0)
         {
           exit(0);
         }
@@ -1496,7 +1498,7 @@ double TINKERPolForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   }
   MMGrad.close();
   // Clean up files
-  if(!QMMMOpts.KeepFiles)
+  if (!QMMMOpts.KeepFiles)
   {
     call.str("");
     call << "rm -f";
@@ -1506,7 +1508,8 @@ double TINKERPolForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     call << " LICHM_" << bead << ".err";
     globalSys = system(call.str().c_str());
   }
-  else{
+  else
+  {
     // EML Fix
     /*
       call.str("");
@@ -1766,7 +1769,7 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   inFile.close();
   // Clean up files
-  if(!QMMMOpts.KeepFiles)
+  if (!QMMMOpts.KeepFiles)
   {
     call.str("");
     call << "rm -f";
@@ -1776,7 +1779,8 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     call << " LICHM_" << bead << ".err";
     globalSys = system(call.str().c_str());
   }
-  else{
+  else
+  {
     // EML Fix
     /*
       call.str("");
@@ -2087,7 +2091,7 @@ MatrixXd TINKERHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     cerr.flush(); // Print warning immediately
   }
   // Clean up files
-  if(!QMMMOpts.KeepFiles)
+  if (!QMMMOpts.KeepFiles)
   {
     call.str("");
     call << "rm -f";
@@ -2098,7 +2102,8 @@ MatrixXd TINKERHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     call << " LICHM_" << bead << ".err";
     globalSys = system(call.str().c_str());
   }
-  else{
+  else
+  {
     // EML Fix
     /*
       call.str("");
@@ -2235,7 +2240,7 @@ double TINKEROpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
 
         // Start:Hatice GOKCAN
         /*
-          if( (Nmm + Nbound) != Nfreeze )
+          if ( (Nmm + Nbound) != Nfreeze )
           {
               logFile << "             ";
               logFile << "Error:\n";
@@ -2332,7 +2337,7 @@ double TINKEROpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
         vector<int> boundaries;
         int mystat=0;
         boundaries = TraceBoundary(QMMMData,i,mystat,logFile);
-        if(mystat!=0)
+        if (mystat!=0)
         {
           exit(0);
         }
@@ -2427,7 +2432,7 @@ double TINKEROpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
   }
   inFile.close();
   // Clean up files
-  if(!QMMMOpts.KeepFiles)
+  if (!QMMMOpts.KeepFiles)
   {
     call.str("");
     call << "rm -f";

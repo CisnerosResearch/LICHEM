@@ -467,7 +467,7 @@ def CleanFiles():
     # Remove LICHEM files
     cleanCmd += " BASIS tests.out trash.xyz"
     cleanCmd += " BeadStartStruct.xyz BurstStruct.xyz"
-    cleanCmd += " LICHM*"
+    cleanCmd += " LICHM* LICHEM.err"
     # Remove TINKER files
     cleanCmd += " tinker.key"
     # Remove LAMMPS files
@@ -548,8 +548,8 @@ def RecoverFreqs():
     cmd += "sed '/Usage Statistics/,$d' tests.out | "
     cmd += "sed -n '/Frequencies:/,$p' | "
     cmd += "sed '/Frequencies:/d'"
-    # Set fake units for printing in developer mode
-    units = " "
+    # Set units for printing in developer mode
+    units = "cm^-1"
     try:
         # Safely check energy
         freqList = []
@@ -892,7 +892,7 @@ def QMMMWrapperTest(name, psi4_e, psi4_u, g09_e, g09_u, g16_e, g16_u,
         pf_printed = PrintPassFail(name+":", passEnergy,
                                    updateResults, savedEnergy, units)
         print(comparison)
-        PrintLICHEMDebug(runC)
+    PrintLICHEMDebug(runC)
     CleanFiles()  # Clean up files
     return pf_printed
 
@@ -1014,7 +1014,7 @@ def QMMMFreqTest(name, psi4_e, psi4_u, g09_e, g09_u, g16_e, g16_u,
         pf_printed = PrintPassFail(name+":", passEnergy,
                                    updateResults, savedEnergy, units)
         print(comparison)
-        PrintLICHEMDebug(runC)
+    PrintLICHEMDebug(runC)
     CleanFiles()  # Clean up files
     return pf_printed
 
@@ -1099,7 +1099,7 @@ def MMWrapperTest(name, tinker_e, tinker_u, lammps_e, lammps_u,
         pf_printed = PrintPassFail(name+":", passEnergy,
                                    updateResults, savedEnergy, units)
         print(comparison)
-        PrintLICHEMDebug(runC)
+    PrintLICHEMDebug(runC)
     CleanFiles()  # Clean up files
     return pf_printed
 
