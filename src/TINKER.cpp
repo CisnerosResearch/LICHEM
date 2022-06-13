@@ -828,7 +828,8 @@ double TINKERForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     outFile << " ";
     outFile << setw(3) << QMMMData[i].MMTyp;
     outFile << " ";
-    outFile << LICHEMFormFloat(QMMMData[i].P[bead].x,12);//replaced 16 with 12
+    // Replaced 16 with 12
+    outFile << LICHEMFormFloat(QMMMData[i].P[bead].x,12);
     outFile << " ";
     outFile << LICHEMFormFloat(QMMMData[i].P[bead].y,12);
     outFile << " ";
@@ -837,7 +838,7 @@ double TINKERForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     outFile << setw(4) << QMMMData[i].numTyp;
     for (unsigned int j=0;j<QMMMData[i].bonds.size();j++)
     {
-      outFile << " "; //Avoids trailing spaces
+      outFile << " "; // Avoids trailing spaces
       outFile << setw(6) << (QMMMData[i].bonds[j]+1);
     }
     outFile << '\n';

@@ -14,11 +14,11 @@
 
 */
 
-//Make including safe
+// Make including safe
 #ifndef LICHEM_MATRIX
 #define LICHEM_MATRIX
 
-//Header files
+// Header files
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <Eigen/LU>
@@ -30,4 +30,3 @@
 #include <Eigen/StdVector>
 
 #endif
-

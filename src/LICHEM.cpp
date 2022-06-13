@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
   double sumE,sumE2,denAvg,LxAvg,LyAvg,LzAvg,Ek; // Energies and properties
   fstream xyzFile,connectFile,regionFile,outFile; // Input and output files
   fstream logFile, errFile;
-  vector<QMMMAtom> QMMMData; //Atom list
+  vector<QMMMAtom> QMMMData; // Atom list
   vector<QMMMAtom> OldQMMMData; // A copy of the atoms list
   QMMMSettings QMMMOpts; // QM and MM wrapper settings
   int randNum; // Random integer
@@ -842,7 +842,7 @@ int main(int argc, char* argv[])
         // Print trajectory and instantaneous energies
         if ((Nct%QMMMOpts.NPrint) == 0)
         {
-          //Print progress
+          // Print progress
           Print_traj(QMMMData,outFile,QMMMOpts);
           logFile << " | Step: " << setw(simCharLen) << Nct;
           /*
@@ -1135,7 +1135,7 @@ int main(int argc, char* argv[])
     /*
       if (QMMMOpts.QMOptTol < 0.005)
       {
-        QMMMOpts.QMOptTol = 0.005; //Speedy convergance on the first step
+        QMMMOpts.QMOptTol = 0.005; // Speedy convergance on the first step
       }
     */
     QMMMOpts.QMOptTol *= 10; // Speedy convergance on the first step
@@ -1628,7 +1628,7 @@ int main(int argc, char* argv[])
     logFile << "     > Calculating initial ";
     logFile << "energies and forces. < " << '\n' << endl;
     logFile << '\n';
-    logFile.flush(); // Print progress//open following
+    logFile.flush(); // Print progress // Open following
 
     CalcForces(QMMMData,QMMMOpts,Eqm_images, Emm_images,
                Eqmmm_images,force,beadsize,QMdim,before_qsm,logFile);
@@ -1710,7 +1710,7 @@ int main(int argc, char* argv[])
       if (QMMM)
       {
         // Run MM optimization
-        //START:restrain
+        // START:restrain
         //      works only for TINKER at the moment
         //
         if (QMMMOpts.restrMM)

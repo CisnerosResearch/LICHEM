@@ -112,7 +112,7 @@ int HermGau::zPow()
 double HermGau::value(double xi, double yi, double zi)
 {
   // Return the value at point (xi,yi,zi)
-  double val = 0; //Final value
+  double val = 0; // Final value
   // Calculate distance
   double Xij = (xi-x_)/bohrRad; // X distance (a.u.)
   double Yij = (yi-y_)/bohrRad; // Y distance (a.u.)
@@ -198,10 +198,10 @@ double HermCoul2e(HermGau& Gi, HermGau& Gj)
   // Recursive two electron Coulomb integral
   double Eij = 0; // Energy
   // Combine Gaussians with the Gaussian product rule
-  double aNew = Gi.getAlpha()+Gj.getAlpha(); //New Gaussian coefficient
-  int powX = Gi.xPow()+Gj.xPow(); //New X power
-  int powY = Gi.yPow()+Gj.yPow(); //New Y power
-  int powZ = Gi.zPow()+Gj.zPow(); //New Z power
+  double aNew = Gi.getAlpha()+Gj.getAlpha(); // New Gaussian coefficient
+  int powX = Gi.xPow()+Gj.xPow(); // New X power
+  int powY = Gi.yPow()+Gj.yPow(); // New Y power
+  int powZ = Gi.zPow()+Gj.zPow(); // New Z power
   // Update magnitude based on the separation
   double mu = Gi.getAlpha()*Gj.getAlpha()/aNew; // Smearing parameter
   Coord posi,posj; // Temporary storage for positions
@@ -217,7 +217,7 @@ double HermCoul2e(HermGau& Gi, HermGau& Gj)
   double Zij = disp.z/bohrRad; // Z distance (a.u.)
   double Rij2 = Xij*Xij+Yij*Yij+Zij*Zij; // Distance between Gaussians (a.u.)
   double newMag = Gi.coeff()*Gj.coeff(); // Product of old coefficients
-  newMag *= exp(-mu*Rij2); //Scale based on distance
+  newMag *= exp(-mu*Rij2); // Scale based on distance
   // Create product Gaussian
   HermGau Gij(newMag,aNew,powX,powY,powZ,Xij,Yij,Zij);
   // Calculate integrals
@@ -666,16 +666,16 @@ double HermCoul1e(HermGau& Gi, double qj, Coord& Posj)
   }
   else
   {
-    //Spherical Hermite Gaussian
-    double Itmp; //Temp. storage for integrals
+    // Spherical Hermite Gaussian
+    double Itmp; // Temp. storage for integrals
     Itmp = pow((-1*Gij.getAlpha()),0);
     Itmp *= BoysFunc(0,(Gij.getAlpha()*Rij2));
-    Iz += Itmp; //Update integral
+    Iz += Itmp; // Update integral
   }
-  //Combine integrals
-  Eij = Ix*Iy*Iz; //Combine the integrals
-  Eij *= Gij.coeff()*qj; //Scale by magnitude
-  //Change units and return
+  // Combine integrals
+  Eij = Ix*Iy*Iz; // Combine the integrals
+  Eij *= Gij.coeff()*qj; // Scale by magnitude
+  // Change units and return
   Eij *= har2eV;
   return Eij;
 };

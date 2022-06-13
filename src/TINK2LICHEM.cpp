@@ -484,7 +484,7 @@ void TINK2LICHEM(int& argc, char**& argv)
   posFile.close();
   conFile.close();
   regFile.close();
-  exit(0); //Quit
+  exit(0); // Quit
   return;
 };
 

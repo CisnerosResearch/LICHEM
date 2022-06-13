@@ -348,7 +348,7 @@ void getTSbead(QMMMSettings& QMMMOpts, VectorXd& Eqmmm_images)
   QMMMOpts.EComplforw=QMMMOpts.EReact;
   for (int p=0;p<QMMMOpts.TSBead;p++)
   { 
-    if(Eqmmm_images[p] < QMMMOpts.EReact)
+    if (Eqmmm_images[p] < QMMMOpts.EReact)
     {
       QMMMOpts.EComplforw=Eqmmm_images[p];
     }

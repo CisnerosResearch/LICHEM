@@ -330,7 +330,7 @@ int main(int argc, char* argv[])
       logFile << "     > Calculating initial ";
       logFile << "energies and forces. < " << '\n' << endl;
       logFile << '\n';
-      logFile.flush(); // Print progress//open following
+      logFile.flush(); // Print progress // Open following
     }
 
     if (Worldrank!=0)
@@ -428,7 +428,8 @@ int main(int argc, char* argv[])
           logFile << " Hartrees/bohr\n";
         }
       }
-      else{
+      else
+      {
         QMMMOpts.QMOptTol= SavedQMOptTol;
         QMMMOpts.MMOptTol = SavedMMOptTol;
         QMMMOpts.QMRMSForceTol = SavedOptTol2;
@@ -465,7 +466,7 @@ int main(int argc, char* argv[])
           }
           // End: do if restrain is > 2
           // Start: do if restrain is < 2
-          /* else{ */
+          /* else { */
           if (restr<2.0)
           {
             QMMMOpts.restrMM=false;
@@ -738,11 +739,11 @@ int main(int argc, char* argv[])
         /*
           logFile << "Random quote:";
           logFile << '\n';
-          string quote; //Random quote
-          vector<string> Quotes; //Stores all possible quotes
-          FetchQuotes(Quotes); //Fetch list of quotes
-          randNum = rand() % 1000; //Randomly pick 1 of 1000 quotes
-          logFile << Quotes[randNum]; //Print quote
+          string quote; // Random quote
+          vector<string> Quotes; // Stores all possible quotes
+          FetchQuotes(Quotes); // Fetch list of quotes
+          randNum = rand() % 1000; // Randomly pick 1 of 1000 quotes
+          logFile << Quotes[randNum]; // Print quote
           logFile << '\n';
         */
       }

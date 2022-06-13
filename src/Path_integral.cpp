@@ -148,7 +148,7 @@ bool MCMove(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     double dx = 2*(randX-0.5)*mcStep*centRatio;
     double dy = 2*(randY-0.5)*mcStep*centRatio;
     double dz = 2*(randZ-0.5)*mcStep*centRatio;
-    //Update positions
+    // Update positions
     #pragma omp parallel
     {
       #pragma omp for nowait schedule(dynamic)
@@ -229,7 +229,7 @@ bool MCMove(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       Lz += 2*(randNum-0.5)*mcStep;
     }
     // Decide how to scale the centroids
-    bool scaleRing = 0; //Shift the ring
+    bool scaleRing = 0; // Shift the ring
     randNum = (((double)rand())/((double)RAND_MAX));
     if (randNum >= 0.5)
     {

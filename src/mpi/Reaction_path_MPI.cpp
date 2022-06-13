@@ -99,7 +99,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
   bool struct_to_path;
 
   bool nebatoms[QMdim];
-  for(int i=0;i<QMdim;i++)
+  for (int i=0;i<QMdim;i++)
   {
     nebatoms[i]=false;
   }
@@ -118,11 +118,11 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
   VectorXd E_images(Nimages+2);
   VectorXd Emm_images(Nimages+2);
   VectorXd Eqm_images(Nimages+2);
-  // VectorXd Eqmmm_images(Nimages+2);
+  /* VectorXd Eqmmm_images(Nimages+2); */
   E_images.setZero(); 
   Emm_images.setZero();
   Eqm_images.setZero();
-  // Eqmmm_images.setZero();    
+  /* Eqmmm_images.setZero(); */
 
   // Quadratic approximation to energy and gradient
   VectorXd equad(Nimages);
@@ -136,7 +136,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
 
   // Forces
   // Getting it in LICHEMQSM from LICHEM.cpp
-  VectorXd Forces(Ndof); //Local forces
+  VectorXd Forces(Ndof); // Local forces
   // Create array to store stats and check convergence
   MatrixXd ForceStats(QMMMOpts.NBeads,2);
   ForceStats.setZero();
@@ -167,7 +167,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
     {
       if (QMMMData[i].QMRegion or QMMMData[i].PBRegion)
       { //???
-        if(QMMMData[i].NEBActive)
+        if (QMMMData[i].NEBActive)
         {
           nebatoms[index]=true;
           for (int k=0; k<QMMMOpts.NBeads; k++)
@@ -188,7 +188,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
   updatepath(wholepath,QMMMData,QMMMOpts,
              beadsize,Natoms,struct_to_path);
 
-  if(QMMMOpts.debug)
+  if (QMMMOpts.debug)
   {
     if (Worldrank==0)
     {
@@ -315,7 +315,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
           */
         } // End if master
 
-      } // End if(macroiter==1 and qsmiter==0)
+      } // End if (macroiter==1 and qsmiter==0)
 
       if (master)
       { 
@@ -416,7 +416,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
           funupwind(wholepath,forcefrz,energy,Nimages,beadsize,gtan,weight);
           
           //#pragma omp parallel for
-          //Frozen ends
+          // Frozen ends
           for (int k=0; k<Nimages; k++)
           {
             gtan_curr=gtan.segment(beadsize*k,beadsize);
@@ -553,7 +553,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
         glast=forcefrz; // Force;
         lastenergy=Eqmmm_images;
         prevE=energy;
-        if(QMMMOpts.debug)
+        if (QMMMOpts.debug)
         {
           for (int k = 1; k < Nimages+1; k++)
           {
@@ -589,7 +589,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
           ODESolve(wholepath,Hessmat,forcefrz,Eqmmm_images,Nimages,
                    beadsize,trs,cons,wholesize,ftol,dftol,weight,logFile);
 
-          if(QMMMOpts.debug)
+          if (QMMMOpts.debug)
           {
             pathfile << "ODE iter=" << iter << endl;
             pathfile << setprecision(17) << wholepath << endl;
@@ -631,10 +631,10 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
         // Do not spaceout if it is the last qsmiter
         if (eqcons > spaceout_dist)
         {
-          /* if((eqcons > spaceout_dist) and ((qsmiter+1) < maxiter)) {*/
+          /* if ((eqcons > spaceout_dist) and ((qsmiter+1) < maxiter)) {*/
           // End: Aug 17 2018
 
-          /* if(QMMMOpts.debug) {*/
+          /* if (QMMMOpts.debug) {*/
           logFile << '\n' << '\n';
           logFile << "                ";         
           logFile << "spaceout distance = " << spaceout_dist << "\n";
@@ -655,7 +655,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
           //#pragma omp parallel for
           for (int k=0; k<Nimages;k++)
           {
-            for(int i=0;i<beadsize; i++)
+            for (int i=0;i<beadsize; i++)
             {
               gtan_curr(i) = gtan(i+k*beadsize); 
             }
@@ -716,7 +716,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
   if (master)
   {
 
-    if(QMMMOpts.debug)
+    if (QMMMOpts.debug)
     {
       /*    
         call.str("");

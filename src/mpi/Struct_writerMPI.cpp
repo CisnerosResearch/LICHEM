@@ -77,18 +77,22 @@ void WriteGauInputMPI(vector<QMMMAtom>& QMMMData, string calcTyp,
     gautype=0 -> energy
     gautype=1 -> force 
   */
-  if (gautype==0){
+  if (gautype==0)
+  {
     call << "LICHM_GauEner_" << bead << ".com";
   }
-  if (gautype==1){
+  if (gautype==1)
+  {
     call << "LICHM_GauForce_" << bead << ".com";
   }
   outFile.open(call.str().c_str(),ios_base::out);
   call.str("");
-  if (gautype==0){
+  if (gautype==0)
+  {
     call << "%chk=LICHM_" << bead << ".chk";
   }
-  if (gautype==1){
+  if (gautype==1)
+  {
     call << "%chk=LICHM_" << bead << ".chk";
   }
 

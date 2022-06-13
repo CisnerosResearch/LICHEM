@@ -120,7 +120,8 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   double NewTSEnergy = -1*hugeNum;
 
   // START: WRITING GAUSSIAN
-  if (wrank==0){
+  if (wrank==0)
+  {
     if (Gaussian)
     {
       for (int j=PathStart; j<PathEnd;j++)
@@ -241,7 +242,7 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
 
   // START: RUN TINKER 
-  //Calculate forces (MM part)
+  // Calculate forces (MM part)
   if (TINKER)
   {
 
@@ -278,12 +279,12 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     
       Forces.setZero();
       double Emm=0.0;
-      if(TINKER)
+      if (TINKER)
       {
 
         // Read forces
           TINKERForcesMPIRead(QMMMData, Forces, QMMMOpts,j);
-          if(AMOEBA)
+          if (AMOEBA)
           {
             TINKERPolForcesMPIRead(QMMMData,Forces,QMMMOpts,j);
           }
@@ -370,7 +371,7 @@ double runMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   // root will always have 0th and 1st beads
   if (wrank==0)
   {
-    if(PathStart==0)
+    if (PathStart==0)
     { 
       mybead_list.push_back(0);
     }
@@ -384,18 +385,18 @@ double runMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   {
     owner = (j%wsize)-1;
     // Product is on last proc
-    if(j==QMMMOpts.NBeads-1)
+    if (j==QMMMOpts.NBeads-1)
     {
       // Last processor
       owner = wsize - 1;
     }
-    if(owner==-1)
+    if (owner==-1)
     {
       // Last processor
       owner = wsize - 1;
     }
   
-    if(wrank==owner)
+    if (wrank==owner)
     {
       // Push back bead j to mybead_list
       mybead_list.push_back(j);
@@ -405,11 +406,11 @@ double runMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
 
   int root=0;
   bool master=false;
-  if(wrank==0)
+  if (wrank==0)
   {
     master=true;
   }
-  if(wrank==0)
+  if (wrank==0)
   {
     logFile << "\n";
     logFile << "             ";
@@ -423,14 +424,14 @@ double runMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   if (TINKER)
   {
     int mystat=0;
-    if(wrank==0)
+    if (wrank==0)
     {
       // Write
       for (int j=PathStart; j<PathEnd;j++)
       {
         TINKEROptMPIWrite(QMMMData, QMMMOpts,j,mystat,logFile);
       }
-      if(mystat!=0)
+      if (mystat!=0)
       {
         logFile.close();
       }
@@ -438,7 +439,7 @@ double runMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     MPI_Barrier(MPI_COMM_WORLD);
 
     MPI_Bcast(&mystat,1,MPI_INT,0,MPI_COMM_WORLD);     
-    if(mystat!=0)
+    if (mystat!=0)
     {
       MPI_Finalize();
       exit(0);
@@ -450,7 +451,7 @@ double runMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     MMTime += (unsigned)time(0)-tstart;
     
     // Read
-    if(wrank==0)
+    if (wrank==0)
     { 
       // Write
       for (int j=PathStart; j<PathEnd;j++)
@@ -507,9 +508,9 @@ double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   // Create local bead lists
   // Bead info
   // root will always have 0th and 1st beads
-  if(wrank==0)
+  if (wrank==0)
   {
-    if(PathStart==0)
+    if (PathStart==0)
     { 
       mybead_list.push_back(0);
     }
@@ -523,18 +524,18 @@ double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   {
     owner = (j%wsize)-1;
     // Product is on last processor
-    if(j==QMMMOpts.NBeads-1)
+    if (j==QMMMOpts.NBeads-1)
     {
       // Last proc
       owner = wsize - 1;
     }
-    if(owner==-1)
+    if (owner==-1)
     {
       // Last proc
       owner = wsize - 1;
     }
   
-    if(wrank==owner)
+    if (wrank==owner)
     {
       // Push back bead j to mybead_list
       mybead_list.push_back(j);
@@ -572,7 +573,7 @@ double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       {
         TINKEROptRestrainMPIWrite(QMMMData,QMMMOpts,j,restr,mystat,logFile);
       }
-      if(mystat!=0)
+      if (mystat!=0)
       {
         logFile.close();
       }
@@ -633,7 +634,7 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
   string dummy; // Generic string
   call.str("");
   // Initialize stats variables
-  //bool PathDone = 0;
+  /* bool PathDone = 0; */
   double RMSdiff = 0;
   double RMSforce = 0;
   double MAXforce = 0;
@@ -668,7 +669,7 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
   // root will always have 0th and 1st beads
   if (wrank==0)
   {
-    if(PathStart==0)
+    if (PathStart==0)
     {
       mybead_list.push_back(0);
     }
@@ -677,23 +678,23 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
   
   int owner;
   // First and second beads are on root
-  /* for(int j=2; j<QMMMOpts.NBeads;j++) */
-  for(int j=2; j<PathEnd;j++)
+  /* for (int j=2; j<QMMMOpts.NBeads;j++) */
+  for (int j=2; j<PathEnd;j++)
   {
     owner = (j%wsize)-1;
     // Product is on last processor
-    if(j==QMMMOpts.NBeads-1)
+    if (j==QMMMOpts.NBeads-1)
     {
       // Last proc
       owner = wsize - 1;
     }
-    if(owner==-1)
+    if (owner==-1)
     {
       // Last proc
       owner = wsize - 1;
     }
   
-    if(wrank==owner)
+    if (wrank==owner)
     {
       // Push back bead j to mybead_list
       mybead_list.push_back(j);
@@ -714,7 +715,7 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
   Eqm.setZero();
 
   // START: WRITING GAUSSIAN
-  if(wrank==0)
+  if (wrank==0)
   {
     if (Gaussian)
     {
@@ -859,7 +860,7 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
     {
       // All beads
       AdjustedBeads = QMMMOpts.NBeads;
-    }       
+    }
     RMSdiff /= (Natoms-Nfreeze)*(Natoms-Nfreeze-1)/2;
     RMSdiff /= AdjustedBeads; // Adjust for multiple replicas
     RMSdiff = sqrt(RMSdiff);

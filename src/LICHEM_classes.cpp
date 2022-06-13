@@ -460,7 +460,7 @@ PeriodicTable::PeriodicTable()
   covRadii_.push_back(1.0); // Default value
   vdWRadii_.push_back(1.0); // Default value
   atMasses_.push_back(47.867); // NIST, 2015
-  //Vanadium, 23
+  // Vanadium, 23
   typs_.push_back("V");
   covRadii_.push_back(1.0); // Default value
   vdWRadii_.push_back(1.0); // Default value

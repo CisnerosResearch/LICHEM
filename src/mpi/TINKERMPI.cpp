@@ -363,7 +363,7 @@ void TINKERPolForcesMPIWrite(vector<QMMMAtom>& QMMMData,
       if (QMMMData[i].PBRegion)
       {
         // Modify the charge to force charge balance with the boundaries
-        double qi = QMMMData[i].MP[bead].q; //Save a copy
+        double qi = QMMMData[i].MP[bead].q; // Save a copy
         vector<int> boundaries;
         boundaries = TraceBoundary(QMMMData,i,mystat,logFile);
         double qNew = qi;
@@ -1535,7 +1535,7 @@ double TINKEREnergyMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                            int bead)  
 {  
   stringstream call; // Stream for system calls and reading/writing files
-  call.copyfmt(cout); //Copy settings from cout
+  call.copyfmt(cout); // Copy settings from cout
   string dummy; // Generic string
   int ct; // Generic counter
   fstream inFile;

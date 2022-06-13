@@ -549,12 +549,12 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
       regionFile >> dummy;
       
       // All beads exist
-      if(dummy=="0")
+      if (dummy=="0")
       {
         QMMMOpts.Nqsm = QMMMOpts.NBeads;
       }
       // Only react and product exist
-      else if(dummy=="1")
+      else if (dummy=="1")
       {
         QMMMOpts.Nqsm = 2;
       }
@@ -698,7 +698,7 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
     }
     else if (keyword == "neb_atoms:")
     {
-      if(QSMSim)
+      if (QSMSim)
       {
         // Set all atoms to false
         for (int i=0;i<Natoms;i++)
@@ -718,7 +718,8 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
           QMMMData[atomID].NEBActive = true;
         }
       }
-      else{
+      else
+      {
         // Read the list of atoms to include in NEB tangents
         int numActive;
         regionFile >> numActive;
@@ -1152,7 +1153,7 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
     }
     // Set initial transition state for reaction pathways
     // Start: Hatice
-    //if (NEBSim)
+    /* if (NEBSim) */
     if (NEBSim or QSMSim)
     // End: Hatice
     {
@@ -1214,7 +1215,7 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
     /* beadfile.open("QSMBeadStruct.xyz",ios_base::in); */
     beadfile.open("BeadStartStruct.xyz",ios_base::in);
 
-    if(QSMSim)
+    if (QSMSim)
     {
       // Read and discard number of atoms
       int AtTest = 0;
@@ -1239,7 +1240,7 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
 
       // Read atom/bead positions
       // if Nqsm=2 then there is reactant and product
-      if(QMMMOpts.Nqsm==2)
+      if (QMMMOpts.Nqsm==2)
       {
         // Read reactant XYZ coordinates
         int p=0; // reactant bead
@@ -1266,10 +1267,10 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
       }
 
       // If Nqsm=QMMMOpts.NBeads then whole path is present
-      if(QMMMOpts.Nqsm==QMMMOpts.NBeads)
+      if (QMMMOpts.Nqsm==QMMMOpts.NBeads)
       {
         // Read XYZ coordinates for beads
-        for(int p=0;p<QMMMOpts.NBeads;p++)
+        for (int p=0;p<QMMMOpts.NBeads;p++)
         {
           for (int i=0;i<Natoms;i++)
           {
@@ -1418,7 +1419,7 @@ void LICHEMErrorChecker(QMMMSettings& QMMMOpts,fstream& logFile,int& stat)
     // Check LREC cutoff
     if (PBCon)
     {
-      //Find maximum box length
+      // Find maximum box length
       double minLen = Lx;
       if (Ly < minLen)
       {
@@ -1909,7 +1910,7 @@ void LICHEMPrintSettings(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       }
     }
     // Start: Hatice GOKCAN
-    if(QMMMOpts.restrMM)
+    if (QMMMOpts.restrMM)
     {
       logFile << " MM restrain: YES" << '\n';
       logFile << " Force constant for restrain: " << QMMMOpts.restrConst;
@@ -2024,7 +2025,7 @@ void LICHEMPrintSettings(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       logFile << '\n';
     }
     // Start: Hatice
-    if(!QSMSim)
+    if (!QSMSim)
     {
       logFile << " Max. step size: ";
       logFile << LICHEMFormFloat(QMMMOpts.maxStep,6);

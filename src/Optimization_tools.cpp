@@ -108,7 +108,7 @@ double CalcForces(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     {
       int tstart = (unsigned)time(0);
       Eqm += NWChemForces(QMMMData,Forces,QMMMOpts,p);
-      Eqm = Eqm/har2eV;//to a.u.
+      Eqm = Eqm/har2eV; // To a.u.
       QMTime += (unsigned)time(0)-tstart;
     }
     E += Eqm;
@@ -139,9 +139,9 @@ double CalcForces(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       {
       int tstart = (unsigned)time(0);
       EeV += AMBERForces(QMMMData,Forces,QMMMOpts,p);
-      E = E + (EeV/har2eV);//in a.u.
+      E = E + (EeV/har2eV); // In a.u.
       Emm += AMBEREnergy(QMMMData,QMMMOpts,p);
-      Emm = Emm/har2eV;//in a.u.
+      Emm = Emm/har2eV; // In a.u.
       MMTime += (unsigned)time(0)-tstart;
       }
     */
@@ -176,7 +176,7 @@ double CalcForces(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     // Get the forces of all images from local Forces
     //#pragma omp parallel for schedule(dynamic)
     Forces = Forces/har2eV;
-    for(int i=0;i<QMdim;i++)
+    for (int i=0;i<QMdim;i++)
     {
       force[(p*beadsize)+(i*3)] = Forces(3*i);
       force[(p*beadsize)+(i*3)+1] = Forces(3*i+1);
@@ -298,10 +298,12 @@ double CalcEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       if (PSI4)
       {
         call.str("");
-        //call << "cp LICHM_" << (p);//hatice
-        //call << ".32";//hatice
-        //call << " LICHM_" << (p+1);//hatice
-        //call << ".32; ";//hatice
+        /*
+          call << "cp LICHM_" << (p); // Hatice
+          call << ".32"; // Hatice
+          call << " LICHM_" << (p+1); // Hatice
+          call << ".32; "; // Hatice
+        */
         call << "cp LICHM_" << (p);
         call << ".180";
         call << " LICHM_" << (p+1);
@@ -520,7 +522,7 @@ double TINKEROptRestr(vector<QMMMAtom>& QMMMData,
 
       // Start:Hatice GOKCAN
       /*
-        if( (Nmm + Nbound) != Nfreeze )
+        if ( (Nmm + Nbound) != Nfreeze )
         {
           logFile << "             ";
           logFile << "Error:\n";
@@ -614,12 +616,12 @@ double TINKEROptRestr(vector<QMMMAtom>& QMMMData,
       if (QMMMData[i].PBRegion)
       {
         // Modify the charge to force charge balance with the boundaries
-        double qi = QMMMData[i].MP[Bead].q; //Save a copy
+        double qi = QMMMData[i].MP[Bead].q; // Save a copy
         vector<int> Boundaries;
-        // Boundaries = TraceBoundary(QMMMData,i);
+        /* Boundaries = TraceBoundary(QMMMData,i); */
         int mystat=0;
         Boundaries = TraceBoundary(QMMMData,i,mystat,logFile);
-        if(mystat!=0)
+        if (mystat!=0)
         {
           exit(0);
         }
@@ -889,13 +891,13 @@ bool QSMConverged(vector<QMMMAtom>& QMMMData,
     SumE = 0;
     Eqm=0;
     Emm=0;
-    //SumEeV=0;
+    /* SumEeV=0; */
     // Calculate QM energy
     if (Gaussian)
     {
       int tstart = (unsigned)time(0);
       Eqm += GaussianEnergy(QMMMData,QMMMOpts,p);
-      Eqm = Eqm/har2eV;//to a.u.
+      Eqm = Eqm/har2eV; // To a.u.
       QMTime += (unsigned)time(0)-tstart;
     }
     if (PSI4)
@@ -1091,8 +1093,8 @@ bool QMConverged(vector<QMMMAtom>& QMMMData, vector<QMMMAtom>& OldQMMMData,
     RMSforce = sqrt(RMSforce);
     /* 
       Forcestats is in bohrRad
-      RMSforce *=bohrRad;//convert to Hartree/bohr
-      MAXforce *=bohrRad;//convert to Hartree/bohr
+      RMSforce *=bohrRad; // Convert to Hartree/bohr
+      MAXforce *=bohrRad; // Convert to Hartree/bohr
     */
     // Check convergence criteria
     if ((RMSdiff <= QMMMOpts.QMOptTol) and

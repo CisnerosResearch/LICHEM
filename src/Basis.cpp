@@ -172,7 +172,7 @@ void LICHEM2BASIS(int& argc,char**& argv)
       // Write Gaussian BASIS file for GEN input
       int ct; // Generic counter
       // Write QM atoms
-      ct = 0; //Reset counter
+      ct = 0; // Reset counter
       for (int i=0;i<Ntotal;i++)
       {
         if (atomList[i])

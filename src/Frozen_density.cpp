@@ -31,7 +31,7 @@ double GEMC6(double C6, Coord& POSi, Coord& POSj, double Rcut)
   double Eij = 0; // Dispersion energy
   double Rij6 = 0; // Distance between atoms
   // Calculate distance
-  Rij6 = CoordDist2(POSi,POSj).vecMag(); //Rij^2
+  Rij6 = CoordDist2(POSi,POSj).vecMag(); // Rij^2
   // Check cutoff
   if (Rij6 <= (Rcut*Rcut))
   {

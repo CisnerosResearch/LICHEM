@@ -96,9 +96,9 @@ void DBFGS(MatrixXd& Hess, VectorXd& pathdiff, VectorXd& graddiff, int ndim)
   MatrixXd Ann2(ndim,ndim); /* ((ndim)*3,(ndim)*3); */
   MatrixXd Ht(ndim,ndim);   /* ((ndim)*3,(ndim)*3); */
 
-  if(pathdiff.norm() > 1e-6)
+  if (pathdiff.norm() > 1e-6)
 	{
-    if(pathdiff.dot(graddiff)>=0.2*(pathdiff.dot(Hess*pathdiff)))
+    if (pathdiff.dot(graddiff)>=0.2*(pathdiff.dot(Hess*pathdiff)))
     {
       theta = 1.0;
     }
@@ -154,9 +154,9 @@ void spaceoutcubic(VectorXd& wholepath,bool nebatoms[],
                   int N, int Ndim, VectorXd& weight)
 {
 
-  //N: Nimages+2
-  //Ndim: beadsize=QMdim*3
-  //Ndim: beadsize=Natoms*3
+  // N: Nimages+2
+  // Ndim: beadsize=QMdim*3
+  // Ndim: beadsize=Natoms*3
 
   VectorXd x(N*Ndim);
   int natm=Ndim/3;
@@ -177,7 +177,7 @@ void spaceoutcubic(VectorXd& wholepath,bool nebatoms[],
   VectorXd xcurr(Ndim);
   VectorXd xprev(Ndim);
   //#pragma omp parallel for schedule(dynamic)
-  for(int k=1;k<N;k++)
+  for (int k=1;k<N;k++)
   {
     // image
     xcurr = x.segment(Ndim*k,Ndim); 
@@ -191,10 +191,10 @@ void spaceoutcubic(VectorXd& wholepath,bool nebatoms[],
 
   index=0;
   //#pragma omp parallel for schedule(dynamic)
-  for(int i=0;i<Ndim;i++)
+  for (int i=0;i<Ndim;i++)
   {
     // Ndim=beadsize
-    for(int k=0;k<N;k++)
+    for (int k=0;k<N;k++)
     {
       // N=NBeads
       a(k) = x(i+k*Ndim);  
@@ -206,7 +206,7 @@ void spaceoutcubic(VectorXd& wholepath,bool nebatoms[],
     // otherwise it will stay same
     int curratom = floor(i/3); // Current atom ID
 
-    if(!nebatoms[curratom])
+    if (!nebatoms[curratom])
     {
       tmpcoeff.col(0) = coeffmat.col(0);
       tmpcoeff.col(1) = coeffmat.col(1)*0.0;
@@ -231,9 +231,9 @@ void spaceoutcubic(VectorXd& wholepath,bool nebatoms[],
   //#pragma omp barrier
 
   //#pragma omp parallel for schedule(dynamic)
-  //in f90
-  //do i=1,n-2
-  for(int k=1;k<N-1;k++)
+  // in f90
+  // do i=1,n-2
+  for (int k=1;k<N-1;k++)
   {
     // loop images
     /* In f90:
@@ -258,7 +258,7 @@ void spaceoutcubic(VectorXd& wholepath,bool nebatoms[],
   /*
     VectorXf xx;
     VectorXd xxx;
-    for(int i=0;i<x.size();i++)
+    for (int i=0;i<x.size();i++)
     {
       xx(i) = (float) x(i);
       xxx(i) = (double) xx(i);
@@ -282,7 +282,7 @@ void fullNCS(MatrixXd& coeffs, VectorXd& dists,
 
   i=0; // i=1 
   //#pragma omp parallel for schedule(dynamic)
-  for(int j=0; j<ndim; j++)
+  for (int j=0; j<ndim; j++)
   {
     /*
       do{
@@ -421,11 +421,11 @@ void ODESolve(VectorXd& path, MatrixXd& H, VectorXd& g, VectorXd& energy,
       RKStep(path,initialpath,H,g,energy,Nimages,beadsize,
               h,error0,error1,newpath,hnew,currswitch,cons,weight);
         
-      if(h<1.e-11)
+      if (h<1.e-11)
       {
         logFile << "                 ";
         logFile << "Step size has become too small h = " << h << endl;
-        break; //exit(1);
+        break; /* exit(1); */
       }
 
     } 
@@ -444,7 +444,7 @@ void ODESolve(VectorXd& path, MatrixXd& H, VectorXd& g, VectorXd& energy,
     tmpdiff = initialpath - path;
     
     //#pragma omp parallel for schedule(dynamic)
-    for(int k=1; k<Nimages+1; k++)
+    for (int k=1; k<Nimages+1; k++)
     {
       pathdiff = initialpath.segment(beadsize*k,beadsize)
               - path.segment(beadsize*k,beadsize);
@@ -460,7 +460,7 @@ void ODESolve(VectorXd& path, MatrixXd& H, VectorXd& g, VectorXd& energy,
       fsss = sqrt((tmpforce.array().square()).sum());
       df(k-1) = fsss;
       /* 
-        if(currswitch(k-1))
+        if (currswitch(k-1))
         { 
       */
       if (currswitch[k-1])
@@ -588,7 +588,7 @@ void RKStep(VectorXd& path, VectorXd& epath, MatrixXd& H, VectorXd& g,
   }
   
   // CASH-KARP 4/5 ORDER
-  //STEP::1   
+  // STEP::1   
   quad_app(path,epath,H,g,energy,Nimages,beadsize,equad,gquad);
   funupwind(path,gquad,equad,Nimages,beadsize,force,weight);
 
@@ -892,7 +892,7 @@ void calc_tangents(VectorXd& path, int Nimages, int beadsize,
                - path1.segment(beadsize*(k-1),beadsize);
       currtan = pathdiff;
 
-      /* tsss = currtan.norm();//sqrt((currtan.array().square()).sum()); */
+      /* tsss = currtan.norm(); // sqrt((currtan.array().square()).sum()); */
       tsss = sqrt((currtan.array().square()).sum());
       // Compute the tangent values in global array
       tangents.segment(beadsize*(k-1),beadsize) = currtan/tsss;
@@ -911,7 +911,7 @@ void calc_tangents(VectorXd& path, int Nimages, int beadsize,
     //#pragma omp barrier
 
     //#pragma omp parallel for schedule(dynamic)
-    for(int k=1; k<Nimages+1; k++)
+    for (int k=1; k<Nimages+1; k++)
     {
       Vmax=max( abs(V(k+1)-V(k)), abs(V(k-1)-V(k)) );
       Vmin=min( abs(V(k+1)-V(k)), abs(V(k-1)-V(k)) );
@@ -1003,12 +1003,12 @@ void updateTR (MatrixXd& Hessmat, VectorXd& glast, VectorXd& oldpath,
     {
       rho=Ediff/( 0.5*dxc.dot((Hc*dxc)) + dxc.dot(gc) );
       newTR=trs(k-1);
-      if((rho<0.3) or (rho>3))
+      if ((rho<0.3) or (rho>3))
       {
         newTR=0.25*dxc.norm();
       }
       /*
-        else if((rho>0.9) and (rho<1.5) and (trs(k-1)<= ((dxc.norm())*1.4)))
+        else if ((rho>0.9) and (rho<1.5) and (trs(k-1)<= ((dxc.norm())*1.4)))
         { 
       */
       else if ((rho>0.9) and (rho<1.5) and 
@@ -1161,7 +1161,7 @@ void construct_path(VectorXd& wholepath,MatrixXd& Geom1, MatrixXd& Geom2,
         else if (k==product)
         {
           wholepath(k*beadsize+3*i+j) = Geom2(i,j);
-          //prodvec(3*i+j) = Geom2(i,j);
+          /* prodvec(3*i+j) = Geom2(i,j); */
 
           // To make sure that interpolation
           // is performed only for QM and PB atoms

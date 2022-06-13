@@ -22,7 +22,7 @@
 void LAMMPSTopology(vector<QMMMAtom>& QMMMData, stringstream& topology,
                     int bead)
 {
-  //Function to write bond and angle information for LAMMPS
+  // Function to write bond and angle information for LAMMPS
   
   return;
 };
@@ -39,8 +39,8 @@ double LAMMPSEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   stringstream call; // Stream for system calls and reading/writing files
   call.copyfmt(cout); // Copy settings from cout
   double E = 0.0;
-  int ct; //Generic counter
-  //Construct LAMMPS data file
+  int ct; // Generic counter
+  // Construct LAMMPS data file
   call.str("");
   call << "LICHM_" << bead << ".data";
   outFile.open(call.str().c_str(),ios_base::out);
@@ -134,7 +134,7 @@ double LAMMPSEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   if (Nqm > 0)
   {
     // Partition atoms into groups
-    call << "group qm id "; //QM and PB
+    call << "group qm id "; // QM and PB
     ct = 0;
     for (int i=0;i<Natoms;i++)
     {

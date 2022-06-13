@@ -32,17 +32,17 @@ void CheckNEBTangent(VectorXd& tangent)
   double tanNorm = tangent.squaredNorm();
   if (tanNorm < (1e-12))
   {
-    //Zero
+    // Zero
     tangent.setZero();
   }
   else if (tanNorm != tanNorm)
   {
-    //NaN
+    // NaN
     tangent.setZero();
   }
   else if ((tanNorm >= hugeNum) or (tanNorm <= (-1*hugeNum)))
   {
-    //Inf
+    // Inf
     tangent.setZero();
   }
   return;
@@ -139,7 +139,7 @@ bool PathConverged(vector<QMMMAtom>& QMMMData, vector<QMMMAtom>& oldQMMMData,
     // Check if a QM calculation is converged
     for (int p=0;p<QMMMOpts.NBeads;p++)
     {
-      //Find max forces and RMSforce
+      // Find max forces and RMSforce
       if (maxForce < forceStats(p,0))
       {
         maxForce = forceStats(p,0);
@@ -1137,13 +1137,13 @@ void LICHEMNEB(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
         maxForce = abs(forces.maxCoeff());
         if (abs(forces.minCoeff()) > maxForce)
         {
-          //Update max
+          // Update max
           maxForce = abs(forces.minCoeff());
         }
-        //Save statistics
+        // Save statistics
         if ((Eqm+Emm) > newTSEnergy)
         {
-          //Assuming Reactant->Product; Puts the TS on the low energy side
+          // Assuming Reactant->Product; Puts the TS on the low energy side
           newTSEnergy = Eqm+Emm; // New energy
           newTS = p; // New TS
         }
@@ -1521,7 +1521,7 @@ int FBNEBMCMove(vector<QMMMAtom>& QMMMData, vector<VectorXd>& allForces,
     randNum = (((double)rand())/((double)RAND_MAX)); // Number between 0 and 1
     randNum *= 4.0; // Now between 0 and 4; Average: 2.0
     randNum -= 2.0; // Now between -2 and 2; Abs. average: 1.0
-    randNums(p) = randNum*mcStep; //Scale displacement
+    randNums(p) = randNum*mcStep; // Scale displacement
     // Create random noise
     VectorXd tempRandNoise(3*Natoms);
     tempRandNoise.setRandom();
@@ -1739,7 +1739,7 @@ void LICHEMQSM(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   bool struct_to_path;
 
   bool nebatoms[QMdim];
-  for(int i=0;i<QMdim;i++)
+  for (int i=0;i<QMdim;i++)
   {
     nebatoms[i]=false;
   }
@@ -1790,7 +1790,7 @@ void LICHEMQSM(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   VectorXd trs(Nimages);
   trs.setConstant(0.03);
 
-  //max trust radius
+  // Max trust radius
   VectorXd maxtr(Nimages);
   maxtr.setConstant(0.15);
 
@@ -1938,7 +1938,7 @@ void LICHEMQSM(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
         }
       */
 
-    } // End if(macroiter==1 and qsmiter==0)
+    } // End if (macroiter==1 and qsmiter==0)
 
     //#pragma omp parallel for
     for (int k = 1; k < Nimages+1; k++)
@@ -1956,7 +1956,7 @@ void LICHEMQSM(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     //#pragma omp barrier
 
     // Start:: if first time
-    if(first_time)
+    if (first_time)
     {
       // Initialize hessians as identity matrices
       init_Hess(Hessmat,beadsize,Nimages);
@@ -2035,7 +2035,7 @@ void LICHEMQSM(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       {
         gtan_curr=gtan.segment(beadsize*k,beadsize);
         dfvals(k) =  gtan_curr.norm();
-                    //sqrt((gtan_curr.array().square()).sum());
+                    /* sqrt((gtan_curr.array().square()).sum()); */
         // Frozen ends: fill force stats for
         // images between react and product
         MAXforce = abs(gtan_curr.maxCoeff());
@@ -2109,11 +2109,11 @@ void LICHEMQSM(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
           }
           hessfile.flush();
           
-          //gfile << "qsmiter=" << qsmiter << endl;
+          /* gfile << "qsmiter=" << qsmiter << endl; */
           gfile << setprecision(17) << force << endl;
           gfile.flush();
           
-          //initfile << "qsmiter=" << qsmiter << endl;
+          /* initfile << "qsmiter=" << qsmiter << endl; */
           initfile << setprecision(17) << wholepath << endl;
           initfile.flush();
 
@@ -2128,22 +2128,21 @@ void LICHEMQSM(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
         }
         QMDone = PathDoneQM;
         // Finish and return
-        return; //break;
+        return; /* break; */
       }
-
 
     } // End::not first time
 
-    //alignment(wholepath,Nimages,beadsize,aligned);
+    /* alignment(wholepath,Nimages,beadsize,aligned); */
     // Integrate to TRs or until finished ###
     // Copy old structure and forces
     OldQMMMData = QMMMData; // Save structure
     oldpath=wholepath;
-    glast=forcefrz; //force;
+    glast=forcefrz; /* force; */
     lastenergy=Eqmmm_images;
     prevE=energy;
     
-    if(QMMMOpts.debug)
+    if (QMMMOpts.debug)
     {
       for (int k = 1; k < Nimages+1; k++)
       {
@@ -2155,7 +2154,7 @@ void LICHEMQSM(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       }
       hessfile.flush();
       
-      //gfile << "qsmiter=" << qsmiter << endl;
+      /* gfile << "qsmiter=" << qsmiter << endl; */
       gfile << setprecision(17) << force << endl;
       gfile.flush();
     }
@@ -2194,7 +2193,7 @@ void LICHEMQSM(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
         updatepath(wholepath,QMMMData,QMMMOpts,
                   beadsize,Natoms,struct_to_path);
 
-        break;//return;
+        break; /* return; */
       }
       
     }
@@ -2207,15 +2206,15 @@ void LICHEMQSM(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     
     // Start: Aug 17 2018
     // Do not spaceout if it is the last qsmiter
-    if(eqcons > spaceout_dist)
+    if (eqcons > spaceout_dist)
     {
     /*
-      if((eqcons > spaceout_dist) and ((qsmiter+1) < maxiter))
+      if ((eqcons > spaceout_dist) and ((qsmiter+1) < maxiter))
       {
     */
     // End: Aug 17 2018
     /*
-      if(QMMMOpts.debug)
+      if (QMMMOpts.debug)
       {
     */
       logFile << '\n';

@@ -76,10 +76,12 @@ void WriteGauInput(vector<QMMMAtom>& QMMMData, string calcTyp,
   }
   call << '\n';
   // Start: Hatice
-  if(g09){
+  if (g09)
+  {
     call << "%NprocShared=" << Ncpus << '\n';
   }
-  else{
+  else
+  {
     call << "%CPU=0-" << Ncpus-1 << '\n';
   }
   // End: Hatice
@@ -334,7 +336,7 @@ void WriteNWChemInput(vector<QMMMAtom>& QMMMData, string calcTyp,
     useChargeFile = 0;
   }
   // Initialize multipoles and center of mass
-  bool firstCharge = 1; //Always write the first charge
+  bool firstCharge = 1; // Always write the first charge
   Coord QMCOM;
   if (!useChargeFile)
   {
@@ -979,7 +981,7 @@ void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
       // Add generic field field from a file (psithon)
       if (CheckFile("FIELD"))
       {
-        //Read a block of psithon code
+        // Read a block of psithon code
         inFile.open("FIELD",ios_base::in);
         while ((!inFile.eof()) and inFile.good())
         {

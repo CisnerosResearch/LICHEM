@@ -33,7 +33,7 @@ void PSI4Charges(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead)
   call.str("");
   call << "LICHM_" << bead << ".180";
   useCheckPoint = CheckFile(call.str());
-  //Set up charge calculation
+  // Set up charge calculation
   call.str("");
   call << "Eqm,qmwfn = energy('" << QMMMOpts.func << "'";
   if (useCheckPoint)

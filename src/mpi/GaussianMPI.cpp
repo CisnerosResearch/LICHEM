@@ -83,14 +83,14 @@ void GaussianForcesMPIWrite(vector<QMMMAtom>& QMMMData,
     call << QMMMOpts.func << "/"; // Print the method
   }
   call << QMMMOpts.basis << " Force=NoStep Symmetry=None" << '\n';
-  //call << "Int=Fine SCF=Big"; //Line ended further below
+  /* call << "Int=Fine SCF=Big"; // Line ended further below */
   if (useCheckPoint)
   {
     // Restart if possible
     call << " Guess=TCheck";
     call << '\n';
   }
-  //call << '\n';
+  /* call << '\n'; */
   if (QMMM)
   {
     if ((Npseudo > 0) and (QMMMOpts.func != "SemiEmp"))
@@ -197,7 +197,7 @@ double GaussianForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
 {
   // Function for calculating the forces on a set of atoms
   stringstream call; // Stream for system calls and reading/writing files
-  call.copyfmt(cout); //Copy print settings
+  call.copyfmt(cout); // Copy print settings
   string dummy; // Generic string
   int ct; // Generic counter
   fstream QMLog; // Generic input files

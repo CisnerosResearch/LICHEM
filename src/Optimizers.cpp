@@ -349,7 +349,7 @@ void LICHEMDFP(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
   int stepCt = 0; // Counter for optimization steps
   fstream qmFile,inFile,outFile; // Generic file streams
   int Ndof = 3*(Nqm+Npseudo); // Number of QM and PB degrees of freedom
-  //int str_copy
+  /* int str_copy */
   double RMSFTol = 10*QMMMOpts.QMOptTol; // Opt. tolerance for RMS force
   // Initialize charges
   if (Nmm > 0)
@@ -433,7 +433,7 @@ void LICHEMDFP(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
   EOld = E; // Save energy
   stepScale = QMMMOpts.stepScale;
   stepScale *= sdScale; // Take a very small first step
-  //str_copy=1
+  /* str_copy=1 */
   while ((!optDone) and (stepCt < QMMMOpts.maxOptSteps))
   {
     E = 0; // Reinitialize energy
