@@ -21,6 +21,17 @@
 // QM utility functions
 
 
+/*
+
+  Includes:
+    - void GaussianCharges
+    - double GaussianEnergy
+    - double GaussianForces
+    - MatrixXd GaussianHessian
+    - double GaussianOpt
+
+*/
+
 // QM wrapper functions
 void GaussianCharges(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                      int bead)
@@ -150,6 +161,8 @@ void GaussianCharges(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   globalSys = system(call.str().c_str());
   return;
 };
+
+/*-------------------------------------------------------------------------*/
 
 double GaussianEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                       int bead)
@@ -332,6 +345,8 @@ double GaussianEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   E *= har2eV;
   return E;
 };
+
+/*-------------------------------------------------------------------------*/
 
 double GaussianForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
                       QMMMSettings& QMMMOpts, int bead)
@@ -529,6 +544,8 @@ double GaussianForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   return Eqm;
 };
 
+/*-------------------------------------------------------------------------*/
+
 MatrixXd GaussianHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                          int bead)
 {
@@ -681,6 +698,8 @@ MatrixXd GaussianHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   // Return
   return QMHess;
 };
+
+/*-------------------------------------------------------------------------*/
 
 double GaussianOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                    int bead)

@@ -14,7 +14,16 @@
  LICHEM is licensed under GPLv3, for more information see GPL_LICENSE
 
  References for the LICHEM package:
- Kratz et al., J. Comput. Chem., 37, 11, 1019, (2016)
+ - Kratz et al., J. Comput. Chem., 37, 11, 1019, (2016).
+   DOI: 10.1002/jcc.24295
+ - Gokcan et al., J. Chem. Theo. Comput., 15, 3056, (2019).
+   DOI: 10.1021/acs.jctc.9b00028
+
+*/
+
+/*
+
+  Includes: LICHEM Main!
 
 */
 

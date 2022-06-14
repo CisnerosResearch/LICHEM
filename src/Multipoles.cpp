@@ -21,6 +21,19 @@
 
 */
 
+/*
+
+  Includes:
+    - void ExtractTINKpoles
+    - void RotateTINKCharges
+    - void WriteTINKMPole
+    - void WriteChargeFile
+    - void ExtractGlobalPoles
+    - RedMPole Cart2SphHarm
+    - OctCharges SphHarm2Charges
+
+*/
+
 // TINKER routines
 void ExtractTINKpoles(vector<QMMMAtom>& QMMMData, int bead)
 {

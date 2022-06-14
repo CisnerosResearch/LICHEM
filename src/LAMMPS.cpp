@@ -18,6 +18,17 @@
 
 */
 
+/*
+
+  Includes:
+    - void LAMMPSTopology
+    - double LAMMPSEnergy
+    - double LAMMPSForces
+    - MatrixXd LAMMPSHessian
+    - double LAMMPSOpt
+
+*/
+
 // MM utility functions
 void LAMMPSTopology(vector<QMMMAtom>& QMMMData, stringstream& topology,
                     int bead)
@@ -227,6 +238,8 @@ double LAMMPSEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   return E;
 };
 
+/*-------------------------------------------------------------------------*/
+
 double LAMMPSForces(vector<QMMMAtom>& QMMMData, VectorXd& Forces,
                     QMMMSettings& QMMMOpts, int bead)
 {
@@ -235,6 +248,8 @@ double LAMMPSForces(vector<QMMMAtom>& QMMMData, VectorXd& Forces,
   
   return E;
 };
+
+/*-------------------------------------------------------------------------*/
 
 MatrixXd LAMMPSHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                        int bead)
@@ -245,6 +260,8 @@ MatrixXd LAMMPSHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   
   return MMHess;
 };
+
+/*-------------------------------------------------------------------------*/
 
 double LAMMPSOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                  int bead)

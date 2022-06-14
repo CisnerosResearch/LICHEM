@@ -19,6 +19,14 @@
 
 */
 
+/*
+
+  Includes:
+    - void ExternalGaussian
+    - double GaussianExternOpt
+
+*/
+
 // QM utility functions
 void ExternalGaussian(int& argc, char**& argv)
 {

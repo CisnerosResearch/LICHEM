@@ -17,6 +17,20 @@
 
 */
 
+/*
+
+  Includes:
+    - void FindTINKERClasses
+    - void TINKERInduced
+    - double TINKERPolEnergy
+    - double TINKERForces
+    - double TINKERMMForces
+    - double TINKEREnergy
+    - MatrixXd TINKERHessian
+    - double TINKEROpt
+
+*/
+
 // MM utility functions
 void FindTINKERClasses(vector<QMMMAtom>& QMMMData, fstream& logFile)
 {

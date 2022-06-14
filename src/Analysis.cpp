@@ -18,6 +18,21 @@
 
 */
 
+/*
+
+  Includes:
+    - void Print_traj
+    - void BurstTraj
+    - void PathLinInterpolate
+    - void SplitPathTraj
+    - void KabschRotation
+    - VectorXd KabschDisplacement
+    - double LICHEMDensity
+    - VectorXd LICHEMFreq
+    - void WriteModes
+
+*/
+
 // Trajectory analysis functions
 void Print_traj(vector<QMMMAtom>& QMMMData, fstream& traj,
                 QMMMSettings& QMMMOpts)

@@ -17,6 +17,13 @@
 
 */
 
+/*
+
+  Includes:
+    - void TINK2LICHEM
+    - void LICHEM2TINK
+
+*/
 
 // Parsers
 void TINK2LICHEM(int& argc, char**& argv)

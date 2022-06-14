@@ -18,6 +18,13 @@
 
 */
 
+/*
+
+  Includes:
+    - vector<HermGau> HermBasis
+
+*/
+
 // Basis set definitions
 vector<HermGau> HermBasis(string Typ, string basName)
 {

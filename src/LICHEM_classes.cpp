@@ -15,6 +15,38 @@
 
 */
 
+/*
+
+  Includes:
+    - Coord::Coord
+      - Coord::~Coord
+      - double Coord::vecMag
+    - MPole::MPole
+      - MPole::~MPole
+    - RedMPole::RedMPole
+      - RedMPole::~RedMPole
+    - OctCharges::OctCharges
+      - OctCharges::~OctCharges
+    - GEMDen::GEMDen
+      - GEMDen::GEMDen
+      - GEMDen::~GEMDen
+      - void GEMDen::setBasis
+      - void GEMDen::setFrame
+      - MPole GEMDen::GEMDM
+    - QMMMAtom::QMMMAtom
+      - QMMMAtom::~QMMMAtom
+      - QMMMSettings::QMMMSettings
+      - QMMMSettings::~QMMMSettings
+    - PeriodicTable::PeriodicTable
+      - PeriodicTable::~PeriodicTable
+      - string PeriodicTable::typing
+      - int PeriodicTable::revTyping
+      - double PeriodicTable::getCovRadius
+      - double PeriodicTable::getRadius
+      - double PeriodicTable::getAtMass
+
+*/
+
 // Coord class function definitions
 Coord::Coord()
 {

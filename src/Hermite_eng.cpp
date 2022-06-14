@@ -19,6 +19,27 @@
 
 */
 
+/*
+
+  Includes:
+    - HermGau::HermGau
+      - HermGau::~HermGau
+      - double HermGau::coeff
+      - double HermGau::xPos
+      - double HermGau::yPos
+      - double HermGau::zPos
+      - double HermGau::getAlpha
+      - int HermGau::xPow
+      - int HermGau::yPow
+      - int HermGau::zPow
+    - double HermGau::value
+    - double BoysFunc
+    - double HermCoul2e
+    - double HermCoul1e
+    - double HermOverlap
+
+*/
+
 // Definitions for the HermGau class
 HermGau::HermGau(double ci, double a, int ix, int iy, int iz,
                  double xi, double yi, double zi)

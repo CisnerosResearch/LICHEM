@@ -17,6 +17,17 @@
 
 */
 
+/*
+
+  Includes:
+    - void NWChemCharges
+    - double NWChemEnergy
+    - double NWChemForces
+    - MatrixXd NWChemHessian
+    - double NWChemOpt
+
+*/
+
 // QM utility functions
 
 

@@ -16,6 +16,15 @@
 
 */
 
+/*
+
+  Includes:
+    - double Get_PI_Espring
+    - double Get_PI_Epot
+    - bool MCMove
+
+*/
+
 // Path integral Monte Carlo functions
 double Get_PI_Espring(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts)
 {

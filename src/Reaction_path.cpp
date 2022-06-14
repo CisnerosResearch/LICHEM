@@ -25,6 +25,19 @@
 
 */
 
+/*
+
+  Includes:
+    - void CheckNEBTangent
+    - VectorXd CINEBTangent
+    - VectorXd NEBTangent
+    - bool PathConverged
+    - void LICHEMNEB
+    - int FBNEBMCMove
+    - void LICHEMQSM
+
+*/
+
 // Tangent functions
 void CheckNEBTangent(VectorXd& tangent)
 {

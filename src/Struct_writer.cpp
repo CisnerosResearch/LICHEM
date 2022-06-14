@@ -14,6 +14,16 @@
 
 */
 
+/*
+
+  Includes:
+    - void WriteGauInput
+    - void WriteNWChemInput
+    - void WritePSI4Input
+    - void WriteQMConnect
+
+*/
+
 // QM input writers
 void WriteGauInput(vector<QMMMAtom>& QMMMData, string calcTyp,
                    QMMMSettings& QMMMOpts, int bead)

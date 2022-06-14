@@ -17,8 +17,18 @@
 
 */
 
-// QM utility functions
+/*
 
+  Includes:
+    - void PSI4Charges
+    - double PSI4Energy
+    - double PSI4Forces
+    - MatrixXd PSI4Hessian
+    - double PSI4Opt
+
+*/
+
+// QM utility functions
 
 // QM wrapper functions
 void PSI4Charges(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead)

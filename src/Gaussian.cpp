@@ -21,6 +21,16 @@
 
 // QM utility functions
 
+/*
+
+  Includes:
+    - void GaussianCharges
+    - double GaussianEnergy
+    - double GaussianForces
+    - MatrixXd GaussianHessian
+    - double GaussianOpt
+
+*/
 
 // QM wrapper functions
 void GaussianCharges(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,

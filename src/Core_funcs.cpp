@@ -15,6 +15,27 @@
 
 */
 
+/*
+
+  Includes:
+    - void PrintFancyTitle
+    - double LICHEMFactorial
+    - bool CheckFile
+    - int FindMaxThreads
+    - double Bohring
+    - Coord CoordDist2
+    - double LRECFunction
+    - vector<int> TraceBoundary
+    - bool Bonded
+    - bool Angled
+    - bool Dihedraled
+    - void PBCCenter
+    - Coord FindQMCOM
+    - void PrintLapin
+    - void FetchQuotes
+
+*/
+
 // Core utility functions
 void PrintFancyTitle(fstream& logFile)
 {

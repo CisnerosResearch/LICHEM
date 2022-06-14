@@ -24,6 +24,13 @@
 
 */
 
+/*
+
+  Includes:
+    - void LICHEM2BASIS
+
+*/
+
 // BASIS file creation functions
 void LICHEM2BASIS(int& argc,char**& argv)
 {

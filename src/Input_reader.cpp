@@ -15,6 +15,16 @@
 
 */
 
+/*
+
+  Includes:
+    - void ReadArgs
+    - void ReadLICHEMInput
+    - void LICHEMErrorChecker
+    - void LICHEMPrintSettings
+
+*/
+
 // Various input and error checking functions
 void ReadArgs(int& argc, char**& argv, fstream& xyzFile,
               fstream& connectFile,

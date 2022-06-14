@@ -17,6 +17,17 @@
 
 */
 
+/*
+
+  Includes:
+    - template<typename T> string LICHEMFormFloat
+    - template<typename T> int LICHEMCount
+    - void LICHEMLowerText
+    - void LICHEMUpperText
+    - void LICHEMFixSciNot
+
+*/
+
 // Number formatting functions
 template<typename T>
 string LICHEMFormFloat(T inpVal, int wid)

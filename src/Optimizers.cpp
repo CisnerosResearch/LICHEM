@@ -19,6 +19,15 @@
 
 */
 
+/*
+
+  Includes:
+    - bool OptConverged
+    - void LICHEMSteepest
+    - void LICHEMDFP
+
+*/
+
 // Convergence test functions
 bool OptConverged(vector<QMMMAtom>& QMMMData, vector<QMMMAtom>& oldQMMMData,
                   VectorXd& forces, int stepCt, QMMMSettings& QMMMOpts,

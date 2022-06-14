@@ -25,7 +25,7 @@
 \usepackage{array}
 \usepackage[biblabel=period, doi=true, articletitle=true]{achemso}
 \usepackage{doi}
-\renewcommand{\doitext}{} 
+\renewcommand{\doitext}{}
 \usepackage[depth=subsubsection]{bookmark} % Allow TOC PDF bookmarks
 % WARNING: Adding \usepackage[english]{babel} will likely break tables!!!
 
@@ -148,19 +148,19 @@ LICHEM is in development with four guiding principles: \\
   updated) software packages, LICHEM for general applications
   should not require modifications to other
   software packages or tools.
-  
+
   \item \textbf{LICHEM should be a single executable.} \\
   Since LICHEM is an interface, there is no need for a large collection of
   binaries.
   Furthermore, LICHEM can be statically linked to ease distribution of the
-  software.  
-  
+  software.
+
   \item \textbf{LICHEM should be easy to read and modify.} \\
   Most scientists are not experts in computer programming.
   In order to allow for rapid collaborative development of LICHEM, the source
   code needs to be easy to read.
   To that end, the code should be simple, well commented, and avoid linking to
-  libraries.  
+  libraries.
 
   \item \textbf{LICHEM should be open-source.} \\
   LICHEM is licensed under the GPLv3.
@@ -235,16 +235,18 @@ else
           \end{cppcode}
       \end{itemize}
 
-\item Separate arguments with spaces in the function definition, and indent 
+\item Separate arguments with spaces in the function definition, and indent
       line continuations to the parentheses. \\
       Example:
 	  \begin{cppcode}
-void calc_react_coord(QMMMSettings& QMMMOpts, 
-                      vector<QMMMAtom>& QMMMData, 
+void calc_react_coord(QMMMSettings& QMMMOpts,
+                      vector<QMMMAtom>& QMMMData,
                       VectorXd& reactCoord)
 	  \end{cppcode}
 
 \item End each file with a single blank line.
+
+% \item C++ files have 775 permissions.
 
 \end{itemize}
 
@@ -353,7 +355,7 @@ Special care must be taken to avoid creating too many threads when calling
 multiple hybrid--parallel functions with the wrappers. \\
 
 In NEB and OpenMP--QSM (OpenMP) simulations the number of CPUs given as a
-command line argument is used to divide the OpenMP threads between the 
+command line argument is used to divide the OpenMP threads between the
 replicas.
 In MPI QSM simulations (hybrid--parallel), the number of CPUs given as a
 command line argument define the number of available nodes for MPI.
@@ -364,18 +366,18 @@ The test suite executable is created from \texttt{./src/runtests.py}.
 The script uses
 \href{https://docs.python.org/3.10/library/argparse.html}{argparse}
 to define the command-line usage.
-Functions are used to call each test, passing \texttt{None} for 
-arguments that do not apply for the test case (e.g., having a 
+Functions are used to call each test, passing \texttt{None} for
+arguments that do not apply for the test case (e.g., having a
 PSI4 energy for a Gaussian-only QM test).
-QM and QM/MM tests use the \texttt{QMMMWrapperTest} function, 
+QM and QM/MM tests use the \texttt{QMMMWrapperTest} function,
 and MM-only tests use the function \texttt{MMWrapperTest}.
-A notable exception is the `Frequencies' test, which uses the 
+A notable exception is the `Frequencies' test, which uses the
 \texttt{QMMMFreqTest} function because of the extra steps involved
 in finding the minimum frequency. \\
 
-All functions make use of 
+All functions make use of
 \href{https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard}
-{Numpy-style docstrings} 
+{Numpy-style docstrings}
 to descripe input and output variables.
 These docstrings are then commented out using the single-comment style
 (with a hashtag and space), so that they are not included in the executable
@@ -976,7 +978,7 @@ LICHEM will adjust the Monte Carlo stepsize during the equilibration run to
 maintain the specified acceptance ratio.
 Default: 0.50 \newline\\
 
-eq\_steps & : & Number of Monte Carlo and molecular dynamics equilibration 
+eq\_steps & : & Number of Monte Carlo and molecular dynamics equilibration
 steps.
 Default: 0 \newline\\
 
@@ -1347,7 +1349,7 @@ possible to use the native input/output functions to create LICHEM input from
 input used for QM and MM packages.
 In all cases the converter produces three files:
 \begin{itemize}
-\item \texttt{xyzfile.xyz} 
+\item \texttt{xyzfile.xyz}
 \item \texttt{connect.inp}
 \item \texttt{regions.inp}\\
 \end{itemize}
@@ -1378,7 +1380,7 @@ Required keywords:
 \end{itemize}
 
 Currently, these keywords must be spelled and formatted exactly as given
-above, including the colon (\texttt{:}) but without the bullet point. 
+above, including the colon (\texttt{:}) but without the bullet point.
 They must also be included in the same exact order. \\
 
 {\textbf{Multi-replica trajectories:}} \\
@@ -1386,7 +1388,7 @@ They must also be included in the same exact order. \\
 LICHEM can create or split merged trajectory files for reaction path
 simulations. \\
 
-\texttt{user:\$ lichem -path -b Nbeads -r Reactant.xyz -t TS.xyz 
+\texttt{user:\$ lichem -path -b Nbeads -r Reactant.xyz -t TS.xyz
 -p Product.xyz} \\
 
 The \texttt{-path} flag will linearly interpolate between reactant and product
@@ -1496,7 +1498,7 @@ format.
 \subsection{Restart files}
 
 While restarting incomplete geometry optimizations only requires changing
-the initial structure given with the \texttt{-x} flag, multi-replica 
+the initial structure given with the \texttt{-x} flag, multi-replica
 simulations require structural information for each replica.
 When a multi-replica (PIMC or reaction path) simulation is started LICHEM
 checks the working directory for a restart file named ``BeadStartStruct.xyz''
@@ -2141,7 +2143,7 @@ The full 3-21G basis set for lithium has nine variational parameters and a
 total of fifteen Gaussian functions.
 The larger 6-311G basis set splits the valence states into three parts
 (thirteen variational parameters, twenty total Gaussian functions).
-The number of ``parts'' representing the valence orbitals is referred to as 
+The number of ``parts'' representing the valence orbitals is referred to as
 the zeta level of the basis set.
 A single zeta basis set has one variational parameter per valence orbital
 (e.g.\ STO-3G), a double zeta basis set has two variational parameters per
@@ -2293,7 +2295,7 @@ interaction energy not captured by the HF method (second-order and higher
 perturbations).
 The SCF formalism is only a mean-field approach, and hence, it gives the
 average interactions not the true interactions.
-The second bit of terminology is the ``exchange interaction,'' which is 
+The second bit of terminology is the ``exchange interaction,'' which is
 included in $\hat F$ through $\hat H_1$.
 The solution of the Schr\"{o}dinger equation for electrons should be
 anti-symmetric with respects to the exchange of two electrons.

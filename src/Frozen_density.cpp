@@ -24,6 +24,14 @@
 
 */
 
+/*
+
+  Includes:
+    - double GEMC6
+    - double GEMBuffC7
+
+*/
+
 // GEM utility functions
 double GEMC6(double C6, Coord& POSi, Coord& POSj, double Rcut)
 {
@@ -42,6 +50,8 @@ double GEMC6(double C6, Coord& POSi, Coord& POSj, double Rcut)
   // Return energy
   return Eij;
 };
+
+/*-------------------------------------------------------------------------*/
 
 double GEMBuffC7(double C7, double Rmin, Coord& POSi, Coord& POSj,
                  double Rcut)
