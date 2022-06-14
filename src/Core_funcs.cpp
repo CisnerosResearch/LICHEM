@@ -36,7 +36,17 @@
 
 */
 
-// Core utility functions
+// SECTION: Core utility functions
+
+/*
+  void PrintFancyTitle
+  ---------------
+  Prints the LICHEM header.
+
+  Parameters
+  ----------
+  logFile: File to print the information to.
+*/
 void PrintFancyTitle(fstream& logFile)
 {
   // Print the LICHEM file header
@@ -214,7 +224,8 @@ double LRECFunction(Coord& dist, QMMMSettings& QMMMOpts)
 
 /*-------------------------------------------------------------------------*/
 
-// Functions to check connectivity
+// SECTION: Functions to check connectivity
+
 /*vector<int> TraceBoundary(vector<QMMMAtom>& QMMMData, int atID)*/
 vector<int> TraceBoundary(vector<QMMMAtom>& QMMMData, int atID, int& mystat,
                           fstream& logFile)
@@ -370,7 +381,8 @@ bool Dihedraled(vector<QMMMAtom>& QMMMData, int atom1, int atom4)
 
 /*-------------------------------------------------------------------------*/
 
-// Structure correction functions
+// SECTION: Structure correction functions
+
 void PBCCenter(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts)
 {
   // Move the system to the center of the simulation box
@@ -521,7 +533,17 @@ Coord FindQMCOM(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead)
 
 /*-------------------------------------------------------------------------*/
 
-// Misc.
+// SECTION: Misc.
+
+/*
+  void PrintLapin
+  ----------------
+  Print a picture.
+
+  Parameters
+  ----------
+  logFile: File to print the information to.
+*/
 void PrintLapin(fstream& logFile)
 {
   // Print a nice picture
@@ -636,6 +658,17 @@ void PrintLapin(fstream& logFile)
 
 /*-------------------------------------------------------------------------*/
 
+/*
+  void FetchQuotes
+  ----------------
+  Collect a list of quotes.
+
+  Parameters
+  ----------
+  Quotes: List of quotes.
+
+  TODO: Make a quote list.
+*/
 void FetchQuotes(vector<string>& Quotes)
 {
   // Generate random quotes

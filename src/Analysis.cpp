@@ -33,7 +33,19 @@
 
 */
 
-// Trajectory analysis functions
+// SECTION: Trajectory analysis functions
+
+/*
+  void Print_traj
+  ---------------
+  Print trajectory or restart files for all beads.
+
+  Parameters
+  ----------
+  QMMMData: Simulation trajectory data.
+  traj: File stream for all trajectory output.
+  QMMMOpts: Simulation settings.
+*/
 void Print_traj(vector<QMMMAtom>& QMMMData, fstream& traj,
                 QMMMSettings& QMMMOpts)
 {
@@ -61,6 +73,16 @@ void Print_traj(vector<QMMMAtom>& QMMMData, fstream& traj,
 
 /*-------------------------------------------------------------------------*/
 
+/*
+  void BurstTraj
+  --------------
+  Splits a multireplica trajectory into individual frames.
+
+  Parameters
+  ----------
+  QMMMData: Simulation trajectory data.
+  QMMMOpts: Simulation settings.
+*/
 void BurstTraj(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts)
 {
   // Function to split reaction path and path-integral trajectory frames
@@ -104,7 +126,18 @@ void BurstTraj(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts)
 
 /*-------------------------------------------------------------------------*/
 
-// Trajectory manipulation functions
+// SECTION: Trajectory manipulation functions
+
+/*
+  void PathLinInterpolate
+  -----------------------
+  Reads reactant, TS, and product data to create a path.
+
+  Parameters
+  ----------
+  argc: Initial number of arguments passed to LICHEM (+1 for executable).
+  argv: Initial argument values passed to LICHEM.
+*/
 void PathLinInterpolate(int& argc, char**& argv)
 {
   // Linearly interpolate a path from reactant and product geometries
@@ -349,7 +382,7 @@ void PathLinInterpolate(int& argc, char**& argv)
     for (int j=0;j<Nbeads;j++)
     {
       for (int i=0;i<Natoms;i++)
-      {  
+      {
         // Print element
         pathFile << atTyps[i] << " ";
         // Print interpolated coordinates
@@ -378,6 +411,16 @@ void PathLinInterpolate(int& argc, char**& argv)
 
 /*-------------------------------------------------------------------------*/
 
+/*
+  void SplitPathTraj
+  ------------------
+  Reads a multi-replica trajectory file and separates the replicas.
+
+  Parameters
+  ----------
+  argc: Initial number of arguments passed to LICHEM (+1 for executable).
+  argv: Initial argument values passed to LICHEM.
+*/
 void SplitPathTraj(int& argc, char**& argv)
 {
   // Function to separate a reaction path frame into a trajectory
@@ -522,6 +565,17 @@ void SplitPathTraj(int& argc, char**& argv)
 
 /*-------------------------------------------------------------------------*/
 
+/*
+  void KabschRotation
+  -------------------
+  Translates and rotates two structures for maximum overlap.
+
+  Parameters
+  ----------
+  A: Matrix coordinates for structure A
+  B: Matrix coordinates for structure B
+  matSize: Number of atoms in structure A/B.
+*/
 void KabschRotation(MatrixXd& A, MatrixXd& B, int matSize)
 {
   // Function to translate/rotate two structures for maximum overlap
@@ -639,6 +693,21 @@ void KabschRotation(MatrixXd& A, MatrixXd& B, int matSize)
 
 /*-------------------------------------------------------------------------*/
 
+/*
+  VectorXd KabschDisplacement
+  ---------------------------
+  Calculates the displacement between two structures.
+
+  Parameters
+  ----------
+  A: Matrix coordinates for structure A
+  B: Matrix coordinates for structure B
+  matSize: Number of atoms in structure A/B.
+
+  Returns
+  -------
+  dist: Total distance between the two structures.
+*/
 VectorXd KabschDisplacement(MatrixXd& A, MatrixXd& B, int matSize)
 {
   // Returns the distance between two superimposed structures
@@ -661,7 +730,22 @@ VectorXd KabschDisplacement(MatrixXd& A, MatrixXd& B, int matSize)
 
 /*-------------------------------------------------------------------------*/
 
-// Physical property analysis functions
+// SECTION: Physical property analysis functions
+
+/*
+  double LICHEMDensity
+  --------------------
+  Calculates the density of a periodic structure.
+
+  Parameters
+  ----------
+  QMMMData: Simulation trajectory data.
+  QMMMOpts: Simulation settings.
+
+  Returns
+  -------
+  rho: Density of the simulation box.
+*/
 double LICHEMDensity(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts)
 {
   // Function to calculate the density for periodic calculations
@@ -684,6 +768,23 @@ double LICHEMDensity(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts)
 
 /*-------------------------------------------------------------------------*/
 
+/*
+  VectorXd LICHEMFreq
+  -------------------
+  Calculates the frequencies of the QM atoms in the system.
+
+  Parameters
+  ----------
+  QMMMData: Simulation trajectory data.
+  QMMMHess: Input Hessian matrix.
+  QMMMOpts: Simulation settings.
+  bead: Replica used to calculate the frequencies.
+  remCt: The number of low-frequency modes removed in the analysis.
+
+  Returns
+  -------
+  QMMMFreqs: Array containing the harmonic frequencies.
+*/
 VectorXd LICHEMFreq(vector<QMMMAtom>& QMMMData, MatrixXd& QMMMHess,
                     QMMMSettings& QMMMOpts, int bead, int& remCt)
 {
@@ -876,6 +977,21 @@ VectorXd LICHEMFreq(vector<QMMMAtom>& QMMMData, MatrixXd& QMMMHess,
 
 /*-------------------------------------------------------------------------*/
 
+
+/*
+  void WriteModes
+  ---------------
+  Prints trajectory files for animating the normal modes.
+
+  Parameters
+  ----------
+  QMMMData: Simulation trajectory data.
+  imagOnly: Flag to print only the imaginary frequencies.
+  Freqs: Input harmonic frequencies.
+  normModes: Input normal modes.
+  QMMMOpts: Simulation settings.
+  bead: Replica used in the animation.
+*/
 void WriteModes(vector<QMMMAtom>& QMMMData, bool imagOnly, VectorXd& Freqs,
                 MatrixXd& normModes, QMMMSettings& QMMMOpts, int bead)
 {

@@ -25,7 +25,22 @@
 
 */
 
-// Basis set definitions
+// SECTION: Basis set definitions
+
+/*
+  vector<HermGau> HermBasis
+  -------------------------
+  Generates Hermite basis functions for an atom in the system.
+
+  Parameters
+  ----------
+  Typ: Element or atom type name.
+  basName: Name of the basis set.
+
+  Returns
+  -------
+  newBasis: Array of basis functions for the atom.
+*/
 vector<HermGau> HermBasis(string Typ, string basName)
 {
   // Function to set specific Hermite basis sets

@@ -31,7 +31,18 @@
 
 */
 
-// BASIS file creation functions
+// SECTION: BASIS file creation functions
+
+/*
+  void LICHEM2BASIS
+  ---------------
+  Creates a Gaussian or NWChem basis set file.
+
+  Parameters
+  ----------
+  argc: Initial number of arguments passed to LICHEM (+1 for executable).
+  argv: Initial argument values passed to LICHEM.
+*/
 void LICHEM2BASIS(int& argc,char**& argv)
 {
   // Writes a BASIS file based on a LICHEM regions file

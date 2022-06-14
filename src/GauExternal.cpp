@@ -27,7 +27,18 @@
 
 */
 
-// QM utility functions
+// SECTION: QM utility functions
+
+/*
+  void ExternalGaussian
+  ---------------------
+  "Script" called by Gaussian's external interface.
+
+  Parameters
+  ----------
+  argc: Initial number of arguments passed to LICHEM (+1 for executable).
+  argv: Initial argument values passed to LICHEM.
+*/
 void ExternalGaussian(int& argc, char**& argv)
 {
   // This function is an "external script" that can be called by
@@ -226,6 +237,21 @@ void ExternalGaussian(int& argc, char**& argv)
 
 /*-------------------------------------------------------------------------*/
 
+/*
+  double GaussianExternOpt
+  ------------------------
+  Optimizations when using Gaussian's external interface.
+
+  Parameters
+  ----------
+  QMMMData: Simulation trajectory data.
+  QMMMOpts: Simulation settings.
+  bead: Replica used.
+
+  Returns
+  -------
+  E : QM Energy.
+*/
 double GaussianExternOpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                          int bead)
 {
