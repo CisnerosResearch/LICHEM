@@ -50,10 +50,10 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   MPI_Status stat;
 
   int mysize;
-  bool master=false;
+  bool controller=false;
   if (wrank==0)
   {
-    master=true;
+    controller=true;
   }
   // Set end points for the optimization
   int PathStart = 0;
@@ -102,7 +102,7 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       // Last proc
       owner = wsize - 1;
     }
-  
+    
     if (wrank==owner)
     {
       // Push back bead j to mybead_list
@@ -126,8 +126,8 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     {
       for (int j=PathStart; j<PathEnd;j++)
       {
-        GaussianForcesMPIWrite(QMMMData,QMMMOpts,j); 
-      }     
+        GaussianForcesMPIWrite(QMMMData,QMMMOpts,j);
+      }
     }
   }// End if wrank==0
 
@@ -147,7 +147,7 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   // END: RUN GAUSSIAN
 
   // START: READ GAUSSIAN OUT
-  // Need to read Gaussian output 
+  // Need to read Gaussian output
   //  since we need charges for polarization
   if (wrank==0)
   {
@@ -185,9 +185,9 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   // END: READ GAUSSIAN OUT
 
-  // Charges are updated after QM 
+  // Charges are updated after QM
   //  send QMMData to everyone
-  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,master,Natoms);
+  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,controller,Natoms);
   MPI_Barrier(MPI_COMM_WORLD);
 
 
@@ -221,7 +221,7 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       // End for beads
 
     }
-    // End if TINKER 
+    // End if TINKER
 
     if (mystat!=0)
     {
@@ -234,32 +234,32 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
 
   MPI_Barrier(MPI_COMM_WORLD);
 
-  MPI_Bcast(&mystat,1,MPI_INT,0,MPI_COMM_WORLD);     
+  MPI_Bcast(&mystat,1,MPI_INT,0,MPI_COMM_WORLD);
   if (mystat!=0)
   {
     MPI_Finalize();
     exit(0);
   }
 
-  // START: RUN TINKER 
+  // START: RUN TINKER
   // Calculate forces (MM part)
   if (TINKER)
   {
 
     int tstart = (unsigned)time(0);
-        
+    
     // START: FORCES
     TINKERForcesMPI(mybead_list,mysize,PathStart,PathEnd);
     if (AMOEBA)
-    {    
+    {
       TINKERPolForcesMPI(mybead_list,mysize,PathStart,PathEnd);
     }
     // END: FORCES
 
-    // START: ENERGY 
+    // START: ENERGY
     TINKEREnergyMPI(mybead_list,mysize,PathStart,PathEnd);
     if ((AMOEBA or GEM or QMMMOpts.useImpSolv) and QMMM)
-    {        
+    {
       TINKERPolEnergyMPI(mybead_list,mysize,PathStart,PathEnd);
     }
     // END: ENERGY
@@ -307,16 +307,16 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       }
 
       // Get the forces of all images from local Forces
-      //  since we already read qm forces now add Forces 
+      //  since we already read qm forces now add Forces
       //  to global force array
 
       Forces = Forces/har2eV;
       // Forces = Forces*bohrRad/har2eV;
       for (int ii=0;ii<QMdim;ii++)
-      {   
+      {
       
         force[(j*beadsize)+(ii*3)] += Forces(3*ii);
-        force[(j*beadsize)+(ii*3)+1] += Forces(3*ii+1); 
+        force[(j*beadsize)+(ii*3)+1] += Forces(3*ii+1);
         force[(j*beadsize)+(ii*3)+2] += Forces(3*ii+2);
       
         /*
@@ -333,7 +333,7 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
 
 
   // Update QMMMData on cores
-  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,master,Natoms);
+  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,controller,Natoms);
   MPI_Barrier(MPI_COMM_WORLD);
 
 }
@@ -372,7 +372,7 @@ double runMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   if (wrank==0)
   {
     if (PathStart==0)
-    { 
+    {
       mybead_list.push_back(0);
     }
     mybead_list.push_back(1);
@@ -405,10 +405,10 @@ double runMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   mysize=mybead_list.size();
 
   int root=0;
-  bool master=false;
+  bool controller=false;
   if (wrank==0)
   {
-    master=true;
+    controller=true;
   }
   if (wrank==0)
   {
@@ -438,29 +438,29 @@ double runMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     }
     MPI_Barrier(MPI_COMM_WORLD);
 
-    MPI_Bcast(&mystat,1,MPI_INT,0,MPI_COMM_WORLD);     
+    MPI_Bcast(&mystat,1,MPI_INT,0,MPI_COMM_WORLD);
     if (mystat!=0)
     {
       MPI_Finalize();
       exit(0);
     }
 
-    // Run        
+    // Run
     int tstart = (unsigned)time(0);
     TINKEROptMPI(mybead_list,mysize,PathStart,PathEnd,QMMMOpts);
     MMTime += (unsigned)time(0)-tstart;
     
     // Read
     if (wrank==0)
-    { 
+    {
       // Write
       for (int j=PathStart; j<PathEnd;j++)
       {
           TINKEROptMPIRead(QMMMData, QMMMOpts, j);
       }
-    }        
+    }
     // END: ENERGY
-  } 
+  }
   
   if (wrank==0)
   {
@@ -472,7 +472,7 @@ double runMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     logFile << '\n';
   }
 
-  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,master,Natoms);
+  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,controller,Natoms);
   MPI_Barrier(MPI_COMM_WORLD);
 
 }
@@ -511,7 +511,7 @@ double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   if (wrank==0)
   {
     if (PathStart==0)
-    { 
+    {
       mybead_list.push_back(0);
     }
     mybead_list.push_back(1);
@@ -534,7 +534,7 @@ double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       // Last proc
       owner = wsize - 1;
     }
-  
+
     if (wrank==owner)
     {
       // Push back bead j to mybead_list
@@ -544,10 +544,10 @@ double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   mysize=mybead_list.size();
 
   int root=0;
-  bool master=false;
+  bool controller=false;
   if (wrank==0)
   {
-    master=true;
+    controller=true;
   }
   if (wrank==0)
   {
@@ -567,7 +567,7 @@ double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   {
     int mystat=0;
     if (wrank==0)
-    { 
+    {
       // Write
       for (int j=PathStart; j<PathEnd;j++)
       {
@@ -579,14 +579,14 @@ double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       }
     }
     MPI_Barrier(MPI_COMM_WORLD);
-    MPI_Bcast(&mystat,1,MPI_INT,0,MPI_COMM_WORLD);     
+    MPI_Bcast(&mystat,1,MPI_INT,0,MPI_COMM_WORLD);
     if (mystat!=0)
     {
       MPI_Finalize();
       exit(0);
-    }  
+    }
 
-    // Run        
+    // Run
     int tstart = (unsigned)time(0);
     TINKEROptMPI(mybead_list,mysize,PathStart,PathEnd,QMMMOpts);
     MMTime += (unsigned)time(0)-tstart;
@@ -599,14 +599,14 @@ double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       {
         TINKEROptMPIRead(QMMMData, QMMMOpts, j);
       }
-    }        
+    }
     // END: ENERGY
-  } 
+  }
   
   if (wrank==0)
   {
     logFile << '\n';
-    logFile << "             "; 
+    logFile << "             ";
     logFile << "MM optimizations with ";
     logFile << "restraints are complete. \n";
     logFile << "             ";
@@ -615,7 +615,7 @@ double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
 
 
   // Update QMMMData
-  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,master,Natoms);
+  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,controller,Natoms);
   MPI_Barrier(MPI_COMM_WORLD);
 
 }
@@ -704,10 +704,10 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
 
 
   int root=0;
-  bool master=false;
+  bool controller=false;
   if (wrank==0)
   {
-    master=true;
+    controller=true;
   }
   VectorXd Emm(QMMMOpts.NBeads);
   VectorXd Eqm(QMMMOpts.NBeads);
@@ -732,7 +732,7 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
   // Calculate Energy (QM part)
   if (Gaussian)
   {
-    // If global master, write input files
+    // If global controller, write input files
     int tstart = (unsigned)time(0);
     GaussianEnergyMPI(mybead_list,mysize,PathStart,PathEnd);
     QMTime += (unsigned)time(0)-tstart;
@@ -754,9 +754,9 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
   }
   // END: READ GAUSSIAN OUT
 
-  // Charges are updated after QM 
+  // Charges are updated after QM
   // Send QMMData to everyone
-  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,master,Natoms);
+  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,controller,Natoms);
   MPI_Barrier(MPI_COMM_WORLD);
 
   // START: WRITING TINKER
@@ -777,7 +777,7 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
         }
         if (mystat!=0)
         {
-          logFile.close(); 
+          logFile.close();
         }
       }
     }
@@ -785,7 +785,7 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
   // END: WRITING TINKER
   MPI_Barrier(MPI_COMM_WORLD);
   
-  MPI_Bcast(&mystat,1,MPI_INT,0,MPI_COMM_WORLD);     
+  MPI_Bcast(&mystat,1,MPI_INT,0,MPI_COMM_WORLD);
   if (mystat!=0)
   {
     MPI_Finalize();
@@ -798,11 +798,11 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
   {
 
     int tstart = (unsigned)time(0);
-    // Run        
+    // Run
     TINKEREnergyMPI(mybead_list,mysize,PathStart,PathEnd);
     if ((AMOEBA or GEM or QMMMOpts.useImpSolv) and QMMM)
     {
-      // Run        
+      // Run
       TINKERPolEnergyMPI(mybead_list,mysize,PathStart,PathEnd);
     }
     MMTime += (unsigned)time(0)-tstart;
@@ -879,7 +879,7 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
   MPI_Bcast(&PathDone,1,MPI::BOOL,root,MPI_COMM_WORLD);
 
   // Update QMMMData
-  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,master,Natoms);
+  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,controller,Natoms);
   MPI_Barrier(MPI_COMM_WORLD);
 
   /* return PathDone; */

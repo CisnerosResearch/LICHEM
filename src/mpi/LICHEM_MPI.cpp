@@ -19,12 +19,12 @@
   # Almost same with LICHEM but;                                              #
   #                             1. Create MPI_COMM_WORLD                      #
   #                             2. Misc. initialization as in serial          #
-  #                             3. Only master reads inputs                   #
-  #                             4. Master shares info with workers            #
+  #                             3. Only controller reads inputs               #
+  #                             4. controller shares info with workers        #
   #                             5. Perform QSM calculations                   #
   #                             5. Finalize                                   #
   #                                                                           #
-  #  !!! Reading and writing to outputs are performed only by master proc     #
+  #  !!! Reading and writing to outputs are performed only by controller proc #
   #  !!! If any type of calculation except QSM, please use serial verison     #
   #############################################################################
 */
@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
   int Worldrank,Worldsize; 	/* MPI_COMM_WORLD */
 
   const int root=0;
-  bool master=false;
+  bool controller=false;
   int tag, dest,source;
   int nbeads;
 
@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 
   if (Worldrank==0)
   {
-    master=true;
+    controller=true;
   }
 
   char processor_name[MPI_MAX_PROCESSOR_NAME];
@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
   // End of section
   int mystat=0;
 
-  if (master)
+  if (controller)
   {
     // Read arguments and look for errors
     ReadArgs(argc,argv,xyzFile,connectFile,regionFile,outFile,
@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
     MPI_Finalize();
     exit(0);
   }
-  if (master)
+  if (controller)
   {
     // Print title and compile date
     PrintFancyTitle(logFile);
@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
     exit(0);
   }
 
-  if (master)
+  if (controller)
   {
     LICHEMErrorChecker(QMMMOpts,logFile,mystat);
     if (mystat!=0)
@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
     exit(0);
   }
 
-  if (master)
+  if (controller)
   {
     LICHEMPrintSettings(QMMMData,QMMMOpts,logFile);
     // End of section
@@ -192,16 +192,16 @@ int main(int argc, char* argv[])
     QMMMOpts.perOpt=QMMMOpts.maxOptSteps;
     QMMMOpts.perQM=QMMMOpts.MaxQMSteps;
 
-  } // End if master
+  } // End if controller
 
   // Start sharing info with workers
   Bcast_globals(root);
   MPI_Barrier(MPI_COMM_WORLD);
-  Bcast_settings(QMMMOpts,root,master);
+  Bcast_settings(QMMMOpts,root,controller);
   MPI_Barrier(MPI_COMM_WORLD);
 
   MPI_Barrier(MPI_COMM_WORLD);
-  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,root,master,Natoms);
+  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,root,controller,Natoms);
   MPI_Barrier(MPI_COMM_WORLD);
 
   // QSM optimization
@@ -283,7 +283,7 @@ int main(int argc, char* argv[])
     }
     
     // Print initial structure
-    if (master)
+    if (controller)
     {
       Print_traj(QMMMData,outFile,QMMMOpts);
     }
@@ -307,7 +307,7 @@ int main(int argc, char* argv[])
       1.0e9;
     */
 
-    if (master)
+    if (controller)
     { 
       logFile << '\n';
       logFile << "   -----------------------------";
@@ -347,7 +347,7 @@ int main(int argc, char* argv[])
     VectorXd reactCoord(QMMMOpts.NBeads); // Reaction coordinate
     reactCoord.setZero();
     // To tes mpi comment
-    if (master)
+    if (controller)
     {
       calc_react_coord(QMMMOpts, QMMMData,reactCoord);
 
@@ -367,7 +367,7 @@ int main(int argc, char* argv[])
     gradient = -1*force; // Convert it to gradient
 
     // Run optimization
-    if (master)
+    if (controller)
     {
       if (QMMMOpts.KeepFiles)
       {
@@ -376,7 +376,7 @@ int main(int argc, char* argv[])
       }
     }
 
-    if (master)
+    if (controller)
     {
       logFile << '\n' << endl;
       logFile << "     > Optimization Steps < " << endl;
@@ -387,7 +387,7 @@ int main(int argc, char* argv[])
 
     while ( (!PathDone) and (iter <= QMMMOpts.maxOptSteps)) /* macroiter)) */
     {
-      if (master)
+      if (controller)
       {
         logFile << "\n";
         logFile << "       ";
@@ -407,7 +407,7 @@ int main(int argc, char* argv[])
 
       if (iter==1)
       {
-        if (master)
+        if (controller)
         {
           logFile << "\n";
           logFile << "         ";
@@ -474,7 +474,7 @@ int main(int argc, char* argv[])
             MPI_Barrier(MPI_COMM_WORLD);
           } // Start: do if restrain is < 2
 
-          if (master)
+          if (controller)
           {
             if (QMMMOpts.KeepFiles  and
                 (((iter%QMMMOpts.perOpt)==0) or
@@ -506,7 +506,7 @@ int main(int argc, char* argv[])
                           iter,QMMMOpts,Eqmmm_images,
                           PathDone,logFile);
 
-          if (master)
+          if (controller)
           { 
             // Print bead energies
             getTSbead(QMMMOpts,Eqmmm_images);
@@ -521,7 +521,7 @@ int main(int argc, char* argv[])
             PathDone = 0; // Not converged
           }
           
-          if (master)
+          if (controller)
           {
             if (QMMMOpts.KeepFiles  and
                 (((iter%QMMMOpts.perOpt)==0) or
@@ -548,7 +548,7 @@ int main(int argc, char* argv[])
       } // End: if only QM
       
       // Print optimized geometry
-      if (master)
+      if (controller)
       {
         Print_traj(QMMMData,outFile,QMMMOpts);
         // Update wholepath from struct
@@ -563,7 +563,7 @@ int main(int argc, char* argv[])
                        RMSdiff, MAXforce, RMSforce,reactCoord,logFile);
       }
       
-      if (master)
+      if (controller)
       {
         if (QMMMOpts.KeepFiles  and
             (((iter%QMMMOpts.perOpt)==0) or
@@ -580,7 +580,7 @@ int main(int argc, char* argv[])
 
       if (PathDone and QMMM)
       {
-        if (master)
+        if (controller)
         {
           logFile << '\n';
           logFile << "               ";
@@ -592,7 +592,7 @@ int main(int argc, char* argv[])
       MPI_Barrier(MPI_COMM_WORLD);
     }
 
-    if (master)
+    if (controller)
     { 
       BurstTraj(QMMMData,QMMMOpts);
       logFile << '\n';
@@ -640,7 +640,7 @@ int main(int argc, char* argv[])
   // End of section
 
   // Start: HATICE
-  if (master)
+  if (controller)
   {
     // Clean up
 
@@ -733,7 +733,7 @@ int main(int argc, char* argv[])
     // Print a quote
     if (JOKES)
     {
-      if (master)
+      if (controller)
       {
         logFile << '\n';
         /*
@@ -758,7 +758,7 @@ int main(int argc, char* argv[])
     logFile.flush();
     // End of section
 
-  }// END if master
+  }// END if controller
 
   // Useless but supresses unused return errors for system calls
   int retValue; /* = globalSys; */

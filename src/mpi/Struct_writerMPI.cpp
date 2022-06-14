@@ -18,7 +18,7 @@
   # Functions to write Gaussian input in parallel LICHEM                      #
   # Includes:                                                                 #
   #                                                                           #
-  #            for master proc:                                               #
+  #            for controller proc:                                           #
   #                                                                           #
   #                            Writing input files :                          #
   #                                   void WriteGauInputMPI                   #

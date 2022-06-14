@@ -77,13 +77,13 @@ void Bcast_globals(int root)
   MPI_Bcast(&QSMSim,1,MPI::BOOL,root,MPI_COMM_WORLD);
   MPI_Bcast(&g09,1,MPI::BOOL,root,MPI_COMM_WORLD);
   /* MPI_Bcast(&g16,1,MPI::BOOL,root,MPI_COMM_WORLD); */
- 
+  
 }
 
 /*-------------------------------------------------------------------------*/
 
 void Bcast_settings(QMMMSettings& QMMMOpts,int root,
-                    bool master)
+                    bool controller)
 {
 
   // Integers
@@ -143,7 +143,7 @@ void Bcast_settings(QMMMSettings& QMMMOpts,int root,
   // Strings
   // Get size of strings
   int sz1,sz2,sz3,sz4,sz5,sz6;
-  if (master)
+  if (controller)
   {
     sz1 = QMMMOpts.func.size();
     sz2 = QMMMOpts.basis.size();
@@ -161,7 +161,7 @@ void Bcast_settings(QMMMSettings& QMMMOpts,int root,
   MPI_Bcast(&sz6,1,MPI_INT,root,MPI_COMM_WORLD);
 
   // Resize strings in worker procs
-  if (!master)
+  if (!controller)
   {
     QMMMOpts.func.resize(sz1);
     QMMMOpts.basis.resize(sz2);
@@ -183,7 +183,7 @@ void Bcast_settings(QMMMSettings& QMMMOpts,int root,
 /*-------------------------------------------------------------------------*/
 
 void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
-                   int Nbeads,int root,bool master,
+                   int Nbeads,int root,bool controller,
                    int Natoms)
 {
 
@@ -193,7 +193,7 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
   int myrank;
   MPI_Status stat;
   
-  if (!master)
+  if (!controller)
   {
     QMMMData.resize(Natoms);
   }
@@ -257,13 +257,13 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
     double z6; // Position of charge 6
   } mystruct;
   // Last member is MPI_UB to be safe
-  int blocklengths[45]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 
+  int blocklengths[45]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
                         1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 
-  MPI_Datatype types[45]={MPI::BOOL, 
+  MPI_Datatype types[45]={MPI::BOOL,
                           MPI_INT,
-                          MPI_INT, 
-                          MPI_INT, 
+                          MPI_INT,
+                          MPI_INT,
                           MPI_DOUBLE,
                           MPI_DOUBLE,
                           MPI_DOUBLE,
@@ -318,30 +318,30 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
   displacements[1] = boolex;                           // atom1
   displacements[2] = displacements[1] + intex;         // atom2
   displacements[3] = displacements[2] + intex;         // atom3
-  displacements[4] = displacements[3] + intex;         // q    
-  displacements[5] = displacements[4] + doubleex;      // Dx   
-  displacements[6] = displacements[5] + doubleex;      // Dy   
-  displacements[7] = displacements[6] + doubleex;      // Dz   
-  displacements[8] = displacements[7] + doubleex;      // IDx  
-  displacements[9] = displacements[8] + doubleex;      // IDy  
-  displacements[10]= displacements[9] + doubleex;      // IDz  
-  displacements[11]= displacements[10] + doubleex;     // Qxx  
-  displacements[12]= displacements[11] + doubleex;     // Qxy  
-  displacements[13]= displacements[12] + doubleex;     // Qxz  
-  displacements[14]= displacements[13] + doubleex;     // Qyy  
-  displacements[15]= displacements[14] + doubleex;     // Qyz  
-  displacements[16]= displacements[15] + doubleex;     // Qzz    
-  displacements[17]= displacements[16] + doubleex;     // cx   
-  displacements[18]= displacements[17] + doubleex;     // cy   
-  displacements[19]= displacements[18] + doubleex;     // cz    
-  displacements[20]= displacements[19] + doubleex;     // q1   
-  displacements[21]= displacements[20] + doubleex;     // q2   
-  displacements[22]= displacements[21] + doubleex;     // q3   
-  displacements[23]= displacements[22] + doubleex;     // q4   
-  displacements[24]= displacements[23] + doubleex;     // q5   
-  displacements[25]= displacements[24] + doubleex;     // q6   
-  displacements[26]= displacements[25] + doubleex;     // x1   
-  displacements[27]= displacements[26] + doubleex;     // y1   
+  displacements[4] = displacements[3] + intex;         // q
+  displacements[5] = displacements[4] + doubleex;      // Dx
+  displacements[6] = displacements[5] + doubleex;      // Dy
+  displacements[7] = displacements[6] + doubleex;      // Dz
+  displacements[8] = displacements[7] + doubleex;      // IDx
+  displacements[9] = displacements[8] + doubleex;      // IDy
+  displacements[10]= displacements[9] + doubleex;      // IDz
+  displacements[11]= displacements[10] + doubleex;     // Qxx
+  displacements[12]= displacements[11] + doubleex;     // Qxy
+  displacements[13]= displacements[12] + doubleex;     // Qxz
+  displacements[14]= displacements[13] + doubleex;     // Qyy
+  displacements[15]= displacements[14] + doubleex;     // Qyz
+  displacements[16]= displacements[15] + doubleex;     // Qzz
+  displacements[17]= displacements[16] + doubleex;     // cx
+  displacements[18]= displacements[17] + doubleex;     // cy
+  displacements[19]= displacements[18] + doubleex;     // cz
+  displacements[20]= displacements[19] + doubleex;     // q1
+  displacements[21]= displacements[20] + doubleex;     // q2
+  displacements[22]= displacements[21] + doubleex;     // q3
+  displacements[23]= displacements[22] + doubleex;     // q4
+  displacements[24]= displacements[23] + doubleex;     // q5
+  displacements[25]= displacements[24] + doubleex;     // q6
+  displacements[26]= displacements[25] + doubleex;     // x1
+  displacements[27]= displacements[26] + doubleex;     // y1
   displacements[28]= displacements[27] + doubleex;     // z1
   displacements[29]= displacements[28] + doubleex;     // x2
   displacements[30]= displacements[29] + doubleex;     // y2
@@ -371,28 +371,28 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
   //      Frozen ends!!!
   //
   //         i.e. : Nbeads = 9, Nimages=7
-  //                for load balance 
+  //                for load balance
   //                nproc should be 7
   //
   //         beads: 0 1 2 3 4 5 6 7 8
   //         procs: 0 0 1 2 3 4 5 6 6
   //
   //         i.e. : Nbeads = 8, Nimages=6
-  //                for load balance 
+  //                for load balance
   //                nproc should be 2, 3, 6
-  //   
+  //
   //         nproc: 2
   //         beads: 0 1 2 3 4 5 6 7
   //         procs: 0 0 1 0 1 0 1 1
-  //   
+  //
   //         nproc: 3 (not very good load balance)
   //         beads: 0 1 2 3 4 5 6 7
   //         procs: 0 0 1 2 0 1 2 2
-  //   
-  //         nproc: 6       
+  //
+  //         nproc: 6
   //         beads: 0 1 2 3 4 5 6 7
-  //         procs: 0 0 1 2 3 4 5 5 
-  // 
+  //         procs: 0 0 1 2 3 4 5 5
+  //
 
     receiver = (j%nprocs)-1; // Check for !FrozenEnds
     // Send product to last processor
@@ -405,7 +405,7 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
       receiver = nprocs - 1; // Last proc
     }
     /*
-      if (master)
+      if (controller)
       {
         cout << "receiver: " << receiver << "\n" << endl;
       }
@@ -420,7 +420,7 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
       // Mpole,coord and octahedral charge size
       int mpsize, csize, ocsize;
       // Sizes
-      if (master)
+      if (controller)
       {
           sz1 = QMMMData[i].QMTyp.size();
           sz2 = QMMMData[i].MMTyp.size();
@@ -432,7 +432,7 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
       if (receiver!=root) // Start sending
       {
         /* if root proc, start sending info */
-        if (master)
+        if (controller)
         {
           // Doubles
           MPI_Send(&QMMMData[i].Ep,1,MPI_DOUBLE,receiver,101,MPI_COMM_WORLD);
@@ -468,7 +468,7 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
                     receiver,111,MPI_COMM_WORLD);
 
           // Strings
-        
+
           // Send the size of strings
           MPI_Send(&sz1,1,MPI_INT,receiver,112,MPI_COMM_WORLD);
           MPI_Send(&sz2,1,MPI_INT,receiver,113,MPI_COMM_WORLD);
@@ -497,10 +497,10 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
 
           // Send Mpole class as struct
           // Set var
-          mystruct.chiralFlip= QMMMData[i].MP[j].chiralFlip; 
-          mystruct.atom1 = QMMMData[i].MP[j].atom1; 
-          mystruct.atom2 = QMMMData[i].MP[j].atom2; 
-          mystruct.atom3 = QMMMData[i].MP[j].atom3; 
+          mystruct.chiralFlip= QMMMData[i].MP[j].chiralFlip;
+          mystruct.atom1 = QMMMData[i].MP[j].atom1;
+          mystruct.atom2 = QMMMData[i].MP[j].atom2;
+          mystruct.atom3 = QMMMData[i].MP[j].atom3;
           mystruct.q = QMMMData[i].MP[j].q;
           mystruct.Dx = QMMMData[i].MP[j].Dx;
           mystruct.Dy = QMMMData[i].MP[j].Dy;
@@ -516,8 +516,8 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
           mystruct.Qzz = QMMMData[i].MP[j].Qzz;
           // Coords
           mystruct.cx = QMMMData[i].P[j].x;
-          mystruct.cy = QMMMData[i].P[j].y; 
-          mystruct.cz = QMMMData[i].P[j].z;   
+          mystruct.cy = QMMMData[i].P[j].y;
+          mystruct.cz = QMMMData[i].P[j].z;
           // Octahedral Charges
           mystruct.q1 = QMMMData[i].PC[j].q1;
           mystruct.q2 = QMMMData[i].PC[j].q2;
@@ -542,7 +542,7 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
           mystruct.z5 = QMMMData[i].PC[j].z5;
           mystruct.x6 = QMMMData[i].PC[j].x6;
           mystruct.y6 = QMMMData[i].PC[j].y6;
-          mystruct.z6 = QMMMData[i].PC[j].z6;     
+          mystruct.z6 = QMMMData[i].PC[j].z6;
           MPI_Send(&mystruct,1,mystruct_type,receiver,1001,MPI_COMM_WORLD);
           
           MPI_Send(&sz3,1,MPI_INT,receiver,1132,MPI_COMM_WORLD);
@@ -552,7 +552,7 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
             MPI_Send(&QMMMData[i].MP[j].type,sz3+1,MPI_CHAR,
                       receiver,1152,MPI_COMM_WORLD);
           }
-        }// End if master
+        }// End if controller
 
         // If worker proc, start receiving info
         if ((myrank==receiver))
@@ -610,7 +610,7 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
           // Receive size
           MPI_Recv(&bsz,1,MPI_INT,root,116,MPI_COMM_WORLD,&stat);
           // Resize
-          QMMMData[i].bonds.resize(bsz);            
+          QMMMData[i].bonds.resize(bsz);
           // Receive vector
           MPI_Recv(&QMMMData[i].bonds[0],bsz,MPI_INT,
                     root,121,MPI_COMM_WORLD,&stat);
@@ -624,17 +624,17 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
           QMMMData[i].P.resize(csize);
           QMMMData[i].PC.resize(ocsize);
 
-          /* 
+          /*
             cout << "Proc-" << myrank << " start receiving mystruct\n" << endl;
           */
 
           // Receive mpole class
           MPI_Recv(&mystruct,1,mystruct_type,root,1001,MPI_COMM_WORLD,&stat);
           // Set class inst.
-          QMMMData[i].MP[j].chiralFlip = mystruct.chiralFlip;   
-          QMMMData[i].MP[j].atom1 = mystruct.atom1;   
-          QMMMData[i].MP[j].atom2 = mystruct.atom2;   
-          QMMMData[i].MP[j].atom3 = mystruct.atom3;   
+          QMMMData[i].MP[j].chiralFlip = mystruct.chiralFlip;
+          QMMMData[i].MP[j].atom1 = mystruct.atom1;
+          QMMMData[i].MP[j].atom2 = mystruct.atom2;
+          QMMMData[i].MP[j].atom3 = mystruct.atom3;
           QMMMData[i].MP[j].q = mystruct.q;
           QMMMData[i].MP[j].Dx = mystruct.Dx;
           QMMMData[i].MP[j].Dy = mystruct.Dy;
@@ -676,7 +676,7 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
           QMMMData[i].PC[j].z5 = mystruct.z5;
           QMMMData[i].PC[j].x6 = mystruct.x6;
           QMMMData[i].PC[j].y6 = mystruct.y6;
-          QMMMData[i].PC[j].z6 = mystruct.z6; 
+          QMMMData[i].PC[j].z6 = mystruct.z6;
 
           /*
             cout << "Proc-" << myrank;

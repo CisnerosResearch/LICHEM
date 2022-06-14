@@ -18,7 +18,7 @@
   # Functions for Gaussian in parallel LICHEM                                 #
   # Includes:                                                                 #
   #                                                                           #
-  #            for master proc:                                               #
+  #            for controller proc:                                           #
   #                                                                           #
   #                            Writing input files :                          #
   #                                   void GaussianForcesMPIWrite             #
