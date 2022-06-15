@@ -301,7 +301,16 @@ void TINKERInduced(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   outFile.close();
   // Calculate induced dipoles using dynamic
   call.str("");
-  call << "dynamic LICHM_" << bead << ".xyz ";
+  // Fix for Tinker9
+  if (TinkVers == "tinker9")
+  {
+    call << "tinker9 dynamic LICHM_" << bead << ".xyz ";
+  }
+  else
+  {
+    call << "dynamic LICHM_" << bead << ".xyz ";
+  }
+  /* call << "dynamic LICHM_" << bead << ".xyz "; */
   call << "1 1e-4 1e-7 2 0 > LICHM_" << bead << ".log";
   globalSys = system(call.str().c_str());
   // Extract induced dipoles from the MD cycle file
@@ -565,7 +574,9 @@ double TINKERPolEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   if (TinkVers == "tinker9")
   {
     call << "tinker9 analyze LICHM_";
-  } else {
+  }
+  else
+  {
     call << "analyze LICHM_";
   }
   /* call << "analyze LICHM_"; */
@@ -861,7 +872,16 @@ double TINKERForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   outFile.close();
   // Run MM
   call.str("");
-  call << "testgrad ";
+  // Fix for Tinker9
+  if (TinkVers == "tinker9")
+  {
+    call << "tinker9 testgrad ";
+  }
+  else
+  {
+    call << "testgrad ";
+  }
+  /* call << "testgrad "; */
   call << "LICHM_" << bead << ".xyz";
   call << " Y N N > ";
   call << "LICHM_" << bead << ".grad";
@@ -1155,7 +1175,16 @@ double TINKERMMForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   outFile.close();
   // Run MM
   call.str("");
-  call << "testgrad ";
+  // Fix for Tinker9
+  if (TinkVers == "tinker9")
+  {
+    call << "tinker9 testgrad ";
+  }
+  else
+  {
+    call << "testgrad ";
+  }
+  /* call << "testgrad "; */
   call << "LICHM_" << bead << ".xyz";
   call << " Y N N > ";
   call << "LICHM_" << bead << ".grad";
@@ -1453,7 +1482,16 @@ double TINKERPolForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   outFile.close();
   // Run MM
   call.str("");
-  call << "testgrad ";
+  // Fix for Tinker9
+  if (TinkVers == "tinker9")
+  {
+    call << "tinker9 testgrad ";
+  }
+  else
+  {
+    call << "testgrad ";
+  }
+  /* call << "testgrad "; */
   call << "LICHM_" << bead << ".xyz";
   call << " Y N N > ";
   call << "LICHM_" << bead << ".grad";
@@ -1747,7 +1785,9 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   if (TinkVers == "tinker9")
   {
     call << "tinker9 analyze LICHM_";
-  } else {
+  }
+  else
+  {
     call << "analyze LICHM_";
   }
   /* call << "analyze LICHM_"; */
@@ -2038,7 +2078,17 @@ MatrixXd TINKERHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   outFile.close();
   // Run MM
   call.str("");
-  call << "testhess ";
+  // Fix for Tinker9
+  if (TinkVers == "tinker9")
+  {
+    cout << "\nWARNING: testhess may not exist in Tinker9\n";
+    call << "tinker9 testhess ";
+  }
+  else
+  {
+    call << "testhess ";
+  }
+  /* call << "testhess "; */
   call << "LICHM_" << bead << ".xyz";
   call << " Y N > ";
   call << "LICHM_" << bead << ".log";
@@ -2420,7 +2470,16 @@ double TINKEROpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
   outFile.close();
   // Run optimization
   call.str("");
-  call << "minimize LICHM_";
+  // Fix for Tinker9
+  if (TinkVers == "tinker9")
+  {
+    call << "tinker9 minimize LICHM_";
+  }
+  else
+  {
+    call << "minimize LICHM_";
+  }
+  /* call << "minimize LICHM_"; */
   call << bead << ".xyz ";
   call << QMMMOpts.MMOptTol << " > LICHM_";
   call << bead << ".log";

@@ -1816,7 +1816,16 @@ void TINKERForcesMPI(vector<int> mybead_list,
 
     // Input file
     call.str("");
-    call << "testgrad ";
+    // Fix for Tinker9
+    if (TinkVers == "tinker9")
+    {
+      call << "tinker9 testgrad ";
+    }
+    else
+    {
+      call << "testgrad ";
+    }
+    /* call << "testgrad "; */
     call << "LICHM_TINKERForces_" << p << ".xyz";
     call << " Y N N > ";
     call << "LICHM_TINKERForces_" << p << ".grad";
@@ -1898,7 +1907,16 @@ void TINKERPolForcesMPI(vector<int> mybead_list,
 
     // Input file
     call.str("");
-    call << "testgrad ";
+    // Fix for Tinker9
+    if (TinkVers == "tinker9")
+    {
+      call << "tinker9 testgrad ";
+    }
+    else
+    {
+      call << "testgrad ";
+    }
+    /* call << "testgrad "; */
     call << "LICHM_TINKERPolForces_" << p << ".xyz";
     call << " Y N N > ";
     call << "LICHM_TINKERPolForces_" << p << ".grad";
@@ -1979,7 +1997,16 @@ void TINKEREnergyMPI(vector<int> mybead_list,
 
         // Input file
         call.str("");
-        call << "analyze LICHM_TINKEREnergy_";
+        // Fix for Tinker9
+        if (TinkVers == "tinker9")
+        {
+          call << "tinker9 analyze LICHM_TINKEREnergy_";
+        }
+        else
+        {
+          call << "analyze LICHM_TINKEREnergy_";
+        }
+        /* call << "analyze LICHM_TINKEREnergy_"; */
         call << p << ".xyz E > LICHM_TINKEREnergy_";
         call << p << ".log";
 
@@ -2059,7 +2086,16 @@ void TINKERPolEnergyMPI(vector<int> mybead_list,
 
     // Input file
     call.str("");
-    call << "analyze LICHM_TINKERPolEnergy_";
+    // Fix for Tinker9
+    if (TinkVers == "tinker9")
+    {
+      call << "tinker9 analyze LICHM_TINKERPolEnergy_";
+    }
+    else
+    {
+      call << "analyze LICHM_TINKERPolEnergy_";
+    }
+    /* call << "analyze LICHM_TINKERPolEnergy_"; */
     call << p << ".xyz E > LICHM_TINKERPolEnergy_";
     call << p << ".log";
 
@@ -2139,7 +2175,16 @@ void TINKEROptMPI(vector<int> mybead_list,
 
     // Input file
     call.str("");
-    call << "minimize LICHM_TINKEROpt_";
+    // Fix for Tinker9
+    if (TinkVers == "tinker9")
+    {
+      call << "tinker9 minimize LICHM_TINKEROpt_";
+    }
+    else
+    {
+      call << "minimize LICHM_TINKEROpt_";
+    }
+    /* call << "minimize LICHM_TINKEROpt_"; */
     call << p << ".xyz ";
     call << QMMMOpts.MMOptTol << " > LICHM_TINKEROpt_";
     call << p << ".log";

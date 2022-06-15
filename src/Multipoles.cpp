@@ -81,7 +81,20 @@ void ExtractTINKpoles(vector<QMMMAtom>& QMMMData, int bead)
   outFile.close();
   // Run poledit
   call.str("");
-  call << "poledit < LICHM_" << bead << ".txt > LICHM_" << bead << ".out";
+  // Fix for Tinker9
+  if (TinkVers == "tinker9")
+  {
+    cout << "\nWARNING: poledit may not exist in Tinker9\n";
+    call << "tinker9 poledit < LICHM_" << bead;
+    call << ".txt > LICHM_" << bead << ".out";
+  }
+  else
+  {
+    call << "poledit < LICHM_" << bead << ".txt > LICHM_" << bead << ".out";
+  }
+  /*
+    call << "poledit < LICHM_" << bead << ".txt > LICHM_" << bead << ".out";
+  */
   globalSys = system(call.str().c_str());
   // Extract multipole frames
   call.str("");
