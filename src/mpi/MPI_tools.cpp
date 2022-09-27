@@ -83,7 +83,7 @@ void Bcast_globals(int root)
 /*-------------------------------------------------------------------------*/
 
 void Bcast_settings(QMMMSettings& QMMMOpts,int root,
-                    bool controller)
+                    bool primaryCPU)
 {
 
   // Integers
@@ -143,7 +143,7 @@ void Bcast_settings(QMMMSettings& QMMMOpts,int root,
   // Strings
   // Get size of strings
   int sz1,sz2,sz3,sz4,sz5,sz6;
-  if (controller)
+  if (primaryCPU)
   {
     sz1 = QMMMOpts.func.size();
     sz2 = QMMMOpts.basis.size();
@@ -161,7 +161,7 @@ void Bcast_settings(QMMMSettings& QMMMOpts,int root,
   MPI_Bcast(&sz6,1,MPI_INT,root,MPI_COMM_WORLD);
 
   // Resize strings in worker procs
-  if (!controller)
+  if (!primaryCPU)
   {
     QMMMOpts.func.resize(sz1);
     QMMMOpts.basis.resize(sz2);
@@ -183,7 +183,7 @@ void Bcast_settings(QMMMSettings& QMMMOpts,int root,
 /*-------------------------------------------------------------------------*/
 
 void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
-                   int Nbeads,int root,bool controller,
+                   int Nbeads,int root,bool primaryCPU,
                    int Natoms)
 {
 
@@ -193,7 +193,7 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
   int myrank;
   MPI_Status stat;
   
-  if (!controller)
+  if (!primaryCPU)
   {
     QMMMData.resize(Natoms);
   }
@@ -405,7 +405,7 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
       receiver = nprocs - 1; // Last proc
     }
     /*
-      if (controller)
+      if (primaryCPU)
       {
         cout << "receiver: " << receiver << "\n" << endl;
       }
@@ -420,7 +420,7 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
       // Mpole,coord and octahedral charge size
       int mpsize, csize, ocsize;
       // Sizes
-      if (controller)
+      if (primaryCPU)
       {
           sz1 = QMMMData[i].QMTyp.size();
           sz2 = QMMMData[i].MMTyp.size();
@@ -432,7 +432,7 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
       if (receiver!=root) // Start sending
       {
         /* if root proc, start sending info */
-        if (controller)
+        if (primaryCPU)
         {
           // Doubles
           MPI_Send(&QMMMData[i].Ep,1,MPI_DOUBLE,receiver,101,MPI_COMM_WORLD);
@@ -552,7 +552,7 @@ void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
             MPI_Send(&QMMMData[i].MP[j].type,sz3+1,MPI_CHAR,
                       receiver,1152,MPI_COMM_WORLD);
           }
-        }// End if controller
+        }// End if primaryCPU
 
         // If worker proc, start receiving info
         if ((myrank==receiver))

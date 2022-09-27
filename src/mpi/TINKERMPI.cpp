@@ -18,7 +18,7 @@
   # Functions for TINKER in parallel LICHEM                                   #
   # Includes:                                                                 #
   #                                                                           #
-  #            for controller proc:                                           #
+  #            for primary proc:                                              #
   #                                                                           #
   #                            Writing input files :                          #
   #                                   void TINKERForcesMPIWrite               #

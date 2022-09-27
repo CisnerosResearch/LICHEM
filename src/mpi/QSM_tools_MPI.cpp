@@ -50,10 +50,10 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   MPI_Status stat;
 
   int mysize;
-  bool controller=false;
+  bool primaryCPU=false;
   if (wrank==0)
   {
-    controller=true;
+    primaryCPU=true;
   }
   // Set end points for the optimization
   int PathStart = 0;
@@ -187,7 +187,7 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
 
   // Charges are updated after QM
   //  send QMMData to everyone
-  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,controller,Natoms);
+  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,primaryCPU,Natoms);
   MPI_Barrier(MPI_COMM_WORLD);
 
 
@@ -333,7 +333,7 @@ double CalcForcesMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
 
 
   // Update QMMMData on cores
-  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,controller,Natoms);
+  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,primaryCPU,Natoms);
   MPI_Barrier(MPI_COMM_WORLD);
 
 }
@@ -405,10 +405,10 @@ double runMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   mysize=mybead_list.size();
 
   int root=0;
-  bool controller=false;
+  bool primaryCPU=false;
   if (wrank==0)
   {
-    controller=true;
+    primaryCPU=true;
   }
   if (wrank==0)
   {
@@ -472,7 +472,7 @@ double runMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     logFile << '\n';
   }
 
-  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,controller,Natoms);
+  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,primaryCPU,Natoms);
   MPI_Barrier(MPI_COMM_WORLD);
 
 }
@@ -544,10 +544,10 @@ double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   mysize=mybead_list.size();
 
   int root=0;
-  bool controller=false;
+  bool primaryCPU=false;
   if (wrank==0)
   {
-    controller=true;
+    primaryCPU=true;
   }
   if (wrank==0)
   {
@@ -615,7 +615,7 @@ double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
 
 
   // Update QMMMData
-  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,controller,Natoms);
+  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,primaryCPU,Natoms);
   MPI_Barrier(MPI_COMM_WORLD);
 
 }
@@ -704,10 +704,10 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
 
 
   int root=0;
-  bool controller=false;
+  bool primaryCPU=false;
   if (wrank==0)
   {
-    controller=true;
+    primaryCPU=true;
   }
   VectorXd Emm(QMMMOpts.NBeads);
   VectorXd Eqm(QMMMOpts.NBeads);
@@ -732,7 +732,7 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
   // Calculate Energy (QM part)
   if (Gaussian)
   {
-    // If global controller, write input files
+    // If global primaryCPU, write input files
     int tstart = (unsigned)time(0);
     GaussianEnergyMPI(mybead_list,mysize,PathStart,PathEnd);
     QMTime += (unsigned)time(0)-tstart;
@@ -756,7 +756,7 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
 
   // Charges are updated after QM
   // Send QMMData to everyone
-  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,controller,Natoms);
+  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,primaryCPU,Natoms);
   MPI_Barrier(MPI_COMM_WORLD);
 
   // START: WRITING TINKER
@@ -879,7 +879,7 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData,
   MPI_Bcast(&PathDone,1,MPI::BOOL,root,MPI_COMM_WORLD);
 
   // Update QMMMData
-  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,controller,Natoms);
+  Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,primaryCPU,Natoms);
   MPI_Barrier(MPI_COMM_WORLD);
 
   /* return PathDone; */

@@ -118,10 +118,10 @@ void CalcFreq(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,fstream&);
 // MPI_Tools
 void Bcast_globals(int root);
 void Bcast_settings(QMMMSettings& QMMMOpts,int root,
-                    bool controller);
+                    bool primaryCPU);
 
 void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
-                   int Nbeads,int root,bool controller,
+                   int Nbeads,int root,bool primaryCPU,
                    int Natoms);
 
 void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,

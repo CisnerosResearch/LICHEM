@@ -38,14 +38,14 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
 
   /* For MPI */
   int Worldrank, Worldsize,root;
-  bool controller;
+  bool primaryCPU;
   MPI_Comm_rank(MPI_COMM_WORLD, &Worldrank);
   MPI_Comm_size(MPI_COMM_WORLD, &Worldsize);
   root=0;
-  controller=false;
+  primaryCPU=false;
   if (Worldrank==0)
   {
-    controller=true;
+    primaryCPU=true;
   }
   int stepct = 0; // Counter for optimization steps
   int Ndof = 3*(Nqm+Npseudo); // Number of QM and PB degrees of freedom
@@ -161,7 +161,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
   vector<QMMMAtom> OldQMMMData;
 
   weight.setZero();
-  if (controller)
+  if (primaryCPU)
   {
     for (int i=0;i<Natoms;i++)
     {
@@ -213,7 +213,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
 
   while ( (!PathDoneQM) and (qsmiter < maxiter))
   {
-      if (controller)
+      if (primaryCPU)
       {
         logFile << '\n';
         logFile << "            ";
@@ -243,7 +243,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
           gfile.open(call.str().c_str(),ios_base::out);
         }
 
-      } // End if controller
+      } // End if primaryCPU
 
       // qsm iter start from 1
       if (macroiter==1 and qsmiter==0)
@@ -252,7 +252,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
       // starting optimization
       {
 
-        if (controller)
+        if (primaryCPU)
         {
           logFile << '\n';
           logFile << "               ";
@@ -266,12 +266,12 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
           print_progress(QMMMOpts, 1,Eqmmm_images,
                         RMSdiff, MAXforce, RMSforce,reactCoord,logFile);
 
-        } // End if controller
+        } // End if primaryCPU
 
       }
       else
       {
-        if (controller)
+        if (primaryCPU)
         {
           logFile << '\n';
           logFile << "               ";
@@ -280,12 +280,12 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
           // Run optimization
           logFile << '\n';
           logFile.flush(); // Print progress
-        } // End if controller
+        } // End if primaryCPU
 
         CalcForcesMPI(QMMMData,QMMMOpts,Eqm_images, Emm_images,
                       Eqmmm_images,force,beadsize,QMdim,false,logFile);
 
-        if (controller)
+        if (primaryCPU)
         {
           // Print bead energies
           print_progress(QMMMOpts, 0,Eqmmm_images,
@@ -313,11 +313,11 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
               save_files(0,qsmiter,logFile);
             }
           */
-        } // End if controller
+        } // End if primaryCPU
 
       } // End if (macroiter==1 and qsmiter==0)
 
-      if (controller)
+      if (primaryCPU)
       {
         //#pragma omp parallel for
         for (int k = 1; k < Nimages+1; k++)
@@ -333,12 +333,12 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
           energy(k-1) = Eqmmm_images(k);
         }
         //#pragma omp barrier
-      } // End if controller
+      } // End if primaryCPU
 
       // Start:: if first time
       if (first_time)
       {
-        if (controller)
+        if (primaryCPU)
         {
           // Initialize hessians as identity matrices
           init_Hess(Hessmat,beadsize,Nimages);
@@ -375,7 +375,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
             Hessmat.block(srow,0,rsize,csize)=tmpH;
           
           }
-        } // End if controller
+        } // End if primaryCPU
         first_time = false;
 
       } // End:: first time
@@ -383,7 +383,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
       else
       {
 
-        if (controller)
+        if (primaryCPU)
         {
           // Computes equad&gquad of images btw react and prod
           quad_app(wholepath,oldpath,Hessmat,forcefrz,Eqmmm_images,
@@ -467,7 +467,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
           print_progress(QMMMOpts, 2, Eqmmm_images,
                         RMSdiff, MAXforce, RMSforce,reactCoord,logFile);
 
-        } // End if controller
+        } // End if primaryCPU
 
         /* bcast PathDone to everyone*/
         MPI_Bcast(&PathDoneQM,1,MPI::BOOL,root,MPI_COMM_WORLD);
@@ -483,7 +483,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
         /* if (PathDoneQM or (max_dfval<ftol)) */
         if (PathDoneQM or (max_dfval*bohrRad<ftol))
         {
-          if (controller)
+          if (primaryCPU)
           {
             logFile << "\n";
             logFile << "\n";
@@ -531,11 +531,11 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
 
             }
 
-          } // End if controller
+          } // End if primaryCPU
           QMDone = PathDoneQM;
 
 
-          Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,controller,Natoms);
+          Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,primaryCPU,Natoms);
           MPI_Barrier(MPI_COMM_WORLD);
           // Finish and return
           return; /* break; */
@@ -546,7 +546,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
       /* alignment(wholepath,Nimages,beadsize,aligned); */
       // Integrate to TRs or until finished ###
       // Copy old structure and forces
-      if (controller)
+      if (primaryCPU)
       {
         OldQMMMData = QMMMData; // Save structure
         oldpath=wholepath;
@@ -568,11 +568,11 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
           gfile << setprecision(17) << force << endl;
           gfile.flush();
         }
-      } // End if controller
+      } // End if primaryCPU
 
       for (int iter=0; iter<4; iter++)
       {
-        if (controller)
+        if (primaryCPU)
         { 
 
           if (iter>0)
@@ -595,14 +595,14 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
             pathfile << setprecision(17) << wholepath << endl;
             pathfile.flush();
           }
-        } // End if controller
+        } // End if primaryCPU
 
         MPI_Bcast(&dftol,1,MPI_DOUBLE,root,MPI_COMM_WORLD);
         MPI_Barrier(MPI_COMM_WORLD);
 
         if (dftol < ftol/10)
         {
-          if (controller)
+          if (primaryCPU)
           {
             logFile << "                   ";
             logFile << "dftol < ftol/10." << endl;
@@ -610,16 +610,16 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
             struct_to_path = false;
             updatepath(wholepath,QMMMData,QMMMOpts,
                       beadsize,Natoms,struct_to_path);
-          } // End if controller
+          } // End if primaryCPU
 
           // Update QMMMData
-          Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,controller,Natoms);
+          Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,primaryCPU,Natoms);
           MPI_Barrier(MPI_COMM_WORLD);
           break; /* return; */
         }
       } 
 
-      if (controller)
+      if (primaryCPU)
       {
         // Space out if necessary
         eqcons=0.0;
@@ -688,9 +688,9 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
         } // End:: Space out if necessary
         logFile << '\n';
       
-      } // End if controller
+      } // End if primaryCPU
 
-      if (controller)
+      if (primaryCPU)
       {
         struct_to_path = false;
         updatepath(wholepath,QMMMData,QMMMOpts,
@@ -700,7 +700,7 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
       qsmiter += 1;
       if (QMMMOpts.debug)
       {
-        if (controller)
+        if (primaryCPU)
         {
           hessfile.close();
           initfile.close();
@@ -708,12 +708,12 @@ void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
           gfile.close();
         }
       }
-      Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,controller,Natoms);
+      Send_qmmmdata(QMMMData,QMMMOpts.NBeads,0,primaryCPU,Natoms);
       MPI_Barrier(MPI_COMM_WORLD);
 
   } // End while loop. qm part finished
 
-  if (controller)
+  if (primaryCPU)
   {
 
     if (QMMMOpts.debug)
