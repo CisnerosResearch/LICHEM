@@ -11,20 +11,21 @@ LICHEM: Layered Interacting CHEmical Models
 <div align=center> <h3> Symbiotic Computational Chemistry </h3> </div>
 ***
 
-### LICHEM: A QM/MM interface for polarizable force fields
+### LICHEM: A QM/MM Interface for Polarizable Force Fields
 
-[![GPL license](https://img.shields.io/badge/license-GPLv3-blue.svg?style=flat)](https://github.com/CisnerosResearch/LICHEM/blob/master/src/GPL_LICENSE)
+[![GPL license](https://img.shields.io/badge/license-GPLv3-blue.svg?style=flat)](https://github.com/CisnerosResearch/LICHEM/blob/main/src/GPL_LICENSE)
 
 [![Build Status](https://github.com/CisnerosResearch/LICHEM/workflows/LICHEM-Build/badge.svg)](https://github.com/CisnerosResearch/LICHEM/actions)
 
-### Automated tests
+### Automated Tests
 
 ### Introduction
 
 This package is an open-source (GPLv3) interface between QM and MM software
 so that QM/MM calculations can be performed with polarizable and frozen
-electron density force fields. Functionality is also present for standard
-point-charge based force fields, pure MM, and pure QM calculations.
+electron density force fields.
+Functionality is also present for standard point-charge based force fields,
+pure MM, and pure QM calculations.
 
 Available calculations: single-point energies, geometry optimizations,
 classical Monte Carlo, path-integral Monte Carlo, and reaction pathways.
@@ -44,18 +45,21 @@ If you use LICHEM in your research, please cite the following papers:
 Kratz, E.G.; Walker, A.R.; Lagardere, L; Lipparini, F; Piquemal, J.-P.; and
 Cisneros, G.A.; "LICHEM: A QM/MM Program for Simulations with Multipolar and
 Polarizable Force Fields", J. Comput. Chem., 37, 11, 1019, (2016).
+DOI: 10.1002/jcc.24295
 ```
 
 ```
-Gokcan H., Vazquez-Montelongo E.A., Cisneros G.A., “LICHEM 1.1: Recent Improvements
-and New Capabilities”, J. Chem. Theo. Comput., 15, 3056, (2019).
+Gokcan H., Vazquez-Montelongo E.A., Cisneros G.A., “LICHEM 1.1: Recent
+Improvements and New Capabilities”, J. Chem. Theo. Comput., 15, 3056, (2019).
+DOI: 10.1021/acs.jctc.9b00028
 ```
 ### Installation
 
 Currently, the binary and user's manual are not included in the repository.
-However, the Makefile can be used to generate both files. Since LICHEM is
-designed to be simple, only a small number of packages are required to compile
-the code. An approximate list of packages is given below.
+However, the Makefile can be used to generate both files.
+Since LICHEM is designed to be simple, only a small number of packages are
+required to compile the code.
+An approximate list of packages is given below.
 ```
  LICHEM binary: OpenMP, (MPI if hybrid-parallel QSM is desired)
  LICHEM test suite: Python
@@ -77,15 +81,17 @@ the SEDI, TEX, BIB, and CXXFLAGS variables will need to be modified.
 A configure file is provided to set up either serial or parallel build.
 
 The Makefile can produce both the documentation and the binary.
-```
+```bash
 user:$ ./configure
 ```
-```
+> Note: Use `./configure --parallel` for a parallel installation.
+
+```bash
 user:$ make install
 ```
 
 For development, debugging, or testing an alternate binary can be compiled.
-```
+```bash
 user:$ make Dev
 ```
 
@@ -100,23 +106,29 @@ package management systems.
 
 ### Updates
 
-LICHEM is still in the early stages of development. Please report all bugs so
-that the code can be updated quickly. Bugs should be reported through the
-GitHub issues interface. A list of known issues and the development timeline
-are available in the doc directory or on the GitHub page.
+LICHEM is still in the early stages of development.
+Please report all bugs so that the code can be updated quickly.
+Bugs should be reported through the
+[GitHub issues interface](https://github.com/CisnerosResearch/LICHEM/issues).
+A list of known issues and the development timeline are available in the
+[doc directory](https://github.com/CisnerosResearch/LICHEM/tree/main/doc)
+or on the
+[GitHub page](https://github.com/CisnerosResearch/LICHEM).
 
-Development versions of LICHEM are kept in a private repository. Large changes
-to the code or the addition of new features (diffuse charges, reaction path
-ways, etc) are tested and published before they are merged into the public
-repository. To ensure that LICHEM compiles properly, dummy function calls are
+Development versions of LICHEM are kept in a private repository.
+Large changes to the code or the addition of new features (diffuse charges,
+reaction pathways, etc.) are tested and published before they are merged
+into the public repository.
+To ensure that LICHEM compiles properly, dummy function calls are
 added for incomplete or untested features.
 
 Relatively minor updates (documentation, output printing, bug fixes, comments,
-etc) are released ASAP. Updates from the private development branch are
-generally merged into the public repository as a single commit.
+etc) are released ASAP.
+Updates from the private development branch are generally merged into the
+public repository as a single commit.
 
-Further development details can be found in the doc directory, or the GitHub
-issues section.
+Further development details can be found in the doc directory, or the
+[GitHub issues](https://github.com/CisnerosResearch/LICHEM/issues).
 
 ### Jokes
 
@@ -132,7 +144,7 @@ before compiling the code.
 
 ### Testing
 
-Test calculations can be performed with the runtests script in the tests
+Test calculations can be performed with the `runtests` script in the tests
 directory.
 
 Tests can be performed for pairs of QM and MM wrappers.
@@ -157,11 +169,11 @@ section.
 ### Development
 
 The development of LICHEM is supported by funding from NIGMS/NIH (Grant No.
-R01GM108583) and NSF (Grant No. CHE-1856162). Initial funding support from 
-Wayne State University is gratefully acknowledged. LICHEM is maintained by 
-the Cisneros research group at the University of Texas at Dallas.
+R01GM108583) and NSF (Grant No. CHE-1856162).
+Initial funding support from Wayne State University is gratefully acknowledged.
+LICHEM is maintained by the Cisneros Research Group at the
+University of Texas at Dallas.
 
 Developers:
-<ul>
-  <li>Cisneros research group, University of Texas at Dallas
-</ul>
+
+- Cisneros Research Group, University of Texas at Dallas

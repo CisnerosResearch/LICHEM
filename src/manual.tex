@@ -9,26 +9,90 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-%Documentation for LICHEM copyright 2014-2016
+% Documentation for LICHEM copyright 2014-2022
 %                 Eric G. Kratz, Hatice Gokcan, Alice Walker,             %
 %                 Erik Vazquez-Montelongo, G. Andres Cisneros             %
 
-%Package settings
+% Package settings
 \documentclass[12pt]{report}
-\usepackage[hidelinks,bookmarks]{hyperref}
+\usepackage[bookmarks,linktoc=all]{hyperref}%hidelinks,
 \usepackage[margin=0.75in]{geometry}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \usepackage{color}
-\renewcommand{\familydefault}{\sfdefault}
+\usepackage{longtable}
+\usepackage{breqn}
+\usepackage{array}
+\usepackage[biblabel=period, doi=true, articletitle=true]{achemso}
+\usepackage{doi}
+\renewcommand{\doitext}{}
+\usepackage[depth=subsubsection]{bookmark} % Allow TOC PDF bookmarks
+% WARNING: Adding \usepackage[english]{babel} will likely break tables!!!
 
-%Formatting settings
+% Print URLs in the same font
+\urlstyle{same}
+
+% Change Font to sans serif
+\usepackage{sansmathfonts}
+\renewcommand{\familydefault}{\sfdefault}
+% Use Open Sans (part of TeX Live)
+\usepackage[default,scale=0.95]{opensans}
+\usepackage[T1]{fontenc}
+
+% Formatting code (with included listings)
+
+\usepackage{listings}
+\usepackage{upquote} % Straight quotes
+
+% - Define colors
+\definecolor{violet}{rgb}{0.5, 0.0, 1.0}
+\definecolor{seagreen}{rgb}{0.18, 0.55, 0.34}
+
+% Basic c++ code
+\lstnewenvironment{cppcode}
+  {\lstset{language=C++, keywordstyle=\color{blue},
+           stringstyle=\color{seagreen},
+           commentstyle=\color{violet},
+           basicstyle=\ttfamily\small, showstringspaces=false}
+  }
+  {}
+
+% For smaller c++ code
+\lstnewenvironment{lwcppcode}
+  {\lstset{language=C++, keywordstyle=\color{blue},
+           stringstyle=\color{seagreen},
+           commentstyle=\color{violet},
+           basicstyle=\ttfamily\scriptsize, showstringspaces=false}
+  }
+  {}
+
+% Basic python code
+\lstnewenvironment{pycode}
+  {\lstset{language=python, keywordstyle=\color{blue},
+           stringstyle=\color{seagreen},
+           commentstyle=\color{violet},
+           basicstyle=\ttfamily\small,
+           upquote=true, showstringspaces=false}
+  }
+  {}
+
+% Formatting settings
 \setlength\parindent{0cm}
 \widowpenalty=10000
 \clubpenalty=10000
 \raggedbottom
 
-%Title page
+% Disallow word hyphenation
+\tolerance=1
+\emergencystretch=\maxdimen
+\hyphenpenalty=10000
+\hbadness=10000
+
+% Number subsections and include in table of contents
+\setcounter{tocdepth}{5}
+\setcounter{secnumdepth}{5}
+
+% Title page
 \title{{\color{blue}LICHEM:} {\color{red}L}ayered {\color{red}I}nteracting
 {\color{red}CHE}mical {\color{red}M}odels \\
 Symbiotic Computational Chemistry \\
@@ -42,48 +106,67 @@ v1.1
 \date{Eric G. Kratz, Hatice G\"{o}kcan, Alice Walker,
 Erik A. V\'azquez--Montelongo, \\
 G. Andr\'{e}s Cisneros, \\
-2018}
+2018\\
+\small{\vspace{0.1in}Documentation last generated: \today}
+}
 
-\usepackage[english]{babel}
-\usepackage{longtable}
-\usepackage{breqn}
-\usepackage{array}
-
-
-
-%Main document
+%----------------------------------------------------------------------------%
+%------------------------------ Main document -------------------------------%
+%----------------------------------------------------------------------------%
 \begin{document}
 \maketitle
+
+% Add TOC as PDF bookmark
+\hypertarget{toc}{}
+\bookmark[level=chapter,dest=toc]{\contentsname}
 \tableofcontents
+
+% Add LoF and make PDF bookmark
+\clearpage\phantomsection
+\label{List of Figures}
+\hypertarget{lof}{}
+\bookmark[level=chapter,dest=lof]{\listfigurename}
+\listoffigures
+\newpage
+
+% Add LoT and make PDF bookmark
+\phantomsection
+\label{List of Tables}
+\hypertarget{lot}{}
+\bookmark[level=chapter,dest=lot]{\listtablename}
+\listoftables
+\newpage
 
 \chapter{Introduction}
 
 \section{Design principles}
 
 LICHEM is in development with four guiding principles: \\
-\begin{quote}
- \normalfont{
- 1) {\textbf{LICHEM should primarily be an interface.}}
- In order to allow the code to communicate with a variety of (continuously
- updated) software packages, LICHEM for general applications
- should not require modifications to other
- software packages or tools. \\
- 2) {\textbf{LICHEM should be a single executable.}}
- Since LICHEM is an interface, there is no need for a large collection of
- binaries.
- Furthermore, LICHEM can be statically linked to ease distribution of the
- software. \\
- 3) {\textbf{LICHEM should be easy to read and modify.}}
- Most scientists are not experts in computer programming.
- In order to allow for rapid collaborative development of LICHEM, the source
- code needs to be easy to read.
- To that end, the code should be simple, well commented, and avoid linking to
- libraries. \\
- 4) {\textbf{LICHEM should be open-source.}}
- LICHEM is licensed under the GPLv3.
- Science can benefit everyone, and hence, should be shared as widely as
- possible.}
-\end{quote}
+\begin{enumerate}
+  \item \textbf{LICHEM should primarily be an interface.} \\
+  In order to allow the code to communicate with a variety of (continuously
+  updated) software packages, LICHEM for general applications
+  should not require modifications to other
+  software packages or tools.
+
+  \item \textbf{LICHEM should be a single executable.} \\
+  Since LICHEM is an interface, there is no need for a large collection of
+  binaries.
+  Furthermore, LICHEM can be statically linked to ease distribution of the
+  software.
+
+  \item \textbf{LICHEM should be easy to read and modify.} \\
+  Most scientists are not experts in computer programming.
+  In order to allow for rapid collaborative development of LICHEM, the source
+  code needs to be easy to read.
+  To that end, the code should be simple, well commented, and avoid linking to
+  libraries.
+
+  \item \textbf{LICHEM should be open-source.} \\
+  LICHEM is licensed under the GPLv3.
+  Science can benefit everyone, and hence, should be shared as widely as
+  possible.
+\end{enumerate}
 
 \section{Notes for developers}
 
@@ -97,11 +180,123 @@ the code readable on smaller portable devices such as tablets and netbooks.
 Also for readability purposes, tabulars should not be used to indent the code.
 Tabulars can appear to be different sizes in some text editors. \\
 
+\subsubsection{C++ Code}
+
+While C++ is a very flexible language, having more rigid style guidelines makes
+the code more readable and easier to debug. \\
+
+Guidelines:
+\begin{itemize}
+\item Use the 80-character line limit.
+\item Use the 2-space style for indentation.
+\item Use the ``\texttt{// }'' style for text-based comments.
+\item Start text-based comments with a capital letter, unless the first portion
+      is about a lowercase variable.
+\item Use the ``\texttt{/*  */}'' style for code-based comments.
+\item For multi-line code-based comments, keep \texttt{/*} and \texttt{*/}
+      paired at the current line indentation. \\
+      Example:
+	  \begin{cppcode}
+logFile << " | Step: " << setw(simCharLen) << 0;
+/*
+  logFile << " | Energy: " << LICHEMFormFloat(Et,12);
+  logFile << " eV";
+*/
+logFile << " | Energy: " << LICHEMFormFloat(Et/har2eV,12);
+	  \end{cppcode}
+
+\item For loops and conditionals, the brackets should be on their on line. \\
+      Example:
+	  \begin{cppcode}
+if (foo)
+{
+  stuff
+}
+else if (bar)
+{
+  other stuff
+}
+else
+{
+  different stuff
+}
+	  \end{cppcode}
+
+\item Include fencing to break up long files.
+      \begin{itemize}
+      \item Between functions:
+          \begin{lwcppcode}
+/*-------------------------------------------------------------------------*/
+          \end{lwcppcode}
+
+      \item Between class items:
+          \begin{cppcode}
+/*...*/
+          \end{cppcode}
+      \end{itemize}
+
+\item Separate arguments with spaces in the function definition, and indent
+      line continuations to the parentheses. \\
+      Example:
+	  \begin{cppcode}
+void calc_react_coord(QMMMSettings& QMMMOpts,
+                      vector<QMMMAtom>& QMMMData,
+                      VectorXd& reactCoord)
+	  \end{cppcode}
+
+\item End each file with a single blank line.
+
+% \item C++ files have 775 permissions.
+
+\end{itemize}
+
+
+\subsubsection{Python Code}
+
+When updating the Python-based test suite, verify that it is within the PEP8
+standard with an external checker, such as autopep8 or pycodestyle. \\
+
+Guidelines:
+\begin{itemize}
+\item Use the 79-character line limit.
+\item Use the 4-space standard for indentation.
+\item Use ``\texttt{\# }'' for comments.
+\item All in-line comments need at least 2 spaces of separation from the
+      line. \\
+      Example:
+	  \begin{pycode}
+print(thing)  # Print the thing!
+	  \end{pycode}
+
+\item Start text-based comments with a capital letter, unless the first portion
+      is about a lowercase variable.
+
+\item Each function should use a docstring (see \ref{subsec:add-tests}).
+      These docstrings should then be commented out with ``\texttt{\# }'',
+      because comments are removed from the executable.
+      One notable exception of this is the docstring at the beginning, which
+      tells users to look at the original for comments! \\
+      Function Example:
+	  \begin{pycode}
+    # '''
+    # This way
+    # '''
+	  \end{pycode}
+
+\end{itemize}
+
+\subsubsection{LaTeX Documentation}
+
 When updating the \LaTeX\ documentation, there should be a newline after each
 sentence.
 This makes the documentation files very long, but it makes tracking/merging
 changes safer and easier.
-Paragraphs are ended with a \LaTeX\ newline followed by a blank line.
+Paragraphs are ended with a \LaTeX\ newline followed by a blank line. \\
+
+Bibliography information should match the American Chemical Society style,
+with titles in Title Case, journal names given as their
+\href{https://cassi.cas.org/search.jsp}{CASSI} abbreviation,
+and DOIs for articles or URLs for software (if available).
 
 \subsection{Updating LICHEM}
 
@@ -118,7 +313,7 @@ and robust.
 In general we prefer to avoid adding lots of input keywords and extra input
 files, as much as possible.
 Most of the wrappers should be developed with the assumption that the QM/MM
-calculations will be large and quite difficult to simulate.
+calculations will be large and quite difficult to simulate.\\
 %A good example of this can be seen in the keywords used by the Gaussian
 %wrapper: \\
 
@@ -127,7 +322,7 @@ calculations will be large and quite difficult to simulate.
 %Ultra-fine integrals and quadratic convergence (YQC) are almost certainly
 %overkill for most QM calculations, however, these options assure that
 %difficult cases will converge.
-%%Additionally, the "Direct", YQC, and "Big" options are helpful for
+%%Additionally, the ``Direct'', YQC, and ``Big'' options are helpful for
 %larger systems, but they are not disabled for small systems.
 %Most of the wrappers should be developed with the assumption that the QM/MM
 %calculations will be large and quite difficult to simulate.
@@ -140,7 +335,15 @@ distorted structures were employed to make sure that crashes were rare. \\
 
 A simple way to avoid modifying the QM and MM packages is to search for
 iterative or perturbative approximations for the QM/MM equations.
-This is extremely useful for multipolar/polarizable force fields.
+This is extremely useful for multipolar/polarizable force fields. \\
+
+\subsubsection{Git Guidelines}
+
+Commit messages should be short and informative.
+``Modified parameter in loop'' is \emph{much} more informative than ``update''.
+
+We strongly discourage squashing commits, because keeping a history makes it
+easier to revert changes or understand how things were modified together.
 
 \subsection{Parallelization}
 
@@ -152,9 +355,33 @@ Special care must be taken to avoid creating too many threads when calling
 multiple hybrid--parallel functions with the wrappers. \\
 
 In NEB and OpenMP--QSM (OpenMP) simulations the number of CPUs given as a
-command line argument is used to divide the OpenMP threads between the replicas.
+command line argument is used to divide the OpenMP threads between the
+replicas.
 In MPI QSM simulations (hybrid--parallel), the number of CPUs given as a
 command line argument define the number of available nodes for MPI.
+
+\subsection{Adding Tests}\label{subsec:add-tests}
+
+The test suite executable is created from \texttt{./src/runtests.py}.
+The script uses
+\href{https://docs.python.org/3.10/library/argparse.html}{argparse}
+to define the command-line usage.
+Functions are used to call each test, passing \texttt{None} for
+arguments that do not apply for the test case (e.g., having a
+PSI4 energy for a Gaussian-only QM test).
+QM and QM/MM tests use the \texttt{QMMMWrapperTest} function,
+and MM-only tests use the function \texttt{MMWrapperTest}.
+A notable exception is the `Frequencies' test, which uses the
+\texttt{QMMMFreqTest} function because of the extra steps involved
+in finding the minimum frequency. \\
+
+All functions make use of
+\href{https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard}
+{Numpy-style docstrings}
+to descripe input and output variables.
+These docstrings are then commented out using the single-comment style
+(with a hashtag and space), so that they are not included in the executable
+form of the script (\texttt{./tests/runtests}).
 
 \section{Installation}
 
@@ -193,8 +420,8 @@ the configuration should be performed with; \\
 \texttt{user:\$ ./configure --parallel} \\
 
 Both OpenMP and hybrid--parallel versions of LICHEM
-(\texttt{lichem} and \texttt{lichem.MPI} respectively), will be installed in the same
-directory if a specific installation directory is not
+(\texttt{lichem} and \texttt{lichem.MPI} respectively), will be installed in
+the same directory if a specific installation directory is not
 specified during configuration; \\
 
 \texttt{user:\$ ./configure --prefix=install_directory}.\\
@@ -227,6 +454,28 @@ Users only need to install the packages that they wish to use in the
 QM/MM calculations.
 
 \section{LICHEM test suite}
+
+\begin{table}[hbt]
+ \centering
+ \begin{tabular}{|c|l|c|c|}
+ \hline
+% Use -{}- because -- gets converted to an en-dash
+ Short Flag & Long Flag   & Description                     & Default\\ \hline
+ -h         & -{}-help    & Print help                      & \\
+ -v         & -{}-verbose & Use developer/debugging options & False \\
+ -n         & -{}-ncpus   & Number of CPUs                  & 1 \\
+ -d         & -{}-dry     & Perform a dry run of all tests  & False \\
+ -t         & -{}-tests   & Explicit tests to run           & 'all' \\
+ -a         & -{}-all     & Auto-run all tests              & False \\
+ -q         & -{}-qm      & QM wrapper to test              & 'all' \\
+ -m         & -{}-mm      & MM wrapper to test              & 'all' \\
+ \hline
+ \end{tabular}
+ \caption{
+ Command-line options for the runtests script. If \texttt{-a} is given, the
+ \texttt{-q} and \texttt{-m} flags will be overridden.}
+ \label{tab:TestOpts}
+\end{table}
 
 \begin{table}[hbt]
  \centering
@@ -280,25 +529,41 @@ QM/MM calculations.
 Test calculations can be performed with the runtests script in the tests
 directory.
 The test suite is semi-automated and will search the user's path for QM and
-MM packages. \\
+MM packages.
+It is written to be compatible with Python 3.6+. \\
 
 Tests can be performed for pairs of QM and MM wrappers, \\
 
-\texttt{user:\$ ./runtests [Ncpus] [QMPackage] [MMPackage]} \\
+\texttt{user:\$ ./runtests -n [Ncpus] -q [QMPackage] -m [MMPackage]} \\
 
 or for all wrappers at once. \\
 
-\texttt{user:\$ ./runtests [Ncpus] All} \\
+\texttt{user:\$ ./runtests -n [Ncpus]} \\
 
 A dry run can be performed to check packages without performing the
 calculations. \\
 
-\texttt{user:\$ ./runtests [Ncpus] [QMPackage] [MMPackage] Dry} \\
+\texttt{user:\$ ./runtests -d} \\
 
 Dry runs are useful for checking which QM and MM packages were found in the
 path. \\
 
-Descriptsions of the tests can be found in Table \ref{tab:Tests}.
+The help and usage information can be given with: \\
+
+\texttt{user:\$ ./runtests -h} \\
+
+or
+
+\texttt{user:\$ ./runtests -{}-help} \\
+
+with additional flags and options explained in Table \ref{tab:TestOpts}. \\
+
+The test script will change the 'QM_type' in input files for use with
+Gaussian16 if Gaussian09 is not found in the user's PATH.
+It will also attempt both Gaussian09 and Gaussian16 if both executables are
+found and it is running in all tests mode. \\
+
+Descriptions of the tests can be found in Table \ref{tab:Tests}.
 If tests are consistently failing, please post details on the GitHub issues
 section.
 
@@ -389,9 +654,10 @@ and MM regions are bonded.
 \section{Acknowledgements}
 
 The development of LICHEM was supported by funding from the NIH (Grant No.\
-R01GM108583), Wayne State University, and the University of North Texas.
-LICHEM is maintained by the Cisneros research group at the University of
-North Texas.
+R01GM108583), Wayne State University, the University of North Texas,
+and the University of Texas at Dallas.
+LICHEM is maintained by the Cisneros Research Group at the University of
+Texas at Dallas.
 
 \chapter{LICHEM Input}
 
@@ -400,7 +666,7 @@ North Texas.
 LICHEM can only be invoked from a command line interface. \\
 
 \texttt{user:\$ lichem -n Ncpus -x xyzfile.xyz -c confile.inp
--r regfile.inp -o output.xyz} \\
+-r regfile.inp -o output.xyz -l logfile.log -k system.key} \\
 
 -n: Number of CPUs used in the calculations.
 Note that during PIMC and reaction path calculations each replica uses this
@@ -420,6 +686,8 @@ and general simulation options. \\
 
 -l: File name for output of LICHEM.\\
 
+-k: Name of the KEY file when using TINKER as the MM wrapper (optional).\\
+
 Currently, LICHEM can be executed in hybrid--parallel only for QSM.
 For hybrid--parallel execution of LICHEM;\\
 
@@ -430,8 +698,9 @@ lichem.MPI \\
 \hspace*{1.1in} -x react.xyz \\
 \hspace*{1.1in} -c connect.inp \\
 \hspace*{1.1in} -r regions.inp \\
-\hspace*{1.1in} -o Output.xyz \\
-\hspace*{1.1in} -l Logfile.log
+\hspace*{1.1in} -o output.xyz \\
+\hspace*{1.1in} -l logfile.log \\
+\hspace*{1.1in} -k system.key
 }\\
 
 \noindent where \texttt{Nprocs}
@@ -497,7 +766,7 @@ available number of MPI nodes is depicted in Figure \ref{fig:loadbalance}.
 \begin{center}
 \begin{figure}[!ht]
 \centering
-\includegraphics[width=0.4\textwidth]{manual/load_balance.pdf}
+\includegraphics[width=0.8\textwidth]{../doc/images/load_balance.pdf}
 \caption{An example representation for distribution of 11 beads
 ($B_i$, colered circles) among 5 processors ($P_i$, squares).
 This distribution assumes full OpenMP--parallel utilization for each
@@ -709,7 +978,8 @@ LICHEM will adjust the Monte Carlo stepsize during the equilibration run to
 maintain the specified acceptance ratio.
 Default: 0.50 \newline\\
 
-eq\_steps & : & Number of Monte Carlo and molecular dynamics equilibration steps.
+eq\_steps & : & Number of Monte Carlo and molecular dynamics equilibration
+steps.
 Default: 0 \newline\\
 
 prod\_steps & : & Number of Monte Carlo and molecular dynamics steps for
@@ -748,7 +1018,7 @@ max\_qm\_steps & :  &
 Integer.
 Maximum number of steps for QM optimization.
 It indicates that each QM/MM optimization step
-can involve "\textsl{max\_qm\_steps}" at most;
+can involve ``\textsl{max\_qm\_steps}'' at most;
 
 
 \[
@@ -771,9 +1041,10 @@ can involve "\textsl{max\_qm\_steps}" at most;
 \\
 
 %nqsm & : &
-%Integer. Keyword to indicate the number of images in the input coordinate file BeadStartStruct.xyz.
-%It should be set to "\textsl{0}" if whole path exists.
-%Default is "\textsl{0}". \textit{Currently, only Nqsm=0
+%Integer. Keyword to indicate the number of images in the input coordinate file
+%BeadStartStruct.xyz.
+%It should be set to ``\textsl{0}'' if whole path exists.
+%Default is ``\textsl{0}''. \textit{Currently, only Nqsm=0
 %option is available}\newline \\
 
 opt\_stepsize & : & Initial scale factor for the geometry optimizers.
@@ -946,7 +1217,7 @@ Outputs from QM and MM wrappers
 are stored under the directory named as
 LICHM\_QSM\_Opt\_N  per
 optimization step defined by this keyword
-("N" indicates the optimization step).
+(``N'' indicates the optimization step).
 Each LICHM\_QSM\_Opt\_N directory
 involve the subdirectories
 \begin{itemize}
@@ -967,7 +1238,7 @@ yes. Outputs from QM wrappers
 are stored under the directory named as
 LICHM\_QM\_n  per
 QM optimization step defined by this keyword
-("n" indicates the QM step).
+(``n'' indicates the QM step).
 Default value is the maximum number of QM
 steps.\newline \\
 %-------------------------------------
@@ -1020,19 +1291,19 @@ Synonyms: DFP
 
 \subsection{Reaction Paths and Restrained MM Optimization}
 
-Two "chain--of--replica" algorithms are available
+Two ``chain-of-replica'' algorithms are available
 for reaction path optimization in LICHEM
 climbing image nudged elastic band (CI--NEB)
 \textcolor{red}{\cite{NEB2000_A,NEB2000_B}}
 and quadratic string method (QSM) \cite{Burger2006}
 in both methods the path is represented by a string of beads
-that are optimized in parallel to the minimum energy path (MEP).
+that are optimized in parallel to the minimum energy path (MEP). \\
 
-For QSM, LICHEM also has the ability to perform a {\bf Restrained
+For QSM, LICHEM also has the ability to perform a \textbf{Restrained
 MM Optimization}, where the MM environment of every bead is
 optimized in a series of iterations with diminishing restraints to
 reduce the possibility of path discontinuities (see Figure \ref{fig:qsm})
-\cite{Xie2004,AndresCisneros2009}
+\cite{Xie2004,AndresCisneros2009} \\
 
 %The highest energy bead is designated as the transition state. %and the forces
 %are modified such that the transition state moves up hill.
@@ -1042,25 +1313,26 @@ an additional spring force.  The forces
 are modified such that the transition state moves up hill.
 A global DFP optimizer is to used to update the positions of the entire path
 simultaneously.
-The stepsize (recommended: 1.0) is adjusted to improve convergence.
+The stepsize (recommended: 1.0) is adjusted to improve convergence. \\
 
 The QSM algorithms is designed to be used with frozen ends;
 only the beads between reactant and product bead are optimized. The flowchart
 for the QSM algorithm as implemented in LICHEM, with or without
-restrained MM environment, is given in Figure \ref{fig:qsm}.
+restrained MM environment, is given in Figure \ref{fig:qsm}. \\
 
 \begin{center}
 \begin{figure}[ht!]
 \centering
-\includegraphics[width=0.8\textwidth]{manual/qsm_flowchart.pdf}
+\includegraphics[width=0.9\textwidth]{../doc/images/qsm_flowchart.pdf}
 \caption{QSM algorithm that is implemented within LICHEM.}
 \label{fig:qsm}
 \end{figure}
 \end{center}
+
 NEB methods are insensitive to the spring constant (recommended: 1.0).
 When using this optimizer, the MM regions are optimized with the MM wrapper
 using a modified force field.
-Synonyms: NEB, CINEB, CI-NEB \\
+Synonyms: NEB, CINEB, CI-NEB
 
 \subsection{Ensemble sampling}
 
@@ -1068,15 +1340,19 @@ Path-integral Monte Carlo: LICHEM can perform Monte Carlo or path-integral
 Monte Carlo simulations.
 The MC stepsize is adjusted during the equilibration step to maintain the
 specified acceptance ratio.
-Synonyms: PIMC \\
+Synonyms: PIMC
 
 \section{File conversion}
 
 While LICHEM does not handle atom typing or structure generation, it is
 possible to use the native input/output functions to create LICHEM input from
 input used for QM and MM packages.
-In all cases the converter produces three files: xyzfile.xyz connect.inp
-regions.inp \\
+In all cases the converter produces three files:
+\begin{itemize}
+\item \texttt{xyzfile.xyz}
+\item \texttt{connect.inp}
+\item \texttt{regions.inp}\\
+\end{itemize}
 
 {\textbf{General QM input}} \\
 
@@ -1092,35 +1368,39 @@ in the QM/MM calculations. \\
 
 \texttt{user:\$ lichem -convert -b regions.inp} \\
 
-The \texttt{-convert} flag checks for specific keywords in the region file to construct
-a BASIS file in the correct order. \\
+The \texttt{-convert} flag checks for specific keywords in the region file to
+construct a BASIS file in the correct order. \\
 
-Required keywords: \\
-'QM\_type:' \\
-'QM\_basis:' \\
-'QM\_atoms:' \\
-'Pseudobond\_atoms:' \\
+Required keywords:
+\begin{itemize}
+\item \texttt{QM\_type:}
+\item \texttt{QM\_basis:}
+\item \texttt{QM\_atoms:}
+\item \texttt{Pseudobond\_atoms:}\\
+\end{itemize}
 
 Currently, these keywords must be spelled and formatted exactly as given
-above. \\
+above, including the colon (\texttt{:}) but without the bullet point.
+They must also be included in the same exact order. \\
 
 {\textbf{Multi-replica trajectories:}} \\
 
 LICHEM can create or split merged trajectory files for reaction path
 simulations. \\
 
-\texttt{user:\$ lichem -path -b Nbeads -r Reactant.xyz -t TS.xyz -p Product.xyz} \\
+\texttt{user:\$ lichem -path -b Nbeads -r Reactant.xyz -t TS.xyz
+-p Product.xyz} \\
 
 The \texttt{-path} flag will linearly interpolate between reactant and product
 structures to create an initial reaction pathway (BeadStartStruct.xyz) for
 LICHEM.
-Adding a guess of the transition state structure using the \texttt{-t} flag is optional,
-but can greatly improve the initial path. \\
+Adding a guess of the transition state structure using the \texttt{-t} flag is
+optional, but can greatly improve the initial path. \\
 
 \texttt{user:\$ lichem -splitpath -b Nbeads -f FrameID -p Path.xyz} \\
 
-The \texttt{-splitpath} flag will parse a LICHEM multi-replica output or restart file to
-create a new trajectory file with one replica per frame.
+The \texttt{-splitpath} flag will parse a LICHEM multi-replica output or
+restart file to create a new trajectory file with one replica per frame.
 Here FrameID is the frame of the merged trajectory (Path.xyz) printed by the
 multi-replica simulation. \\
 
@@ -1139,7 +1419,7 @@ LICHEM can also be used to create TINKER xyz files: \\
 
 \texttt{user:\$ lichem -tinker -x xyzfile.xyz -c connectfile.inp} \\
 
-A file called "tinkxyz.xyz" will be produced from this conversion. \\
+A file called ``tinkxyz.xyz'' will be produced from this conversion. \\
 
 The -GlobalPoles flag reads the force field and initial structure, then prints
 the multipoles in the global reference frame. \\
@@ -1165,7 +1445,7 @@ checkpoint files, multi-replica XYZ files, etc).
 
 \section{Additional input for wrappers}
 
-The LICHEM wrappers automatically look for a couple "extra" input files.
+The LICHEM wrappers automatically look for a couple ``extra'' input files.
 These files depend on which wrappers are used in the calculation, however, in
 most cases the files contain force field and pseudopotential information.
 Some of the extra files are detailed below in no particular order and examples
@@ -1218,10 +1498,10 @@ format.
 \subsection{Restart files}
 
 While restarting incomplete geometry optimizations only requires changing
-the initial structure given with the \texttt{-x} flag, multi-replica simulations
-require structural information for each replica.
+the initial structure given with the \texttt{-x} flag, multi-replica
+simulations require structural information for each replica.
 When a multi-replica (PIMC or reaction path) simulation is started LICHEM
-checks the working directory for a restart file named "BeadStartStruct.xyz"
+checks the working directory for a restart file named ``BeadStartStruct.xyz''
 which will be used as the initial structure.
 The restart file is similar to a standard XYZ file, except all the replicas
 are merged together (see below). \\
@@ -1240,7 +1520,8 @@ Here M is the number of atoms times the number of beads, and
 (X$_{i.j}$,Y$_{i,j}$,Z$_{i,j}$) is the position of particle $i$ in replica
 $j$.
 Note that the atom types given in the XYZ file are ignored since this
-information is read from the files given by the \texttt{-x} and \texttt{-c} flags.
+information is read from the files given by the \texttt{-x} and \texttt{-c}
+flags.
 
 \subsection{Examples}
 
@@ -1637,7 +1918,8 @@ with $\gamma^{i}$ and $\theta^{i}$ as;
 \begin{equation}
 \theta^{i}=
 \begin{cases}
-\qquad \qquad 1, & \text{if} (\delta^{i})^{T}\gamma^{i} > 0.2(\delta^{i})^{T}H^{i}\delta^{i} \\
+\qquad \qquad 1, & \text{if} (\delta^{i})^{T}\gamma^{i} >
+0.2(\delta^{i})^{T}H^{i}\delta^{i} \\
 \dfrac{0.8(\delta^{i})^{T} H^{i} \delta^{i}}
 {(\delta^{i})^{T} H^{i} \delta^{i} -
 (\delta^{i})^{T} \gamma^{i}}, & \text{otherwise}
@@ -1652,10 +1934,10 @@ using the energy as a merit function;
 +
 dx_{k}^{T}g_{k}^{i} \quad}
 \end{equation}
-%what do you mean here "k represents the point"? what point?
+%what do you mean here ``k represents the point''? what point?
 % HATI: I did mean bead actually. I am also mentioning
 %them as points at the beginning. So I replaced every
-%"point" to "bead"
+%``point'' to ``bead''
 where $k$ represents the respective bead
 and $\rho$ is used
 to compute how close the merit function is to the expected value.
@@ -1708,7 +1990,7 @@ If there is a complicated system and we want to solve the Schr\"{o}dinger
 equation, a good starting point is often to use a system for which the exact
 or nearly-exact solution is known.
 In chemistry, this is often the hydrogen atom, and in solid state physics, it
-is often the "homogeneous electron gas".
+is often the ``homogeneous electron gas''.
 For example, helium can be approximated as two electrons interacting with a
 nucleus, but not with each other (i.e.\ solving the hydrogen problem twice
 with a nuclear charge of +2). \\
@@ -1812,7 +2094,7 @@ A Slater-type orbital (STO) is a systematic hydrogen-like orbital for any
 atomic state.
 The STO-3G basis set represents the STOs of the atoms as the combination of 3
 Gaussian functions.
-This produces approximate "hydrogen-like" orbitals that have still have the
+This produces approximate ``hydrogen-like'' orbitals that have still have the
 mathematical properties of Gaussians.
 For the hydrogen molecule, the wave function would be given by
 \begin{equation}
@@ -1861,8 +2143,8 @@ The full 3-21G basis set for lithium has nine variational parameters and a
 total of fifteen Gaussian functions.
 The larger 6-311G basis set splits the valence states into three parts
 (thirteen variational parameters, twenty total Gaussian functions).
-The number of "parts" representing the valence orbitals is referred to as the
-zeta level of the basis set.
+The number of ``parts'' representing the valence orbitals is referred to as
+the zeta level of the basis set.
 A single zeta basis set has one variational parameter per valence orbital
 (e.g.\ STO-3G), a double zeta basis set has two variational parameters per
 valence orbital (e.g.\ 6-31G), and a triple zeta basis set has three parameters
@@ -1888,7 +2170,7 @@ but can be problematic in large systems. \\
 Dunning basis sets have a simpler notation, but are mathematically much more
 complicated.
 The notation is cc-pVnZ, where n is the zeta level.
-The notation stands for "correlation consistent polarized valence n zeta"
+The notation stands for ``correlation consistent polarized valence n zeta''
 with n=D,T,Q,5,6,etc.
 A cc-pVDZ basis set is approximately the same as the 6-31G(d,p) basis set.
 Diffuse functions are added to all atoms with aug-(augmented), i.e.
@@ -2005,16 +2287,16 @@ perturbation. \\
 
 There is a bit of terminology that has thus far been missing from the
 discussions.
-The first is "electron correlation", which refers to the interactions and
+The first is ``electron correlation'', which refers to the interactions and
 motions of the electrons (i.e.\ an electron wants to move away from another
 electron).
-In the literature, the "correlation energy" is the electron-electron
+In the literature, the ``correlation energy'' is the electron-electron
 interaction energy not captured by the HF method (second-order and higher
 perturbations).
 The SCF formalism is only a mean-field approach, and hence, it gives the
 average interactions not the true interactions.
-The second bit of terminology is the "exchange interaction", which is included
-in $\hat F$ through $\hat H_1$.
+The second bit of terminology is the ``exchange interaction,'' which is
+included in $\hat F$ through $\hat H_1$.
 The solution of the Schr\"{o}dinger equation for electrons should be
 anti-symmetric with respects to the exchange of two electrons.
 The exchange interaction is added to the $\hat H_1$ operator to force the
@@ -2031,11 +2313,11 @@ Kohn-Sham (KS) DFT is a SCF approach similar to HF theory, however, it does
 not obey the variational theorem.
 To overcome the failures of the orbital-free kinetic energy functionals,
 orbitals are reintroduced to the problem so that the kinetic energy can be
-calculated "exactly" from a basis set.
+calculated ``exactly'' from a basis set.
 As with the HF method, the electrons are moving in a mean-field of all other
 electrons, but are not interacting directly.
 Since KS-DFT has orbitals, the exchange interaction can also be calculated
-"exactly" with only a modest increase in computational cost.
+``exactly'' with only a modest increase in computational cost.
 However, since most functionals include an exchange term, hybrid functionals
 add in a percentage of the exact (HF level) exchange and remove the same
 percentage of DFT exchange.
@@ -2067,7 +2349,7 @@ $R_{ij}$ is the distance between atoms $i$ and $j$.
 
 \begin{figure}[hbt]
  \centering
- \includegraphics[scale=0.50]{../doc/images/QMMM_1.png}
+ \includegraphics[width=0.8\textwidth]{../doc/images/QMMM_1.png}
  \caption{
  Schematic of a QM/MM simulation box with bonds between the QM and MM
  regions.}
@@ -2115,7 +2397,7 @@ This approach splits $\hat V_{qmmm}$ between the MM calculation
 
 \begin{figure}[hbt]
  \centering
- \includegraphics[scale=0.50]{../doc/images/QMMM_2.png}
+ \includegraphics[width=0.8\textwidth]{../doc/images/QMMM_2.png}
  \caption{
  Schematic of a QM/MM simulation box with the boundary region shown in
  green between the QM and MM regions.}
@@ -2146,7 +2428,7 @@ This approach splits $\hat V_{qmmm}$ between the MM calculation
  ($\rho_{el}$), pseudopotential (PP), no interaction (Zero), QM point-charges
  (\{$q_{qm}$\}), MM bond potentials (Bonds), and MM point-charges
  (\{$q_{mm}$\}).
- A "-" sign is used if the interaction is removed instead of added
+ A ``-'' sign is used if the interaction is removed instead of added
  (i.e.\ FF-\{$q_{qm}$\} denotes the force field with no charges on the
  QM atoms).}
  \label{tab:IntTable}
@@ -2154,7 +2436,7 @@ This approach splits $\hat V_{qmmm}$ between the MM calculation
 
 \begin{figure}[hbt]
  \centering
- \includegraphics[scale=0.50]{../doc/images/QMMM_3.png}
+ \includegraphics[width=0.8\textwidth]{../doc/images/QMMM_3.png}
  \caption{
  Schematic of a QM/MM simulation box with a large boundary region
  between the QM and MM regions.}
@@ -2222,7 +2504,7 @@ This allows Monte Carlo simulations to be tailored to the system and focus on
 the randomly changing the most important features of a system. \\
 
 If the moving atoms and/or type of random change are chosen randomly, this
-procedure satisfies "detailed balance."
+procedure satisfies ``detailed balance.''
 I.e.\ the move from configuration $i$ to configuration $j$ can be reversed by
 a move from configuration $j$ to configuration $i$.
 

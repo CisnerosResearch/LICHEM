@@ -14,22 +14,32 @@
 
 */
 
-//QM input writers
+/*
+
+  Includes:
+    - void WriteGauInput
+    - void WriteNWChemInput
+    - void WritePSI4Input
+    - void WriteQMConnect
+
+*/
+
+// QM input writers
 void WriteGauInput(vector<QMMMAtom>& QMMMData, string calcTyp,
                    QMMMSettings& QMMMOpts, int bead)
 {
-  //Write Gaussian input files
-  stringstream call; //Stream for system calls and reading/writing files
-  call.copyfmt(cout); //Copy settings from cout
-  string dummy,chrgfilename; //Generic strings
-  fstream inFile,outFile; //Generic file names
-  //Check units
-  double uConv = 1; //Units conversion constant
+  // Write Gaussian input files
+  stringstream call; // Stream for system calls and reading/writing files
+  call.copyfmt(cout); // Copy settings from cout
+  string dummy,chrgfilename; // Generic strings
+  fstream inFile,outFile; // Generic file names
+  // Check units
+  double uConv = 1; // Units conversion constant
   if (QMMMOpts.unitsQM == "Bohr")
   {
     uConv = 1.0/bohrRad;
   }
-  //Check for a charge file
+  // Check for a charge file
   bool useChargeFile = 0;
   call.str("");
   call << "MMCharges_" << bead << ".txt";
@@ -37,11 +47,11 @@ void WriteGauInput(vector<QMMMAtom>& QMMMData, string calcTyp,
   useChargeFile = CheckFile(call.str());
   if (Nmm == 0)
   {
-    //Skip blank charge files
+    // Skip blank charge files
     useChargeFile = 0;
   }
-  //Initialize multipoles and center of mass
-  bool firstCharge = 1; //Always write the first charge
+  // Initialize multipoles and center of mass
+  bool firstCharge = 1; // Always write the first charge
   Coord QMCOM;
   if (!useChargeFile)
   {
@@ -53,12 +63,12 @@ void WriteGauInput(vector<QMMMAtom>& QMMMData, string calcTyp,
     {
       if (TINKER)
       {
-        //Set up multipoles
+        // Set up multipoles
         RotateTINKCharges(QMMMData,bead);
       }
     }
   }
-  //Construct g09 input
+  // Construct g09 input
   call.str("");
   call << "LICHM_" << bead << ".com";
   outFile.open(call.str().c_str(),ios_base::out);
@@ -75,19 +85,21 @@ void WriteGauInput(vector<QMMMAtom>& QMMMData, string calcTyp,
     call << "GB";
   }
   call << '\n';
-  //Start: Hatice
-  if(g09){
+  // Start: Hatice
+  if (g09)
+  {
     call << "%NprocShared=" << Ncpus << '\n';
   }
-  else{
+  else
+  {
     call << "%CPU=0-" << Ncpus-1 << '\n';
   }
-  //End: Hatice
-  //Add ROUTE section
+  // End: Hatice
+  // Add ROUTE section
   call << calcTyp;
-  //Add structure
-  call << '\n'; //Blank line
-  call << "QMMM" << '\n' << '\n'; //Dummy title
+  // Add structure
+  call << '\n'; // Blank line
+  call << "QMMM" << '\n' << '\n'; // Dummy title
   call << QMMMOpts.charge << " " << QMMMOpts.spin << '\n';
   for (int i=0;i<Natoms;i++)
   {
@@ -108,8 +120,8 @@ void WriteGauInput(vector<QMMMAtom>& QMMMData, string calcTyp,
       call << '\n';
     }
   }
-  call << '\n'; //Blank line needed
-  //Add the MM field
+  call << '\n'; // Blank line needed
+  // Add the MM field
   if (QMMM and useChargeFile)
   {
     inFile.open(chrgfilename.c_str(),ios_base::in);
@@ -117,7 +129,7 @@ void WriteGauInput(vector<QMMMAtom>& QMMMData, string calcTyp,
     {
       while (!inFile.eof())
       {
-        //Copy charge file line by line
+        // Copy charge file line by line
         getline(inFile,dummy);
         call << dummy << '\n';
       }
@@ -132,21 +144,21 @@ void WriteGauInput(vector<QMMMAtom>& QMMMData, string calcTyp,
       {
         if (QMMMData[i].MMRegion)
         {
-          //Check PBC (minimum image convention)
-          Coord distCent; //Distance from QM COM
+          // Check PBC (minimum image convention)
+          Coord distCent; // Distance from QM COM
           double xShft = 0;
           double yShft = 0;
           double zShft = 0;
           if (PBCon or QMMMOpts.useLREC)
           {
-            //Initialize displacements
-            double dx,dy,dz; //Starting displacements
+            // Initialize displacements
+            double dx,dy,dz; // Starting displacements
             dx = QMMMData[i].P[bead].x-QMCOM.x;
             dy = QMMMData[i].P[bead].y-QMCOM.y;
             dz = QMMMData[i].P[bead].z-QMCOM.z;
             distCent = CoordDist2(QMMMData[i].P[bead],QMCOM);
-            //Calculate the shift in positions
-            //NB: Generally this work out to be +/- {Lx,Ly,Lz}
+            // Calculate the shift in positions
+            // NB: Generally this work out to be +/- {Lx,Ly,Lz}
             if (PBCon)
             {
               xShft = distCent.x-dx;
@@ -154,18 +166,18 @@ void WriteGauInput(vector<QMMMAtom>& QMMMData, string calcTyp,
               zShft = distCent.z-dz;
             }
           }
-          //Check for long-range corrections
+          // Check for long-range corrections
           double scrq = 1;
           if (QMMMOpts.useLREC)
           {
-            //Use the long-range correction
+            // Use the long-range correction
             scrq = LRECFunction(distCent,QMMMOpts);
           }
           if ((scrq > 0) or firstCharge)
           {
-            //Add charges
-            firstCharge = 0; //Skips writing the remaining zeros
-            double tmpX,tmpY,tmpZ,tmpQ; //Temporary storage
+            // Add charges
+            firstCharge = 0; // Skips writing the remaining zeros
+            double tmpX,tmpY,tmpZ,tmpQ; // Temporary storage
             tmpX = (QMMMData[i].P[bead].x+xShft)*uConv;
             tmpY = (QMMMData[i].P[bead].y+yShft)*uConv;
             tmpZ = (QMMMData[i].P[bead].z+zShft)*uConv;
@@ -184,7 +196,7 @@ void WriteGauInput(vector<QMMMAtom>& QMMMData, string calcTyp,
       }
       if (Nmm > 0)
       {
-        call << '\n'; //Blank line needed
+        call << '\n'; // Blank line needed
       }
     }
     if (AMOEBA)
@@ -193,21 +205,21 @@ void WriteGauInput(vector<QMMMAtom>& QMMMData, string calcTyp,
       {
         if (QMMMData[i].MMRegion)
         {
-          //Check PBC (minimum image convention)
-          Coord distCent; //Distance from QM COM
+          // Check PBC (minimum image convention)
+          Coord distCent; // Distance from QM COM
           double xShft = 0;
           double yShft = 0;
           double zShft = 0;
           if (PBCon or QMMMOpts.useLREC)
           {
-            //Initialize displacements
-            double dx,dy,dz; //Starting displacements
+            // Initialize displacements
+            double dx,dy,dz; // Starting displacements
             dx = QMMMData[i].P[bead].x-QMCOM.x;
             dy = QMMMData[i].P[bead].y-QMCOM.y;
             dz = QMMMData[i].P[bead].z-QMCOM.z;
             distCent = CoordDist2(QMMMData[i].P[bead],QMCOM);
-            //Calculate the shift in positions
-            //NB: Generally this work out to be +/- {Lx,Ly,Lz}
+            // Calculate the shift in positions
+            // NB: Generally this work out to be +/- {Lx,Ly,Lz}
             if (PBCon)
             {
               xShft = distCent.x-dx;
@@ -215,16 +227,16 @@ void WriteGauInput(vector<QMMMAtom>& QMMMData, string calcTyp,
               zShft = distCent.z-dz;
             }
           }
-          //Check for long-range corrections
+          // Check for long-range corrections
           double scrq = 1;
           if (QMMMOpts.useLREC)
           {
-            //Use the long-range correction
+            // Use the long-range correction
             scrq = LRECFunction(distCent,QMMMOpts);
           }
           if ((scrq > 0) or firstCharge)
           {
-            firstCharge = 0; //Skips writing the remaining zeros
+            firstCharge = 0; // Skips writing the remaining zeros
             call << " ";
             call << LICHEMFormFloat(QMMMData[i].PC[bead].x1+xShft,16);
             call << " ";
@@ -284,17 +296,17 @@ void WriteGauInput(vector<QMMMAtom>& QMMMData, string calcTyp,
       }
       if (Nmm > 0)
       {
-        call << '\n'; //Blank line needed
+        call << '\n'; // Blank line needed
       }
     }
   }
-  //Add basis set information from the BASIS file
+  // Add basis set information from the BASIS file
   inFile.open("BASIS",ios_base::in);
   if (inFile.good())
   {
     while (!inFile.eof())
     {
-      //Copy BASIS line by line, if BASIS exists
+      // Copy BASIS line by line, if BASIS exists
       getline(inFile,dummy);
       call << dummy << '\n';
     }
@@ -306,21 +318,23 @@ void WriteGauInput(vector<QMMMAtom>& QMMMData, string calcTyp,
   return;
 };
 
+/*-------------------------------------------------------------------------*/
+
 void WriteNWChemInput(vector<QMMMAtom>& QMMMData, string calcTyp,
                       QMMMSettings& QMMMOpts, int bead)
 {
-  //Write NWChem input files
-  fstream outFile,inFile; //Generic file streams
-  string dummy,chrgfilename; //Generic strings
-  stringstream call; //Stream for system calls and reading/writing files
-  call.copyfmt(cout); //Copy settings from cout
-  //Check units
-  double uConv = 1; //Units conversion constant
+  // Write NWChem input files
+  fstream outFile,inFile; // Generic file streams
+  string dummy,chrgfilename; // Generic strings
+  stringstream call; // Stream for system calls and reading/writing files
+  call.copyfmt(cout); // Copy settings from cout
+  // Check units
+  double uConv = 1; // Units conversion constant
   if (QMMMOpts.unitsQM == "Bohr")
   {
     uConv = 1.0/bohrRad;
   }
-  //Check for a charge file
+  // Check for a charge file
   bool useChargeFile = 0;
   call.str("");
   call << "MMCharges_" << bead << ".txt";
@@ -328,11 +342,11 @@ void WriteNWChemInput(vector<QMMMAtom>& QMMMData, string calcTyp,
   useChargeFile = CheckFile(call.str());
   if (Nmm == 0)
   {
-    //Skip blank charge files
+    // Skip blank charge files
     useChargeFile = 0;
   }
-  //Initialize multipoles and center of mass
-  bool firstCharge = 1; //Always write the first charge
+  // Initialize multipoles and center of mass
+  bool firstCharge = 1; // Always write the first charge
   Coord QMCOM;
   if (!useChargeFile)
   {
@@ -344,12 +358,12 @@ void WriteNWChemInput(vector<QMMMAtom>& QMMMData, string calcTyp,
     {
       if (TINKER)
       {
-        //Set up multipoles
+        // Set up multipoles
         RotateTINKCharges(QMMMData,bead);
       }
     }
   }
-  //Create NWChem input
+  // Create NWChem input
   call.str("");
   call << "LICHM_" << bead << ".nw";
   outFile.open(call.str().c_str(),ios_base::out);
@@ -399,18 +413,18 @@ void WriteNWChemInput(vector<QMMMAtom>& QMMMData, string calcTyp,
   outFile << "end" << '\n';
   if (CheckFile("BASIS"))
   {
-    //Add basis set and ecp info
+    // Add basis set and ecp info
     inFile.open("BASIS",ios_base::in);
     if (inFile.good())
     {
       while (!inFile.eof())
       {
-        //Copy BASIS line by line, if BASIS exists
+        // Copy BASIS line by line, if BASIS exists
         getline(inFile,dummy);
         stringstream line(dummy);
         if (line.str() != "")
         {
-          //Avoid copying extra blank lines
+          // Avoid copying extra blank lines
           outFile << dummy << '\n';
         }
       }
@@ -433,10 +447,10 @@ void WriteNWChemInput(vector<QMMMAtom>& QMMMData, string calcTyp,
       outFile << "bq mmchrg";
       while (!inFile.eof())
       {
-        //Copy charge file line by line
-        outFile << '\n'; //Avoid adding an extra blank line
+        // Copy charge file line by line
+        outFile << '\n'; // Avoid adding an extra blank line
         getline(inFile,dummy);
-        outFile << dummy; //Print the line
+        outFile << dummy; // Print the line
       }
       inFile.close();
       outFile << "end" << '\n';
@@ -453,21 +467,21 @@ void WriteNWChemInput(vector<QMMMAtom>& QMMMData, string calcTyp,
       {
         if (QMMMData[i].MMRegion)
         {
-          //Check PBC (minimum image convention)
-          Coord distCent; //Distance from QM COM
+          // Check PBC (minimum image convention)
+          Coord distCent; // Distance from QM COM
           double xShft = 0;
           double yShft = 0;
           double zShft = 0;
           if (PBCon or QMMMOpts.useLREC)
           {
-            //Initialize displacements
-            double dx,dy,dz; //Starting displacements
+            // Initialize displacements
+            double dx,dy,dz; // Starting displacements
             dx = QMMMData[i].P[bead].x-QMCOM.x;
             dy = QMMMData[i].P[bead].y-QMCOM.y;
             dz = QMMMData[i].P[bead].z-QMCOM.z;
             distCent = CoordDist2(QMMMData[i].P[bead],QMCOM);
-            //Calculate the shift in positions
-            //NB: Generally this work out to be +/- {Lx,Ly,Lz}
+            // Calculate the shift in positions
+            // NB: Generally this work out to be +/- {Lx,Ly,Lz}
             if (PBCon)
             {
               xShft = distCent.x-dx;
@@ -475,18 +489,18 @@ void WriteNWChemInput(vector<QMMMAtom>& QMMMData, string calcTyp,
               zShft = distCent.z-dz;
             }
           }
-          //Check for long-range corrections
+          // Check for long-range corrections
           double scrq = 1;
           if (QMMMOpts.useLREC)
           {
-            //Use the long-range correction
+            // Use the long-range correction
             scrq = LRECFunction(distCent,QMMMOpts);
           }
           if ((scrq > 0) or firstCharge)
           {
-            //Add charges
-            firstCharge = 0; //Skips writing the remaining zeros
-            double tmpX,tmpY,tmpZ,tmpQ; //Temporary storage
+            // Add charges
+            firstCharge = 0; // Skips writing the remaining zeros
+            double tmpX,tmpY,tmpZ,tmpQ; // Temporary storage
             tmpX = (QMMMData[i].P[bead].x+xShft)*uConv;
             tmpY = (QMMMData[i].P[bead].y+yShft)*uConv;
             tmpZ = (QMMMData[i].P[bead].z+zShft)*uConv;
@@ -514,21 +528,21 @@ void WriteNWChemInput(vector<QMMMAtom>& QMMMData, string calcTyp,
       {
         if (QMMMData[i].MMRegion)
         {
-          //Check PBC (minimum image convention)
-          Coord distCent; //Distance from QM COM
+          // Check PBC (minimum image convention)
+          Coord distCent; // Distance from QM COM
           double xShft = 0;
           double yShft = 0;
           double zShft = 0;
           if (PBCon or QMMMOpts.useLREC)
           {
-            //Initialize displacements
-            double dx,dy,dz; //Starting displacements
+            // Initialize displacements
+            double dx,dy,dz; // Starting displacements
             dx = QMMMData[i].P[bead].x-QMCOM.x;
             dy = QMMMData[i].P[bead].y-QMCOM.y;
             dz = QMMMData[i].P[bead].z-QMCOM.z;
             distCent = CoordDist2(QMMMData[i].P[bead],QMCOM);
-            //Calculate the shift in positions
-            //NB: Generally this work out to be +/- {Lx,Ly,Lz}
+            // Calculate the shift in positions
+            // NB: Generally this work out to be +/- {Lx,Ly,Lz}
             if (PBCon)
             {
               xShft = distCent.x-dx;
@@ -536,19 +550,19 @@ void WriteNWChemInput(vector<QMMMAtom>& QMMMData, string calcTyp,
               zShft = distCent.z-dz;
             }
           }
-          //Check for long-range corrections
+          // Check for long-range corrections
           double scrq = 1;
           if (QMMMOpts.useLREC)
           {
-            //Use the long-range correction
+            // Use the long-range correction
             scrq = LRECFunction(distCent,QMMMOpts);
           }
           if ((scrq > 0) or firstCharge)
           {
-            //Add multipoles
-            firstCharge = 0; //Skips writing the remaining zeros
-            double tmpX,tmpY,tmpZ,tmpQ; //Temporary storage
-            //Charge 1
+            // Add multipoles
+            firstCharge = 0; // Skips writing the remaining zeros
+            double tmpX,tmpY,tmpZ,tmpQ; // Temporary storage
+            // Charge 1
             tmpX = (QMMMData[i].PC[bead].x1+xShft)*uConv;
             tmpY = (QMMMData[i].PC[bead].y1+yShft)*uConv;
             tmpZ = (QMMMData[i].PC[bead].z1+zShft)*uConv;
@@ -562,7 +576,7 @@ void WriteNWChemInput(vector<QMMMAtom>& QMMMData, string calcTyp,
             outFile << " ";
             outFile << LICHEMFormFloat(tmpQ,16);
             outFile << '\n';
-            //Charge 2
+            // Charge 2
             tmpX = (QMMMData[i].PC[bead].x2+xShft)*uConv;
             tmpY = (QMMMData[i].PC[bead].y2+yShft)*uConv;
             tmpZ = (QMMMData[i].PC[bead].z2+zShft)*uConv;
@@ -576,7 +590,7 @@ void WriteNWChemInput(vector<QMMMAtom>& QMMMData, string calcTyp,
             outFile << " ";
             outFile << LICHEMFormFloat(tmpQ,16);
             outFile << '\n';
-            //Charge 3
+            // Charge 3
             tmpX = (QMMMData[i].PC[bead].x3+xShft)*uConv;
             tmpY = (QMMMData[i].PC[bead].y3+yShft)*uConv;
             tmpZ = (QMMMData[i].PC[bead].z3+zShft)*uConv;
@@ -590,7 +604,7 @@ void WriteNWChemInput(vector<QMMMAtom>& QMMMData, string calcTyp,
             outFile << " ";
             outFile << LICHEMFormFloat(tmpQ,16);
             outFile << '\n';
-            //Charge 4
+            // Charge 4
             tmpX = (QMMMData[i].PC[bead].x4+xShft)*uConv;
             tmpY = (QMMMData[i].PC[bead].y4+yShft)*uConv;
             tmpZ = (QMMMData[i].PC[bead].z4+zShft)*uConv;
@@ -604,7 +618,7 @@ void WriteNWChemInput(vector<QMMMAtom>& QMMMData, string calcTyp,
             outFile << " ";
             outFile << LICHEMFormFloat(tmpQ,16);
             outFile << '\n';
-            //Charge 5
+            // Charge 5
             tmpX = (QMMMData[i].PC[bead].x5+xShft)*uConv;
             tmpY = (QMMMData[i].PC[bead].y5+yShft)*uConv;
             tmpZ = (QMMMData[i].PC[bead].z5+zShft)*uConv;
@@ -618,7 +632,7 @@ void WriteNWChemInput(vector<QMMMAtom>& QMMMData, string calcTyp,
             outFile << " ";
             outFile << LICHEMFormFloat(tmpQ,16);
             outFile << '\n';
-            //Charge 6
+            // Charge 6
             tmpX = (QMMMData[i].PC[bead].x6+xShft)*uConv;
             tmpY = (QMMMData[i].PC[bead].y6+yShft)*uConv;
             tmpZ = (QMMMData[i].PC[bead].z6+zShft)*uConv;
@@ -639,7 +653,7 @@ void WriteNWChemInput(vector<QMMMAtom>& QMMMData, string calcTyp,
       outFile << "set bq mmchrg" << '\n';
     }
   }
-  //Add DFT settings
+  // Add DFT settings
   outFile << "dft" << '\n';
   outFile << " mult " << QMMMOpts.spin << '\n';
   outFile << " direct" << '\n';
@@ -647,40 +661,42 @@ void WriteNWChemInput(vector<QMMMAtom>& QMMMData, string calcTyp,
   outFile << " noio" << '\n';
   outFile << " tolerances tight" << '\n';
   outFile << " xc " << QMMMOpts.func << '\n';
-  //Use the checkpoint file
+  // Use the checkpoint file
   call.str("");
   call << "LICHM_" << bead << ".movecs";
   if (CheckFile(call.str()))
   {
-    //Tell the DFT module to read the initial vectors
+    // Tell the DFT module to read the initial vectors
     outFile << " vectors input ";
-    outFile << call.str(); //Defined above
+    outFile << call.str(); // Defined above
     outFile << '\n';
   }
   outFile << "end" << '\n';
-  //Set calculation type
+  // Set calculation type
   outFile << calcTyp;
-  //Print file
+  // Print file
   outFile.flush();
   outFile.close();
   return;
 };
 
+/*-------------------------------------------------------------------------*/
+
 void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
                     QMMMSettings& QMMMOpts, int bead)
 {
-  //Write PSI4 input files
-  stringstream call; //Stream for system calls and reading/writing files
-  call.copyfmt(cout); //Copy settings from cout
-  string dummy,chrgfilename; //Generic string
-  fstream inFile,outFile; //Generic file names
-  //Check units
-  double uConv = 1; //Units conversion constant
+  // Write PSI4 input files
+  stringstream call; // Stream for system calls and reading/writing files
+  call.copyfmt(cout); // Copy settings from cout
+  string dummy,chrgfilename; // Generic string
+  fstream inFile,outFile; // Generic file names
+  // Check units
+  double uConv = 1; // Units conversion constant
   if (QMMMOpts.unitsQM == "Bohr")
   {
     uConv = 1.0/bohrRad;
   }
-  //Check for a charge file
+  // Check for a charge file
   bool useChargeFile = 0;
   call.str("");
   call << "MMCharges_" << bead << ".txt";
@@ -688,10 +704,10 @@ void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
   useChargeFile = CheckFile(call.str());
   if (Nmm == 0)
   {
-    //Skip blank charge files
+    // Skip blank charge files
     useChargeFile = 0;
   }
-  //Initialize multipoles and center of mass
+  // Initialize multipoles and center of mass
   Coord QMCOM;
   if (!useChargeFile)
   {
@@ -703,17 +719,17 @@ void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
     {
       if (TINKER)
       {
-        //Set up multipoles
+        // Set up multipoles
         RotateTINKCharges(QMMMData,bead);
       }
     }
   }
-  //Check if there is a checkpoint file
+  // Check if there is a checkpoint file
   bool useCheckPoint;
   call.str("");
   call << "LICHM_" << bead << ".180";
   useCheckPoint = CheckFile(call.str());
-  //Set up memory
+  // Set up memory
   call.str("");
   call << "set_num_threads(" << Ncpus << ")" << '\n';
   call << "memory " << QMMMOpts.RAM;
@@ -726,15 +742,15 @@ void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
     call << " gb";
   }
   call << '\n';
-  //Set options
+  // Set options
   if (QMMMOpts.spin == 1)
   {
-    //Closed shell reference
+    // Closed shell reference
     call << "set reference rhf";
   }
   else
   {
-    //Open shell reference
+    // Open shell reference
     call << "set reference uhf";
   }
   call << '\n';
@@ -752,16 +768,16 @@ void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
   call << "set scf_type df" << '\n';
   if (QMMMOpts.unitsQM == "Bohr")
   {
-    //Use Bohr for distances
+    // Use Bohr for distances
     call << "set units bohr" << '\n';
   }
   call << '\n';
-  //Keep the checkpoint files
-  //NB: MOs->180
+  // Keep the checkpoint files
+  // NB: MOs->180
   call << "psi4_io.set_specific_path(180,'./')" << '\n';
   call << "psi4_io.set_specific_retention(180,True)" << '\n';
   call << '\n';
-  //Set up molecules
+  // Set up molecules
   call << "molecule LICHM_";
   call << bead << " {" << '\n';
   call << " " << QMMMOpts.charge;
@@ -781,7 +797,7 @@ void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
   call << " no_reorient" << '\n';
   call << " no_com" << '\n';
   call << "}" << '\n' << '\n';
-  //Set up MM field
+  // Set up MM field
   if (QMMM and useChargeFile and (Nmm > 0))
   {
     inFile.open(chrgfilename.c_str(),ios_base::in);
@@ -790,7 +806,7 @@ void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
       call << "Chrgfield = QMMM()" << '\n';
       while (!inFile.eof())
       {
-        //Copy charge file line by line
+        // Copy charge file line by line
         getline(inFile,dummy);
         call << dummy << '\n';
       }
@@ -808,21 +824,21 @@ void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
       {
         if (QMMMData[i].MMRegion)
         {
-          //Check PBC (minimum image convention)
-          Coord distCent; //Distance from QM COM
+          // Check PBC (minimum image convention)
+          Coord distCent; // Distance from QM COM
           double xShft = 0;
           double yShft = 0;
           double zShft = 0;
           if (PBCon or QMMMOpts.useLREC)
           {
-            //Initialize displacements
-            double dx,dy,dz; //Starting displacements
+            // Initialize displacements
+            double dx,dy,dz; // Starting displacements
             dx = QMMMData[i].P[bead].x-QMCOM.x;
             dy = QMMMData[i].P[bead].y-QMCOM.y;
             dz = QMMMData[i].P[bead].z-QMCOM.z;
             distCent = CoordDist2(QMMMData[i].P[bead],QMCOM);
-            //Calculate the shift in positions
-            //NB: Generally this work out to be +/- {Lx,Ly,Lz}
+            // Calculate the shift in positions
+            // NB: Generally this work out to be +/- {Lx,Ly,Lz}
             if (PBCon)
             {
               xShft = distCent.x-dx;
@@ -830,17 +846,17 @@ void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
               zShft = distCent.z-dz;
             }
           }
-          //Check for long-range corrections
+          // Check for long-range corrections
           double scrq = 1;
           if (QMMMOpts.useLREC)
           {
-            //Use the long-range correction
+            // Use the long-range correction
             scrq = LRECFunction(distCent,QMMMOpts);
           }
           if (scrq > 0)
           {
-            //Add charge
-            double tmpX,tmpY,tmpZ,tmpQ; //Temporary storage
+            // Add charge
+            double tmpX,tmpY,tmpZ,tmpQ; // Temporary storage
             tmpX = (QMMMData[i].P[bead].x+xShft)*uConv;
             tmpY = (QMMMData[i].P[bead].y+yShft)*uConv;
             tmpZ = (QMMMData[i].P[bead].z+zShft)*uConv;
@@ -864,21 +880,21 @@ void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
       {
         if (QMMMData[i].MMRegion)
         {
-          //Check PBC (minimum image convention)
-          Coord distCent; //Distance from QM COM
+          // Check PBC (minimum image convention)
+          Coord distCent; // Distance from QM COM
           double xShft = 0;
           double yShft = 0;
           double zShft = 0;
           if (PBCon or QMMMOpts.useLREC)
           {
-            //Initialize displacements
-            double dx,dy,dz; //Starting displacements
+            // Initialize displacements
+            double dx,dy,dz; // Starting displacements
             dx = QMMMData[i].P[bead].x-QMCOM.x;
             dy = QMMMData[i].P[bead].y-QMCOM.y;
             dz = QMMMData[i].P[bead].z-QMCOM.z;
             distCent = CoordDist2(QMMMData[i].P[bead],QMCOM);
-            //Calculate the shift in positions
-            //NB: Generally this work out to be +/- {Lx,Ly,Lz}
+            // Calculate the shift in positions
+            // NB: Generally this work out to be +/- {Lx,Ly,Lz}
             if (PBCon)
             {
               xShft = distCent.x-dx;
@@ -886,18 +902,18 @@ void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
               zShft = distCent.z-dz;
             }
           }
-          //Check for long-range corrections
+          // Check for long-range corrections
           double scrq = 1;
           if (QMMMOpts.useLREC)
           {
-            //Use the long-range correction
+            // Use the long-range correction
             scrq = LRECFunction(distCent,QMMMOpts);
           }
           if (scrq > 0)
           {
-            //Add multipoles
-            double tmpX,tmpY,tmpZ,tmpQ; //Temporary storage
-            //Charge 1
+            // Add multipoles
+            double tmpX,tmpY,tmpZ,tmpQ; // Temporary storage
+            // Charge 1
             tmpX = (QMMMData[i].PC[bead].x1+xShft)*uConv;
             tmpY = (QMMMData[i].PC[bead].y1+yShft)*uConv;
             tmpZ = (QMMMData[i].PC[bead].z1+zShft)*uConv;
@@ -908,7 +924,7 @@ void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
             call << LICHEMFormFloat(tmpY,16) << ",";
             call << LICHEMFormFloat(tmpZ,16) << ")";
             call << '\n';
-            //Charge 2
+            // Charge 2
             tmpX = (QMMMData[i].PC[bead].x2+xShft)*uConv;
             tmpY = (QMMMData[i].PC[bead].y2+yShft)*uConv;
             tmpZ = (QMMMData[i].PC[bead].z2+zShft)*uConv;
@@ -919,7 +935,7 @@ void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
             call << LICHEMFormFloat(tmpY,16) << ",";
             call << LICHEMFormFloat(tmpZ,16) << ")";
             call << '\n';
-            //Charge 3
+            // Charge 3
             tmpX = (QMMMData[i].PC[bead].x3+xShft)*uConv;
             tmpY = (QMMMData[i].PC[bead].y3+yShft)*uConv;
             tmpZ = (QMMMData[i].PC[bead].z3+zShft)*uConv;
@@ -930,7 +946,7 @@ void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
             call << LICHEMFormFloat(tmpY,16) << ",";
             call << LICHEMFormFloat(tmpZ,16) << ")";
             call << '\n';
-            //Charge 4
+            // Charge 4
             tmpX = (QMMMData[i].PC[bead].x4+xShft)*uConv;
             tmpY = (QMMMData[i].PC[bead].y4+yShft)*uConv;
             tmpZ = (QMMMData[i].PC[bead].z4+zShft)*uConv;
@@ -941,7 +957,7 @@ void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
             call << LICHEMFormFloat(tmpY,16) << ",";
             call << LICHEMFormFloat(tmpZ,16) << ")";
             call << '\n';
-            //Charge 5
+            // Charge 5
             tmpX = (QMMMData[i].PC[bead].x5+xShft)*uConv;
             tmpY = (QMMMData[i].PC[bead].y5+yShft)*uConv;
             tmpZ = (QMMMData[i].PC[bead].z5+zShft)*uConv;
@@ -952,7 +968,7 @@ void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
             call << LICHEMFormFloat(tmpY,16) << ",";
             call << LICHEMFormFloat(tmpZ,16) << ")";
             call << '\n';
-            //Charge 6
+            // Charge 6
             tmpX = (QMMMData[i].PC[bead].x6+xShft)*uConv;
             tmpY = (QMMMData[i].PC[bead].y6+yShft)*uConv;
             tmpZ = (QMMMData[i].PC[bead].z6+zShft)*uConv;
@@ -972,30 +988,30 @@ void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
     }
     if (GEM)
     {
-      //Add generic field field from a file (psithon)
+      // Add generic field field from a file (psithon)
       if (CheckFile("FIELD"))
       {
-        //Read a block of psithon code
+        // Read a block of psithon code
         inFile.open("FIELD",ios_base::in);
         while ((!inFile.eof()) and inFile.good())
         {
           getline(inFile,dummy);
           call << dummy << '\n';
         }
-        //Save the field
+        // Save the field
         call << "psi4.set_global_option_python('EXTERN',Chrgfield.extern)";
         call << '\n';
-        //Make sure the QM region is active
+        // Make sure the QM region is active
         call << "activate(LICHM_" << bead << ")" << '\n';
         call << '\n';
         inFile.close();
       }
     }
   }
-  //Add calculation type
+  // Add calculation type
   call << calcTyp;
-  //Create file
-  dummy = call.str(); //Store file as a temporary variable
+  // Create file
+  dummy = call.str(); // Store file as a temporary variable
   call.str("");
   call << "LICHM_" << bead << ".dat";
   outFile.open(call.str().c_str(),ios_base::out);
@@ -1005,21 +1021,23 @@ void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
   return;
 };
 
-//Other QM files
+/*-------------------------------------------------------------------------*/
+
+// Other QM files
 void WriteQMConnect(int& argc,char**& argv)
 {
-  //Write the connectivity input for pure QM calculations
-  fstream posfile,outFile; //File streams
-  string dummy; //Generic string
-  xyzFilename = "NOFILE"; //Global XYZ filename
-  //Read arguments
-  Natoms = 0; //For safety
-  bool doQuit = 0; //Exit with an error
+  // Write the connectivity input for pure QM calculations
+  fstream posfile,outFile; // File streams
+  string dummy; // Generic string
+  xyzFilename = "NOFILE"; // Global XYZ filename
+  // Read arguments
+  Natoms = 0; // For safety
+  bool doQuit = 0; // Exit with an error
   cout << "Reading LICHEM input: ";
   for (int i=0;i<argc;i++)
   {
     dummy = string(argv[i]);
-    //Check regions file
+    // Check regions file
     if (dummy == "-q")
     {
       stringstream file;
@@ -1035,8 +1053,8 @@ void WriteQMConnect(int& argc,char**& argv)
       cout << argv[i+1];
     }
   }
-  cout << '\n' << '\n'; //Terminate output
-  //Error check
+  cout << '\n' << '\n'; // Terminate output
+  // Error check
   if (!CheckFile(xyzFilename))
   {
     cout << "Error: Missing XYZ file!!!";
@@ -1045,22 +1063,22 @@ void WriteQMConnect(int& argc,char**& argv)
   }
   if (!doQuit)
   {
-    //Write connectivity information
+    // Write connectivity information
     outFile.open("connect.inp",ios_base::out);
-    posfile >> Natoms; //Number of atoms
+    posfile >> Natoms; // Number of atoms
     for (int i=0;i<Natoms;i++)
     {
-      //Read the atom type
+      // Read the atom type
       string AtTyp;
-      posfile >> AtTyp; //Read element
-      //Clear junk position data
+      posfile >> AtTyp; // Read element
+      // Clear junk position data
       posfile >> dummy >> dummy >> dummy;
-      //Write connectivity line
-      outFile << i << " "; //Index
-      outFile << AtTyp << " "; //Element
-      outFile << chemTable.revTyping(AtTyp) << " "; //Atomic number
-      outFile << chemTable.getAtMass(AtTyp) << " "; //Mass
-      outFile << "0.00 0" << '\n'; //Charge and bonds
+      // Write connectivity line
+      outFile << i << " "; // Index
+      outFile << AtTyp << " "; // Element
+      outFile << chemTable.revTyping(AtTyp) << " "; // Atomic number
+      outFile << chemTable.getAtMass(AtTyp) << " "; // Mass
+      outFile << "0.00 0" << '\n'; // Charge and bonds
     }
     cout << "Connectivity data written to connect.inp";
     cout << '\n' << '\n';
@@ -1068,9 +1086,8 @@ void WriteQMConnect(int& argc,char**& argv)
     outFile.flush();
     outFile.close();
   }
-  //Quit
+  // Quit
   posfile.close();
   exit(0);
   return;
 };
-

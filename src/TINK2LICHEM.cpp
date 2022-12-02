@@ -17,24 +17,31 @@
 
 */
 
+/*
 
-//Parsers
+  Includes:
+    - void TINK2LICHEM
+    - void LICHEM2TINK
+
+*/
+
+// Parsers
 void TINK2LICHEM(int& argc, char**& argv)
 {
-  //Local variables
-  fstream tinkXYZ,tinkKey,paramFile; //Input
-  fstream posFile,conFile,regFile; //Output
+  // Local variables
+  fstream tinkXYZ,tinkKey,paramFile; // Input
+  fstream posFile,conFile,regFile; // Output
   stringstream line;
-  string dummy; //Generic string
+  string dummy; // Generic string
   int Ninact = 0;
   bool someFroz = 0;
   bool someAct = 0;
-  int ct; //Generic counter
-  //Open files
+  int ct; // Generic counter
+  // Open files
   posFile.open("xyzfile.xyz",ios_base::out);
   conFile.open("connect.inp",ios_base::out);
   regFile.open("regions.inp",ios_base::out);
-  //Read arguments
+  // Read arguments
   PBCon = 0;
   cout << '\n';
   cout << "Reading files: ";
@@ -43,21 +50,21 @@ void TINK2LICHEM(int& argc, char**& argv)
     dummy = string(argv[i]);
     if (dummy == "-t")
     {
-      //TINKER XYZ file
+      // TINKER XYZ file
       tinkXYZ.open(argv[i+1],ios_base::in);
       cout << argv[i+1];
       cout << " ";
     }
     if (dummy == "-k")
     {
-      //TINKER key file
+      // TINKER key file
       tinkKey.open(argv[i+1],ios_base::in);
       cout << argv[i+1];
       cout << " ";
     }
     if (dummy == "-p")
     {
-      //Flag for PBC
+      // Flag for PBC
       dummy = string(argv[i+1]);
       LICHEMLowerText(dummy);
       if ((dummy == "yes") or (dummy == "true"))
@@ -66,10 +73,10 @@ void TINK2LICHEM(int& argc, char**& argv)
       }
     }
   }
-  //Start writing the files
+  // Start writing the files
   if (PBCon)
   {
-    //Remind forgetful users that they said the system was periodic
+    // Remind forgetful users that they said the system was periodic
     cout << '\n';
     cout << " with PBC";
   }
@@ -81,15 +88,15 @@ void TINK2LICHEM(int& argc, char**& argv)
   line >> Nqm;
   if (!line.eof())
   {
-    //Read QMMM information
-    //NB: This only works if the atoms are in the correct order:
-    // QM->PB->BA->MM
+    // Read QMMM information
+    // NB: This only works if the atoms are in the correct order:
+    //     QM->PB->BA->MM
     line >> Npseudo;
     line >> Nbound;
   }
   else
   {
-    //Not needed for a standard MM XYZ file
+    // Not needed for a standard MM XYZ file
     Nqm = 0;
     Npseudo = 0;
     Nbound = 0;
@@ -97,7 +104,7 @@ void TINK2LICHEM(int& argc, char**& argv)
   Nmm = Natoms-Nqm-Npseudo-Nbound;
   if (Natoms != Nmm)
   {
-    //QMMM input
+    // QMMM input
     cout << '\n';
     cout << "Auto-detected file type: ";
     cout << "TINKER QMMM xyz";
@@ -105,13 +112,13 @@ void TINK2LICHEM(int& argc, char**& argv)
   }
   if (Natoms == Nmm)
   {
-    //MM input
+    // MM input
     cout << '\n';
     cout << "Auto-detected file type: ";
     cout << "TINKER xyz";
     cout << '\n';
   }
-  //Print settings
+  // Print settings
   cout << "  Total atoms: " << Natoms << '\n';
   cout << "  QM atoms: " << Nqm << '\n';
   cout << "  Pseudo-atoms: " << Npseudo << '\n';
@@ -121,17 +128,17 @@ void TINK2LICHEM(int& argc, char**& argv)
   cout << "Creating xyzfile.xyz, connect.inp, and regions.inp";
   cout << "...";
   cout << '\n' << '\n';
-  //Create lists for grouping frozen atoms
+  // Create lists for grouping frozen atoms
   vector<bool> actives;
   vector<bool> froz;
   for (int i=0;i<Natoms;i++)
   {
-    //Seems contradictory, however, this lets the script
-    //check for both active and inactive commands
-    actives.push_back(0); //Define all as inactive
-    froz.push_back(0); //Define all as active
+    // Seems contradictory, however, this lets the script
+    // check for both active and inactive commands
+    actives.push_back(0); // Define all as inactive
+    froz.push_back(0); // Define all as active
   }
-  //Find parameter file, active atoms, and inactive atoms
+  // Find parameter file, active atoms, and inactive atoms
   if (!tinkKey.good())
   {
     cout << '\n';
@@ -142,10 +149,10 @@ void TINK2LICHEM(int& argc, char**& argv)
   }
   while (!tinkKey.eof())
   {
-    //Read key file line by line
+    // Read key file line by line
     getline(tinkKey,dummy);
     stringstream line(dummy);
-    //Read string item by item
+    // Read string item by item
     line >> dummy;
     LICHEMLowerText(dummy);
     if (dummy == "parameters")
@@ -216,7 +223,7 @@ void TINK2LICHEM(int& argc, char**& argv)
     }
     for (int i=0;i<Natoms;i++)
     {
-      //Count frozen atoms
+      // Count frozen atoms
       if (i >= (Nqm+Npseudo+Nbound))
       {
         if (froz[i])
@@ -226,7 +233,7 @@ void TINK2LICHEM(int& argc, char**& argv)
       }
       else
       {
-        //QM, PB, and BA cannot be frozen
+        // QM, PB, and BA cannot be frozen
         froz[i] = 0;
       }
     }
@@ -238,20 +245,20 @@ void TINK2LICHEM(int& argc, char**& argv)
     cout << " frozen atoms in the key file...";
     cout << '\n';
   }
-  //Collect PBC information
+  // Collect PBC information
   if (PBCon)
   {
-    //Grab whole line
+    // Grab whole line
     getline(tinkXYZ,dummy);
     stringstream line(dummy);
-    //Read box lengths
+    // Read box lengths
     line >> Lx >> Ly >> Lz;
   }
-  //Write region file
+  // Write region file
   regFile << fixed;
   if (PBCon)
   {
-    //Print PBC settings
+    // Print PBC settings
     regFile << "PBC: Yes" << '\n';
     regFile << "Box_size: ";
     regFile << Lx << " ";
@@ -330,13 +337,13 @@ void TINK2LICHEM(int& argc, char**& argv)
     }
   }
   regFile << '\n';
-  //Read force field parameters
+  // Read force field parameters
   vector<vector<string> > masses;
   vector<vector<string> > nucCharges;
   vector<vector<string> > charges;
   while (!paramFile.eof())
   {
-    //Read line by line for atom type info
+    // Read line by line for atom type info
     getline(paramFile,dummy);
     stringstream line(dummy);
     vector<string> fullLine;
@@ -369,7 +376,7 @@ void TINK2LICHEM(int& argc, char**& argv)
       }
     }
   }
-  //Create connectivity and xyx files
+  // Create connectivity and xyx files
   posFile << Natoms << '\n' << '\n';
   for (int i=0;i<Natoms;i++)
   {
@@ -386,7 +393,7 @@ void TINK2LICHEM(int& argc, char**& argv)
     {
       if (nucCharges[j][0] == numTyp)
       {
-        //Find QM atom type
+        // Find QM atom type
         stringstream line(nucCharges[j][1]);
         int nuChg;
         line >> nuChg;
@@ -397,24 +404,24 @@ void TINK2LICHEM(int& argc, char**& argv)
     }
     if (!ZFound)
     {
-      //Print error
+      // Print error
       cout << "Warning: Missing nuclear charge!";
       cout << " The .prm file may be incomplete.";
       cout << '\n';
       cout << "LICHEM cannot continue...";
       cout << '\n';
-      //Dump data to the files and exit
+      // Dump data to the files and exit
       posFile.flush();
       conFile.flush();
       regFile.flush();
       cout.flush();
       exit(0);
     }
-    //Write positions
+    // Write positions
     posFile << fullLine[2] << " ";
     posFile << fullLine[3] << " ";
     posFile << fullLine[4] << '\n';
-    //Write connectivity
+    // Write connectivity
     conFile << i << " ";
     conFile << fullLine[1] << " ";
     conFile << numTyp << " ";
@@ -429,12 +436,12 @@ void TINK2LICHEM(int& argc, char**& argv)
     }
     if (!massFound)
     {
-      //Print error
+      // Print error
       cout << "Error: Missing mass! The .prm file may be incomplete.";
       cout << '\n';
       cout << "LICHEM cannot continue...";
       cout << '\n';
-      //Dump output and quit
+      // Dump output and quit
       posFile.flush();
       conFile.flush();
       regFile.flush();
@@ -452,10 +459,10 @@ void TINK2LICHEM(int& argc, char**& argv)
     }
     if (!chargeFound)
     {
-      //Print error
+      // Print error
       cout << "Warning: Missing charge! The .prm file may be incomplete.";
       cout << '\n';
-      conFile << "0.00" << " "; //Set charge to zero
+      conFile << "0.00" << " "; // Set charge to zero
     }
     int nBonds = fullLine.size()-6;
     conFile << nBonds;
@@ -469,7 +476,7 @@ void TINK2LICHEM(int& argc, char**& argv)
     }
     conFile << '\n';
   }
-  //Quit LICHEM
+  // Quit LICHEM
   cout << '\n';
   cout << "Do not forget to manually add the simulation input to the";
   cout << " regions.inp file.";
@@ -484,24 +491,26 @@ void TINK2LICHEM(int& argc, char**& argv)
   posFile.close();
   conFile.close();
   regFile.close();
-  exit(0); //Quit
+  exit(0); // Quit
   return;
 };
 
+/*-------------------------------------------------------------------------*/
+
 void LICHEM2TINK(int& argc, char**& argv)
 {
-  //Creates TINKER input from LICHEM input
-  fstream posFile,conFile,outFile; //File streams
-  string dummy; //Generic string
-  //Read arguments
-  bool doQuit = 0; //Exit with an error
+  // Creates TINKER input from LICHEM input
+  fstream posFile,conFile,outFile; // File streams
+  string dummy; // Generic string
+  // Read arguments
+  bool doQuit = 0; // Exit with an error
   cout << "Reading LICHEM input: ";
   for (int i=0;i<argc;i++)
   {
     dummy = string(argv[i]);
     if (dummy == "-x")
     {
-      //Open XYZ file
+      // Open XYZ file
       stringstream file;
       file << argv[i+1];
       if (!CheckFile(file.str()))
@@ -517,7 +526,7 @@ void LICHEM2TINK(int& argc, char**& argv)
     }
     if (dummy == "-c")
     {
-      //Open connectivity file
+      // Open connectivity file
       stringstream file;
       file << argv[i+1];
       if (!CheckFile(file.str()))
@@ -532,31 +541,31 @@ void LICHEM2TINK(int& argc, char**& argv)
       cout << " ";
     }
   }
-  cout << '\n' << '\n'; //Terminate output
-  //Error check
+  cout << '\n' << '\n'; // Terminate output
+  // Error check
   if ((!CheckFile(xyzFilename)) or (!CheckFile(conFilename)))
   {
     cout << "Error: Missing files!!!";
     cout << '\n' << '\n';
     doQuit = 1;
   }
-  //Parse input if files exist
+  // Parse input if files exist
   if (!doQuit)
   {
-    //Parse XYZ file and connect file
+    // Parse XYZ file and connect file
     outFile.open("tinkxyz.xyz",ios_base::out);
-    posFile >> Natoms; //Collect the number of atoms
-    outFile << Natoms << '\n'; //Write the number of atoms
+    posFile >> Natoms; // Collect the number of atoms
+    outFile << Natoms << '\n'; // Write the number of atoms
     for (int i=0;i<Natoms;i++)
     {
-      //Collect positions
+      // Collect positions
       double x,y,z;
       posFile >> dummy >> x >> y >> z;
-      //Collect atom types
-      string atType; //MM character atom type
-      int atNum; //MM numerical atom type
+      // Collect atom types
+      string atType; // MM character atom type
+      int atNum; // MM numerical atom type
       conFile >> dummy >> atType >> atNum;
-      //Collect bonds
+      // Collect bonds
       int NBonds;
       vector<int> bonds;
       conFile >> dummy >> dummy >> NBonds;
@@ -564,10 +573,10 @@ void LICHEM2TINK(int& argc, char**& argv)
       {
         int bondID;
         conFile >> bondID;
-        bondID += 1; //Fix index for TINKER
+        bondID += 1; // Fix index for TINKER
         bonds.push_back(bondID);
       }
-      //Write line of TINKER XYZ
+      // Write line of TINKER XYZ
       outFile << (i+1) << " ";
       outFile << atType << " ";
       outFile << LICHEMFormFloat(x,12) << " ";
@@ -576,12 +585,12 @@ void LICHEM2TINK(int& argc, char**& argv)
       outFile << atNum;
       for (unsigned int j=0;j<bonds.size();j++)
       {
-        outFile << " "; //Prevents trailing spaces
+        outFile << " "; // Prevents trailing spaces
         outFile << bonds[j];
       }
-      outFile << '\n'; //End the line
+      outFile << '\n'; // End the line
     }
-    //Finish up and exit
+    // Finish up and exit
     cout << "TINKER XYZ data written to tinkxyz.xyz";
     cout << '\n' << '\n';
     cout.flush();
@@ -589,7 +598,6 @@ void LICHEM2TINK(int& argc, char**& argv)
     posFile.close();
     conFile.close();
   }
-  exit(0); //Quit
+  exit(0); // Quit
   return;
 };
-

@@ -82,9 +82,9 @@ else
     echo 'ifeq ($(UNAME), Darwin)' >>Makefile
     echo 'CXXFLAGS= -O3 -fopenmp' >>Makefile
     echo 'endif' >>Makefile
-    #update header file
+    # Update header file
     sed -i 's/LICHEM_QSM_MPI\.h/LICHEM_QSM\.h/g' include/LICHEM_headers.h
-    #if mpi.h exists remove it
+    # If mpi.h exists remove it
     if grep -q "#include <mpi\.h>" include/LICHEM_clibs.h ;
     then
         sed -i '/#include <mpi\.h>/d' include/LICHEM_clibs.h
@@ -97,25 +97,32 @@ fi
 echo '' >> Makefile
 echo '### Install directory ### ' >> Makefile
 echo 'INSTALLBIN='$prefix >> Makefile
+echo '' >> Makefile
+echo '### Version Information ### ' >> Makefile
+# Date in YYYY-MM-DD format
+echo 'MAKEDATE='$(date +"%F") >> Makefile
+# Last git commit
+echo 'COMMIT'=$(git log --pretty=format:'%h' -n 1) >> Makefile
+echo '' >> Makefile
 
-cat ./src/makefile.in >>Makefile
+cat ./src/makefile.in >> Makefile
 
 if $mpi; then
    echo '	$(CXX) ./src/mpi/LICHEM_MPI.cpp -o $(INSTALLBIN)/lichem.MPI $(FLAGSBINMPI)'>>Makefile
    echo '	@strip $(INSTALLBIN)/lichem.MPI' >>Makefile
-#   echo '	@echo "" '>>Makefile
-#   echo '	@echo "Installation complete"'>>Makefile
-#   echo '	@echo "Please type " ' >>Makefile
-#   echo '	@echo "   export PATH="$(INSTALLBIN)":\$$PATH" ' >>Makefile
+#   echo '	@echo "" '>> Makefile
+#   echo '	@echo "Installation complete"'>> Makefile
+#   echo '	@echo "Please type " ' >> Makefile
+#   echo '	@echo "   export PATH="$(INSTALLBIN)":\$$PATH" ' >> Makefile
 #   echo '	@echo "to add lichem.MPI executable to your PATH"'
 
 else
    echo '	$(CXX) ./src/LICHEM.cpp -o $(INSTALLBIN)/lichem $(FLAGSBIN)'>>Makefile
    echo '	@strip $(INSTALLBIN)/lichem' >>Makefile
-#   echo '	@echo "" '>>Makefile
-#   echo '	@echo "Installation complete"'>>Makefile
+#   echo '	@echo "" '>> Makefile
+#   echo '	@echo "Installation complete"'>> Makefile
 #   echo '	@echo "Please type " ' >>Makefile
-#   echo '	@echo "   export PATH="$(INSTALLBIN)":\$$PATH" ' >>Makefile
+#   echo '	@echo "   export PATH="$(INSTALLBIN)":\$$PATH" ' >> Makefile
 #   echo '	@echo "to add lichem.MPI executable to your PATH"'
 
 fi
@@ -127,5 +134,13 @@ echo 'TO BUILD, TYPE;'
 echo ''
 echo '   make install'
 echo ''
+
+if ! (($mpi)); then
+  echo "--------------------------------------------------------------"
+  echo "NOTE:"
+  echo "  After the serial installation, you may want to configure the"
+  echo "  parallel version with:"
+  echo "       ./configure --parallel"
+fi
 
 echo ''

@@ -14,19 +14,19 @@
 
 */
 
-//Make including safe
+// Make including safe
 #ifndef LICHEM_HEADERS
 #define LICHEM_HEADERS
 
-//C++ libraries
+// C++ libraries
 #include "LICHEM_clibs.h"
 using namespace std;
 
-//Matrix libraries
+// Matrix libraries
 #include "LICHEM_matrix.h"
 using namespace Eigen;
 
-//Predefined constants, variables, and flags
+// Predefined constants, variables, and flags
 #include "LICHEM_options.h"
 using namespace LICHEMOpts;
 #include "LICHEM_constants.h"
@@ -34,16 +34,16 @@ using namespace LICHEMConst;
 #include "LICHEM_globals.h"
 using namespace LICHEMGlobal;
 
-//LICHEM headers and libraries
+// LICHEM headers and libraries
 #include "LICHEM_base_classes.h"
 #include "LICHEM_Hermite.h"
 #include "LICHEM_classes.h"
 
 
-//Set up periodic table
+// Set up periodic table
 PeriodicTable chemTable;
 
-//Function declarations (alphabetical)
+// Function declarations (alphabetical)
 bool Angled(vector<QMMMAtom>&,int,int);
 
 double Bohring(double);
@@ -197,7 +197,8 @@ MatrixXd PSI4Hessian(vector<QMMMAtom>&,QMMMSettings&,int);
 
 double PSI4Opt(vector<QMMMAtom>&,QMMMSettings&,int);
 
-void ReadArgs(int&,char**&,fstream&,fstream&,fstream&,fstream&,fstream&,fstream&);
+void ReadArgs(int&,char**&,
+              fstream&,fstream&,fstream&,fstream&,fstream&,fstream&);
 
 void ReadLICHEMInput(fstream&,fstream&,fstream&,
                      vector<QMMMAtom>&,QMMMSettings&,fstream&,int&);
@@ -242,10 +243,10 @@ void WriteTINKMPole(vector<QMMMAtom>&,fstream&,int,int);
 
 void WriteQMConnect(int&,char**&);
 
-//QSM header
+// QSM header
 #include "LICHEM_QSM.h"
 
-//Function definitions (alphabetical)
+// Function definitions (alphabetical)
 #include "Analysis.cpp"
 #include "Basis.cpp"
 #include "Basis_sets.cpp"
@@ -263,7 +264,7 @@ void WriteQMConnect(int&,char**&);
 #include "Text_format.cpp"
 #include "TINK2LICHEM.cpp"
 
-//Wrapper definitions (alphabetical)
+// Wrapper definitions (alphabetical)
 #include "GauExternal.cpp"
 #include "Gaussian.cpp"
 #include "LAMMPS.cpp"
@@ -273,4 +274,3 @@ void WriteQMConnect(int&,char**&);
 
 
 #endif
-

@@ -15,7 +15,7 @@
 
 */
 
-/*Start: Hatice GOKCAN*/
+// Start: Hatice GOKCAN
 
 #ifndef LICHEM_QSM
 #define LICHEM_QSM
@@ -36,7 +36,7 @@ void quad_app(VectorXd& wholepath, VectorXd& oldpath, MatrixXd& Hessmat,
               int beadsize, VectorXd& equad,VectorXd& gquad);
 
 void updateTR (MatrixXd& Hessmat, VectorXd& glast, VectorXd& oldpath,
-               VectorXd& wholepath, VectorXd& Eqmmm_images, 
+               VectorXd& wholepath, VectorXd& Eqmmm_images,
                VectorXd& lastenergy, VectorXd& trs,
                VectorXd& maxtr, int beadsize,int Nimages);
 
@@ -82,32 +82,29 @@ double CalcEnergy(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
 
 double runMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts);
 
-
 double TINKEROptRestr(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                       int Bead, double restr,fstream&, int&);
-
 
 bool QSMConverged(vector<QMMMAtom>& QMMMData, vector<QMMMAtom>& OldQMMMData,
                   int stepct, QMMMSettings& QMMMOpts, VectorXd& Eqmmm_images,
                   fstream& logFile);
 
-                  
 double CalcForces(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
                   VectorXd& Eqm_images, VectorXd& Emm_images,
                   VectorXd& Eqmmm_images,VectorXd& force,
                   int beadsize, int QMdim, bool first_time,fstream& logFile);
-                
 
 bool QMConverged(vector<QMMMAtom>& QMMMData,vector<QMMMAtom>& OldQMMMData,
                  MatrixXd& ForceStats, int stepct, QMMMSettings& QMMMOpts,
                  double &rmsdiff, double &rmsforce, double &maxforce);
 
-
-void print_progress(QMMMSettings& QMMMOpts, int print_level, VectorXd& Eqmmm_images,
+void print_progress(QMMMSettings& QMMMOpts, int print_level,
+                    VectorXd& Eqmmm_images,
                     double RMSdiff, double MAXforce, double RMSforce,
                     VectorXd& reactCoord,fstream&);
 
-double runRestrMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,double restr);
+double runRestrMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
+                     double restr);
 
 void calc_react_coord(QMMMSettings& QMMMOpts, vector<QMMMAtom>& QMMMData,
                       VectorXd& reactCoord);
@@ -118,17 +115,17 @@ void getTSbead(QMMMSettings& QMMMOpts,VectorXd& Eqmmm_images);
 
 void CalcFreq(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,fstream&);
 
-//MPI_Tools
+// MPI_Tools
 void Bcast_globals(int root);
 void Bcast_settings(QMMMSettings& QMMMOpts,int root,
-                    bool master);
+                    bool primaryCPU);
 
 void Send_qmmmdata(vector<QMMMAtom>& QMMMData,
-                   int Nbeads,int root,bool master, 
+                   int Nbeads,int root,bool primaryCPU,
                    int Natoms);
 
-void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, \
-               VectorXd& wholepath, int Nimages, int QMdim, bool &QMDone, 
+void LICHEMQSMMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
+               VectorXd& wholepath, int Nimages, int QMdim, bool &QMDone,
                VectorXd& force, double spaceout_dist, VectorXd& Eqmmm_images,
                int macroiter,fstream&);
 
@@ -151,11 +148,10 @@ void GaussianEnergyMPIWrite(vector<QMMMAtom>& QMMMData,
 double GaussianEnergyMPIRead(vector<QMMMAtom>& QMMMData,
                       QMMMSettings& QMMMOpts, int bead);
 
-                      
 void TINKERForcesMPIWrite(vector<QMMMAtom>& QMMMData,
                     QMMMSettings& QMMMOpts, int bead,int&,fstream&);
 
-void TINKERPolForcesMPIWrite(vector<QMMMAtom>& QMMMData, 
+void TINKERPolForcesMPIWrite(vector<QMMMAtom>& QMMMData,
                        QMMMSettings& QMMMOpts, int bead,int&,fstream&);
 
 void TINKEREnergyMPIWrite(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
@@ -163,11 +159,11 @@ void TINKEREnergyMPIWrite(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
 
 void TINKERPolEnergyMPIWrite(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                        int bead,int&,fstream&);
-                
-void TINKEROptMPIWrite(vector<QMMMAtom>& QMMMData, 
-                       QMMMSettings& QMMMOpts, int bead,int&,fstream&);        
 
-void TINKEROptRestrainMPIWrite(vector<QMMMAtom>& QMMMData, 
+void TINKEROptMPIWrite(vector<QMMMAtom>& QMMMData,
+                       QMMMSettings& QMMMOpts, int bead,int&,fstream&);
+
+void TINKEROptRestrainMPIWrite(vector<QMMMAtom>& QMMMData,
                                QMMMSettings& QMMMOpts, int bead,
                                double restr,int&,fstream& logFile);
 
@@ -180,41 +176,39 @@ void TINKERPolForcesMPIRead(vector<QMMMAtom>& QMMMData, VectorXd& forces,
 double TINKEREnergyMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                     int bead);
 
-double TINKERPolEnergyMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
-                    int bead);
-                   
-void TINKEROptMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, 
+double TINKERPolEnergyMPIRead(vector<QMMMAtom>& QMMMData,
+                              QMMMSettings& QMMMOpts, int bead);
+
+void TINKEROptMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                     int bead);
 
 void TINKERForcesMPI(vector<int> mybead_list,
                   int mysize,int pathstart, int pathend);
-                  
+
 void TINKERPolForcesMPI(vector<int> mybead_list,
                   int mysize,int pathstart, int pathend);
 
 void TINKEREnergyMPI(vector<int> mybead_list,
                      int mysize,int pathstart, int pathend);
-                     
+
 void TINKERPolEnergyMPI(vector<int> mybead_list,
                      int mysize,int pathstart, int pathend);
-                     
+
 void TINKEROptMPI(vector<int> mybead_list,
                   int mysize,int pathstart, int pathend,
                   QMMMSettings& QMMMOpts);
-                  
+
 void QSMConvergedMPI(vector<QMMMAtom>& QMMMData, vector<QMMMAtom>& OldQMMMData,
                   int stepct, QMMMSettings& QMMMOpts, VectorXd& Eqmmm_images,
-                  bool &PathDone,fstream&);                 
-                  
+                  bool &PathDone,fstream&);
+
 double CalcForcesMPI(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
                   VectorXd& Eqm_images, VectorXd& Emm_images,
                   VectorXd& Eqmmm_images,VectorXd& force,
-                  int beadsize, int QMdim, bool first_time,fstream& logFile);    
+                  int beadsize, int QMdim, bool first_time,fstream& logFile);
 
-                  
 double runMMoptMPI(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
-                   bool before_qsm,fstream&); 
-
+                   bool before_qsm,fstream&);
 
 void WriteGauInputMPI(vector<QMMMAtom>& QMMMData, string calcTyp,
                    QMMMSettings& QMMMOpts, int bead,
@@ -222,7 +216,6 @@ void WriteGauInputMPI(vector<QMMMAtom>& QMMMData, string calcTyp,
 
 double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                         double restr,fstream&);
- 
 
 #include "Reaction_path_MPI.cpp"
 #include "QSM_tools.cpp"
@@ -237,5 +230,5 @@ double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
 #include <mpi.h>
 
 #endif
-/*End: Hatice GOKCAN*/
+// End: Hatice GOKCAN
 

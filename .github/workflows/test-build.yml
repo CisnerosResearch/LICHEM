@@ -1,13 +1,15 @@
 name: LICHEM-Build
 on:
   # Trigger the workflow on push or pull request,
-  # but only for the main branch
+  # for main and dev-lichem branches
   push:
     branches:
       - main
+      - dev-lichem
   pull_request:
     branches:
       - main
+      - dev-lichem
 
 jobs:
   build:
@@ -58,9 +60,14 @@ jobs:
 
         if [ ${{ runner.os }} == macOS ]; then sed -i "" 's/SEDI=-i/SEDI=-i \"\"/g' Makefile; fi
 
-        if [ ${{ runner.os }} == Linux ]; then if [ ${{ matrix.config.cc }} == clang ]; then sudo apt install libomp5 libomp-dev libiomp-dev; fi; fi
+        if [ ${{ runner.os }} == Linux ]; then if [ ${{ matrix.config.cc }} == clang ]; then sudo apt install libomp-11-dev; fi; fi
 
-        if [ ${{ runner.os }} == Linux ]; then apt-get moo; fi
+        if [ ${{ runner.os }} == Linux ]; then if [ ${{ matrix.config.cc }} == clang ]; then which clang++; fi; fi
+
+        if [ ${{ runner.os }} == Linux ]; then if [ ${{ matrix.config.cc }} == clang ]; then clang++ --version; fi; fi
+
+## Moo is not a findable package for Ubuntu 22
+##        if [ ${{ runner.os }} == Linux ]; then apt-get moo; fi
 
 
     - name: Install
