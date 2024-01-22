@@ -54,6 +54,12 @@ void GaussianCharges(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   call << QMMMOpts.basis << " SP Symmetry=None" << '\n';
  // call << "Int=Fine SCF=Big" << '\n';
+  //S:JORGE
+  if (QMMMOpts.dispbool != 0)
+     {
+     call << " EmpiricalDispersion=" << QMMMOpts.dispersion << " ";
+     }
+  //E:JORGE
   if (QMMM)
   {
     if ((Npseudo > 0) and (QMMMOpts.func != "SemiEmp"))
@@ -209,6 +215,12 @@ double GaussianEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   }
   call << QMMMOpts.basis << " SP Symmetry=None" << '\n';
   //call << "Int=Fine SCF=Big";
+  //S:JORGE
+  if (QMMMOpts.dispbool != 0)
+     {
+     call << " EmpiricalDispersion=" << QMMMOpts.dispersion << " ";
+     }
+  //E:JORGE
   if (useCheckPoint)
   {
     call << " Guess=TCheck";

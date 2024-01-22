@@ -666,6 +666,248 @@ void WriteNWChemInput(vector<QMMMAtom>& QMMMData, string calcTyp,
   return;
 };
 
+//S:JORGE
+void WritePSITHONInput(vector<QMMMAtom>& QMMMData, string calcTyp,
+                    QMMMSettings& QMMMOpts, int bead)
+{
+  //Write PSI4 input files
+  stringstream call; //Stream for system calls and reading/writing files
+  call.copyfmt(cout); //Copy settings from cout
+  string dummy,chrgfilename; //Generic string
+  fstream inFile,outFile; //Generic file names
+  //Check units
+  double uConv = 1; //Units conversion constant
+  uConv = 1.0/bohrRad;
+  //Check for a charge file
+  bool useChargeFile = 0;
+  call.str("");
+  call << "MMCharges_" << bead << ".txt";
+  chrgfilename = call.str();
+  useChargeFile = CheckFile(call.str());
+  if (Nmm == 0)
+  {
+    //Skip blank charge files
+    useChargeFile = 0;
+  }
+  //Initialize multipoles and center of mass
+  Coord QMCOM;
+  if (!useChargeFile)
+  {
+    if (PBCon or QMMMOpts.useLREC)
+    {
+      QMCOM = FindQMCOM(QMMMData,QMMMOpts,bead);
+    }
+    if (AMOEBA)
+    {
+      if (TINKER)
+      {
+        //Set up multipoles
+        RotateTINKCharges(QMMMData,bead);
+      }
+    }
+  }
+  //Check if there is a checkpoint file
+  bool useCheckPoint;
+  call.str("");
+  call << "LICHM_" << bead << ".180";
+  useCheckPoint = CheckFile(call.str());
+  //Set up head
+  call.str("");
+  call << "import numpy as np" << '\n';
+  call << "import psi4" << '\n';
+  call << "import sys" << '\n';
+  call << "import math" << '\n';
+  call << "from psi4.driver import constants" << '\n';
+  call << "psi4.set_memory('" << QMMMOpts.RAM; 
+  if (QMMMOpts.memMB)
+  {
+    call << " mb";
+  }
+  else
+  {
+    call << " gb";
+  }
+  call << "')" << '\n';
+
+  //Set up molecule
+  call << "molA = psi4.geometry(" << '"' << '"' << '"' << '\n';
+  call << " " << QMMMOpts.charge;
+  call << " " << QMMMOpts.spin << '\n';
+  for (int i=0;i<Natoms;i++)
+  {
+    if (QMMMData[i].QMRegion)
+    {
+      call << " " << QMMMData[i].QMTyp;
+      call << " " << LICHEMFormFloat(QMMMData[i].P[bead].x*uConv,16);
+      call << " " << LICHEMFormFloat(QMMMData[i].P[bead].y*uConv,16);
+      call << " " << LICHEMFormFloat(QMMMData[i].P[bead].z*uConv,16);
+      call << '\n';
+    }
+  }
+  call << " symmetry c1" << '\n';
+  call << " no_reorient" << '\n';
+  call << " units bohr" << '\n';
+  call << " no_com" << '\n';
+  call << '"' << '"' << '"' << ")" << '\n';
+
+  call << "molB = psi4.geometry(" << '"' << '"' << '"' << '\n';
+  call << " " << QMMMOpts.charge;
+  call << " " << QMMMOpts.spin << '\n';
+  for (int i=0;i<Natoms;i++)
+  {
+    if (QMMMData[i].MMRegion)
+    {
+      call << " " << QMMMData[i].QMTyp;
+      call << " " << LICHEMFormFloat(QMMMData[i].P[bead].x*uConv,16);
+      call << " " << LICHEMFormFloat(QMMMData[i].P[bead].y*uConv,16);
+      call << " " << LICHEMFormFloat(QMMMData[i].P[bead].z*uConv,16);
+      call << '\n';
+    }
+  }
+  call << " symmetry c1" << '\n';
+  call << " no_reorient" << '\n';
+  call << " units bohr" << '\n';
+  call << " no_com" << '\n';
+  call << '"' << '"' << '"' << ")" << '\n' << '\n';
+
+  call << "methodname = '" << QMMMOpts.func << "'\n";
+  call << "basisname = '" << QMMMOpts.basis << "'\n";
+  call << "gembasisname = '" << QMMMOpts.gembasis << "'\n";
+  call << "K_exchange = " << QMMMOpts.kexchange << "\n" << "\n";
+
+  call << "epsilon = 1e-12" << '\n';
+  call << "regularizer = 0.000001" << '\n';
+  call << "constrain = True" << '\n' << '\n';
+
+  call << "psi4.set_options({'puream' : False, 'print' : 1,'scf_type' : 'df'})" << '\n' << '\n';
+
+  call << "eA, wfnA = psi4.energy(methodname+'/'+basisname, molecule=molA, return_wfn=True)" << '\n';
+  if (QMMMOpts.prefitted)
+    {
+    call << "wfnB = psi4.core.Wavefunction.build(molB, basisname)" << '\n';
+    }
+  else
+  {
+    call << "eB, wfnB = psi4.energy(methodname+'/'+basisname, molecule=molB, return_wfn=True)" << '\n';
+  }
+  call << '\n';
+
+  call << "def invert(mat):" << '\n';
+  call << "    if epsilon == 0:" << '\n';
+  call << "        c = np.linalg.inv(np.linalg.cholesky(mat))" << '\n';
+  call << "        return np.dot(c.T,c)" << '\n';
+  call << "    else:" << '\n';
+  call << "        evals, evecs = np.linalg.eigh(mat)" << '\n';
+  call << "        evals = np.where(evals < epsilon, 0.0, 1.0/evals)" << '\n';
+  call << "        return np.einsum('ik,k,jk->ij', evecs, evals, evecs)" << '\n' << '\n';
+
+  call << "def build_gem_field(wfn, add_coulomb, add_exchange, fit):" << '\n';
+  call << "    orbital_basis = wfn.basisset()" << '\n';
+  call << "    molecule = orbital_basis.molecule()" << '\n';
+  call << "    aux_basis = psi4.core.BasisSet.build(molecule, 'ORBITAL', gembasisname)" << '\n';
+  call << "    aux_basis.apply_hermite_normalization()" << '\n';
+  call << "    zero_basis = psi4.core.BasisSet.zero_ao_basis_set()" << '\n';
+  call << "    mints = psi4.core.MintsHelper(orbital_basis)" << '\n';
+  call << "    field = psi4.QMMM().extern" << '\n';
+  call << "    if fit:" << '\n';
+  call << "        J_PQ = np.squeeze(mints.ao_eri(aux_basis, zero_basis, aux_basis, zero_basis))" << '\n';
+  call << "        J_PQinv = invert(J_PQ + regularizer*np.eye(aux_basis.nbf()))" << '\n';
+  call << "        J_Pmn = np.squeeze(mints.ao_eri(aux_basis, zero_basis, orbital_basis, orbital_basis))" << '\n';
+  call << "        d =  2 * np.einsum('Qmn,mn->Q', J_Pmn, wfn.Da())" << '\n';
+  call << "        fit_coefficients = np.einsum('PQ,Q->P', J_PQinv, d)" << '\n';
+  call << "        if constrain:" << '\n';
+  call << "            def dfact(n):" << '\n';
+  call << "                if n <= 1:" << '\n';
+  call << "                    return 1.0" << '\n';
+  call << "                if n%2 == 1:" << '\n';
+  call << "                    k = (n+1)//2" << '\n';
+  call << "                    return math.factorial(2*k) / (2**k * math.factorial(k))" << '\n';
+  call << "                else:" << '\n';
+  call << "                    k = n//2" << '\n';
+  call << "                    return 2**k * math.factorial(k)" << '\n';
+  call << "            nshell = aux_basis.nshell()" << '\n';
+  call << "            q = []" << '\n';
+  call << "            for sh in range(nshell):" << '\n';
+  call << "                shell = aux_basis.shell(sh)" << '\n';
+  call << "                nprim = shell.nprimitive" << '\n';
+  call << "                if nprim > 1:" << '\n';
+  call << "                    raise('This code currently assumes uncontracted GEM basis sets')" << '\n';
+  call << "                L = shell.am" << '\n';
+  call << "                ex = shell.exp(0)" << '\n';
+  call << "                coef = shell.coef(0)" << '\n';
+  call << "                prefac = coef * np.sqrt((np.pi**3)/(2**L * ex**(L+3)))" << '\n';
+  call << "                for lx in range(L,-1,-1):" << '\n';
+  call << "                    for lz in range(L-lx+1):" << '\n';
+  call << "                        ly = L - lx - lz" << '\n';
+  call << "                        if (lx%2==0) and (ly%2==0) and (lz%2==0):" << '\n';
+  call << "                            q.append(prefac*dfact(lx-1)*dfact(ly-1)*dfact(lz-1))" << '\n';
+  call << "                        else:" << '\n';
+  call << "                            q.append(0.0)" << '\n';
+  call << "            natom = molecule.natom()" << '\n';
+  call << "            Q = 0" << '\n';
+  call << "            for i in range(natom):" << '\n';
+  call << "                Q += molecule.Z(i)" << '\n';
+  call << "            Q -= molecule.molecular_charge()" << '\n';
+  call << "            old_nelec = np.dot(fit_coefficients, q)" << '\n';
+  call << "            psi4.core.print_out(f'Number of electrons before constraining: {old_nelec:.6f}')" << '\n';
+  call << "            qdot = np.dot(J_PQinv, q)" << '\n';
+  call << "            lam = (Q - np.dot(qdot,  d)) / np.dot(qdot, q)" << '\n';
+  call << "            fit_coefficients += lam * qdot" << '\n';
+  call << "            new_nelec = np.dot(fit_coefficients, q)" << '\n';
+  call << "            psi4.core.print_out(f'\\nNumber of electrons after constraining: {new_nelec:.6f}')" << '\n';
+  call << "    else:" << '\n';
+  call << "        fit_coefficients = np.loadtxt('fitcoeffs.dat')" << '\n';
+  call << "    coefs_vec = psi4.core.Vector(aux_basis.nbf())" << '\n';
+  call << "    for n, coef in enumerate(fit_coefficients): coefs_vec.set(n, coef)" << '\n';
+  call << "    field.addBasis(aux_basis, coefs_vec)" << '\n';
+  call << "    if add_exchange:" << '\n';
+  call << "        K_coefs_vec = psi4.core.Vector(aux_basis.nbf())" << '\n';
+  call << "        for n, coef in enumerate(fit_coefficients): K_coefs_vec.set(n, K_exchange*coef)" << '\n';
+  call << "        field.addExchangeBasis(aux_basis, K_coefs_vec)" << '\n';
+  call << "    for n in range(molecule.natom()):" << '\n';
+  call << "        field.addCharge(molecule.Z(n), molecule.x(n), molecule.y(n), molecule.z(n))" << '\n';
+  call << "    return field" << '\n' << '\n';
+
+  if (QMMMOpts.prefitted)
+  {
+  call << "field = build_gem_field(wfnB, add_coulomb=True, add_exchange=False, fit=False)" << '\n';
+  }
+  else
+  {
+  call << "field = build_gem_field(wfnB, add_coulomb=True, add_exchange=False, fit=True)" << '\n';
+  }
+  call << "psi4.core.set_global_option_python('EXTERN', field)" << '\n';
+  call << "eA_Jperturbed = psi4.energy(methodname+'/'+basisname, molecule=molA)" << '\n' << '\n';
+
+  if (QMMMOpts.prefitted)
+  {
+  call << "field = build_gem_field(wfnB, add_coulomb=True, add_exchange=True, fit=False)" << '\n';
+  }
+  else
+  {
+  call << "field = build_gem_field(wfnB, add_coulomb=True, add_exchange=True, fit=True)" << '\n';
+  }
+  
+  call << "psi4.core.set_global_option_python('EXTERN', field)" << '\n';
+  call << "eA_JKperturbed = psi4.energy(methodname+'/'+basisname, molecule=molA)" << '\n' << '\n';
+
+  call << "psi4.core.print_out('\\n Coulomb Energy: {:6} kcal/mol'.format(constants.hartree2kcalmol*(eA_Jperturbed-eA)))" << '\n';
+  call << "psi4.core.print_out('\\n Exchange Energy: {:6} kcal/mol\\n'.format(constants.hartree2kcalmol*(eA_JKperturbed-eA_Jperturbed)))" << '\n';
+  call << "psi4.core.print_out('\\n QM+GEM Energy: {:6} \\n'.format(eA_JKperturbed))" << '\n';
+
+  //Create file
+  dummy = call.str(); //Store file as a temporary variable
+  call.str("");
+  call << "newLICHM_" << bead << ".py";
+  outFile.open(call.str().c_str(),ios_base::out);
+  outFile << dummy << '\n';
+  outFile.flush();
+  outFile.close();
+
+  return;
+};
+//E:JORGE
+
 void WritePSI4Input(vector<QMMMAtom>& QMMMData, string calcTyp,
                     QMMMSettings& QMMMOpts, int bead)
 {
