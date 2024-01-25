@@ -574,9 +574,9 @@ double TINKERPolEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   if(!QMMMOpts.KeepFiles){
     call.str("");
     call << "rm -f";
-    //call << " LICHM_" << bead << ".xyz";
-    //call << " LICHM_" << bead << ".log";
-    //call << " LICHM_" << bead << ".key";
+    call << " LICHM_" << bead << ".xyz";
+    call << " LICHM_" << bead << ".log";
+    call << " LICHM_" << bead << ".key";
     globalSys = system(call.str().c_str());
   }
   else{
@@ -865,7 +865,7 @@ double TINKERForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     call.str("");
     call << "rm -f";
     call << " LICHM_" << bead << ".xyz";
-    //call << " LICHM_" << bead << ".key";
+    call << " LICHM_" << bead << ".key";
     call << " LICHM_" << bead << ".grad";
     call << " LICHM_" << bead << ".err";
     globalSys = system(call.str().c_str());
@@ -874,7 +874,7 @@ double TINKERForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     call.str("");
     call << "rm -f";
     call << " LICHM_" << bead << ".xyz";
-    //call << " LICHM_" << bead << ".key";
+    call << " LICHM_" << bead << ".key";
     call << " LICHM_" << bead << ".err";
     call << "; mv ";
     call << "LICHM_" << bead << ".grad ";
@@ -1143,7 +1143,7 @@ double TINKERMMForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     call.str("");
     call << "rm -f";
     call << " LICHM_" << bead << ".xyz";
-    //call << " LICHM_" << bead << ".key";
+    call << " LICHM_" << bead << ".key";
     call << " LICHM_" << bead << ".grad";
     call << " LICHM_" << bead << ".err";
     globalSys = system(call.str().c_str());
@@ -1152,7 +1152,7 @@ double TINKERMMForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     call.str("");
     call << "rm -f";
     call << " LICHM_" << bead << ".xyz";
-    //call << " LICHM_" << bead << ".key";
+    call << " LICHM_" << bead << ".key";
     call << " LICHM_" << bead << ".err";
     call << "; mv ";
     call << "LICHM_" << bead << ".grad ";
@@ -1421,7 +1421,7 @@ double TINKERPolForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     call.str("");
     call << "rm -f";
     call << " LICHM_" << bead << ".xyz";
-    //call << " LICHM_" << bead << ".key";
+    call << " LICHM_" << bead << ".key";
     call << " LICHM_" << bead << ".grad";
     call << " LICHM_" << bead << ".err";
     globalSys = system(call.str().c_str());
@@ -1430,7 +1430,7 @@ double TINKERPolForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     call.str("");
     call << "rm -f";
     call << " LICHM_" << bead << ".xyz";
-    //call << " LICHM_" << bead << ".key";
+    call << " LICHM_" << bead << ".key";
     call << " LICHM_" << bead << ".err";
     call << "; mv ";
     call << "LICHM_" << bead << ".grad ";
@@ -1676,9 +1676,9 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   if(!QMMMOpts.KeepFiles){
     call.str("");
     call << "rm -f";
-    //call << " LICHM_" << bead << ".xyz";
-    //call << " LICHM_" << bead << ".log";
-    //call << " LICHM_" << bead << ".key";
+    call << " LICHM_" << bead << ".xyz";
+    call << " LICHM_" << bead << ".log";
+    call << " LICHM_" << bead << ".key";
     call << " LICHM_" << bead << ".err";
     globalSys = system(call.str().c_str());
   }
@@ -1705,7 +1705,7 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   //Calculate GEM energy
   if (GEM and QMMM)
   {
-     E += TINKEREnergyGEM(QMMMData,QMMMOpts,bead,logFile);
+     E += TINKERGEMEnergy(QMMMData,QMMMOpts,bead,logFile);
   }
 
   //Calculate polarization energy
@@ -1721,7 +1721,7 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
 
 
 //S:JORGE
-double TINKEREnergyGEM(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
+double TINKERGEMEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                     int bead,fstream& logFile)
 {
   //Runs TINKER MM energy calculations
@@ -1872,9 +1872,9 @@ double TINKEREnergyGEM(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   if(!QMMMOpts.KeepFiles){
     call.str("");
     call << "rm -f";
-    //call << " LICHM_" << bead << ".xyz";
-    //call << " LICHM_" << bead << ".log";
-    //call << " LICHM_" << bead << ".key";
+    call << " LICHM_" << bead << ".xyz";
+    call << " LICHM_" << bead << ".log";
+    call << " LICHM_" << bead << ".key";
     call << " LICHM_" << bead << ".err";
     globalSys = system(call.str().c_str());
   }
@@ -1886,14 +1886,14 @@ double TINKEREnergyGEM(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     call << " LICHM_" << bead << ".err";
     call << "; mv ";
     call << "LICHM_" << bead << ".log ";
-    call << "LICHM_TINKEREnergyGEM_" << bead << ".log ";
+    call << "LICHM_TINKERGEMEnergy_" << bead << ".log ";
     //S:JORGE
     call << "; mv ";
     call << "LICHM_" << bead << ".key ";
-    call << "LICHM_TINKEREnergyGEM_" << bead << ".key ";
+    call << "LICHM_TINKERGEMEnergy_" << bead << ".key ";
     call << "; mv ";
     call << "LICHM_" << bead << ".xyz ";
-    call << "LICHM_TINKEREnergyGEM_" << bead << ".xyz ";
+    call << "LICHM_TINKERGEMEnergy_" << bead << ".xyz ";
     //E:JORGE
     globalSys = system(call.str().c_str());
   }
@@ -2177,9 +2177,9 @@ MatrixXd TINKERHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     call.str("");
     call << "rm -f";
     call << " LICHM_" << bead << ".xyz";
-    //call << " LICHM_" << bead << ".key";
+    call << " LICHM_" << bead << ".key";
     call << " LICHM_" << bead << ".hes";
-    //call << " LICHM_" << bead << ".log";
+    call << " LICHM_" << bead << ".log";
     call << " LICHM_" << bead << ".err";
     globalSys = system(call.str().c_str());
   }
@@ -2187,7 +2187,7 @@ MatrixXd TINKERHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     call.str("");
     call << "rm -f";
     call << " LICHM_" << bead << ".xyz";
-    //call << " LICHM_" << bead << ".key";
+    call << " LICHM_" << bead << ".key";
     call << " LICHM_" << bead << ".err";
     call << "; mv ";
     call << "LICHM_" << bead << ".grad ";
@@ -2493,9 +2493,9 @@ double TINKEROpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
     call.str("");
     call << "rm -f";
     call << " LICHM_" << bead << ".xyz";
-    //call << " LICHM_" << bead << ".log";
+    call << " LICHM_" << bead << ".log";
     call << " LICHM_" << bead << ".xyz_*";
-    //call << " LICHM_" << bead << ".key";
+    call << " LICHM_" << bead << ".key";
     call << " LICHM_" << bead << ".err";
     globalSys = system(call.str().c_str());
   }
@@ -2504,7 +2504,7 @@ double TINKEROpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
     call << "rm -f";
     call << " LICHM_" << bead << ".xyz";
     call << " LICHM_" << bead << ".xyz_*";
-    //call << " LICHM_" << bead << ".key";
+    call << " LICHM_" << bead << ".key";
     call << " LICHM_" << bead << ".err";
     call << "; mv ";
     call << "LICHM_" << bead << ".log ";
