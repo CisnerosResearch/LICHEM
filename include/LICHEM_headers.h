@@ -212,7 +212,7 @@ void TINK2LICHEM(int&,char**&);
 
 double TINKEREnergy(vector<QMMMAtom>&,QMMMSettings&,int,fstream&);
 
-double TINKEREnergyGEM(vector<QMMMAtom>&,QMMMSettings&,int,fstream&);
+double TINKERGEMEnergy(vector<QMMMAtom>&,QMMMSettings&,int,fstream&);
 
 double TINKERForces(vector<QMMMAtom>&,VectorXd&,QMMMSettings&,int);
 
