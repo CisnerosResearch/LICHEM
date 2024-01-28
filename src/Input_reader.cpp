@@ -979,6 +979,36 @@ void ReadLICHEMInput(fstream& xyzFile, fstream& connectFile,
         QMMMData[atomID].frozen = 1;
       }
     }
+    //S:JORGE
+    else if (keyword == "dispersion:")
+    {
+      //Adding vdW option
+      regionFile >> dummy;
+      QMMMOpts.dispersion = dummy;
+      QMMMOpts.dispbool = 1;
+    }
+    else if (keyword == "gem_basis:")
+    {
+      //Set GEM basis
+      regionFile >> dummy;
+      QMMMOpts.gembasis = dummy;
+    }
+    else if (keyword == "gem_kexchange:")
+    {
+      regionFile >> QMMMOpts.kexchange;
+    }
+    else if (keyword == "gem_prefitted:")
+    {
+      //Check for prefitted coefficients
+      regionFile >> dummy;
+      LICHEMLowerText(dummy);
+      if (dummy == "no") 
+      {
+        //Turn on prefitted coefficients
+        QMMMOpts.prefitted = 0;
+      }
+    }
+    //E:JORGE
     //Check for bad keywords
     else if (regionFile.good() and (!regionFile.eof()))
     {

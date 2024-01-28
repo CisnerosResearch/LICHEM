@@ -119,6 +119,8 @@ void TINKERInduced(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   call << "LICHM_" << bead << ".xyz";
   outFile.open(call.str().c_str(),ios_base::out);
   outFile << Natoms << '\n';
+  //This block has been commented for Tinker-HP compatibility
+  /* S:JORGE
   if (PBCon)
   {
     //Write box size
@@ -128,6 +130,7 @@ void TINKERInduced(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     outFile << "90.0 90.0 90.0";
     outFile << '\n';
   }
+  E:JORGE */
   ct = 0; //Counter for QM atoms
   for (int i=0;i<Natoms;i++)
   {
@@ -340,6 +343,8 @@ double TINKERPolEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   call << "LICHM_" << bead << ".xyz";
   outFile.open(call.str().c_str(),ios_base::out);
   outFile << Natoms << '\n';
+  //This block has been commented for Tinker-HP compatibility
+  /* S:JORGE
   if (PBCon)
   {
     //Write box size
@@ -349,6 +354,7 @@ double TINKERPolEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     outFile << "90.0 90.0 90.0";
     outFile << '\n';
   }
+  E:JORGE */
   ct = 0; //Counter for QM atoms
   for (int i=0;i<Natoms;i++)
   {
@@ -421,10 +427,15 @@ double TINKERPolEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     outFile << "beta 90.0" << '\n';
     outFile << "gamma 90.0" << '\n';
   }
-  if (AMOEBA)
+  if (AMOEBA or GEM)
   {
     //Get rid of non-polarization interactions
-    outFile << "polarizeterm only" << '\n';
+    //S:JORGE
+    if (!GEM)
+    {
+      outFile << "polarizeterm only" << '\n';
+    }
+    //E:JORGE
   }
   if (QMMMOpts.useImpSolv)
   {
@@ -571,12 +582,20 @@ double TINKERPolEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   else{
     call.str("");
     call << "rm -f";
-    call << " LICHM_" << bead << ".xyz";
-    call << " LICHM_" << bead << ".key";
+    //call << " LICHM_" << bead << ".xyz";
+    //call << " LICHM_" << bead << ".key";
     call << " LICHM_" << bead << ".err";
     call << "; mv ";
     call << "LICHM_" << bead << ".log ";
     call << "LICHM_TINKERPolEnergy_" << bead << ".log ";
+    //S:JORGE
+    call << "; mv ";
+    call << "LICHM_" << bead << ".key ";
+    call << "LICHM_TINKERPolEnergy_" << bead << ".key ";
+    call << "; mv ";
+    call << "LICHM_" << bead << ".xyz ";
+    call << "LICHM_TINKERPolEnergy_" << bead << ".xyz ";
+    //E:JORGE
     globalSys = system(call.str().c_str());
   }
   //Return polarization and solvation energy in kcal/mol
@@ -745,6 +764,8 @@ double TINKERForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   outFile.open(call.str().c_str(),ios_base::out);
   //Write atoms to the xyz file
   outFile << Natoms << '\n';
+  //This block has been commented for Tinker-HP compatibility
+  /* S:JORGE
   if (PBCon)
   {
     //Write box size
@@ -754,6 +775,7 @@ double TINKERForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     outFile << "90.0 90.0 90.0";
     outFile << '\n';
   }
+  E:JORGE */
   ct = 0; //Counter for QM atoms
   for (int i=0;i<Natoms;i++)
   {
@@ -1016,6 +1038,8 @@ double TINKERMMForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   outFile.open(call.str().c_str(),ios_base::out);
   //Write atoms to the xyz file
   outFile << Natoms << '\n';
+  //This block has been commented for Tinker-HP compatibility
+  /* S:JORGE
   if (PBCon)
   {
     //Write box size
@@ -1025,6 +1049,7 @@ double TINKERMMForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     outFile << "90.0 90.0 90.0";
     outFile << '\n';
   }
+  E:JORGE */
   for (int i=0;i<Natoms;i++)
   {
     outFile << setw(6) << (QMMMData[i].id+1);
@@ -1198,10 +1223,15 @@ double TINKERPolForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     outFile << "beta 90.0" << '\n';
     outFile << "gamma 90.0" << '\n';
   }
-  if (AMOEBA)
+  if (AMOEBA or GEM)
   {
     //Get rid of non-polarization interactions
-    outFile << "polarizeterm only" << '\n';
+    //S:JORGE
+    if (!GEM) 
+    {
+      outFile << "polarizeterm only" << '\n';
+    }
+    //E:JORGE
   }
   if (QMMMOpts.useImpSolv)
   {
@@ -1290,6 +1320,8 @@ double TINKERPolForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   outFile.open(call.str().c_str(),ios_base::out);
   //Write atoms to the xyz file
   outFile << Natoms << '\n';
+  //This block has been commented for Tinker-HP compatibility
+  /* S:JORGE
   if (PBCon)
   {
     //Write box size
@@ -1299,6 +1331,7 @@ double TINKERPolForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     outFile << "90.0 90.0 90.0";
     outFile << '\n';
   }
+  E:JORGE */
   ct = 0; //Counter for QM atoms
   for (int i=0;i<Natoms;i++)
   {
@@ -1410,6 +1443,8 @@ double TINKERPolForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   return Emm;
 };
 
+
+
 double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                     int bead,fstream& logFile)
 {
@@ -1441,6 +1476,11 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     outFile << "#LICHEM MM keywords"; //Marks the changes
   }
   outFile << '\n';
+  //S:JORGE
+  if (GEM)
+  {
+    outFile << "ONLY-HALGREN" << '\n';
+  }
   if (QMMMOpts.useLREC)
   {
     //Apply cutoff
@@ -1556,6 +1596,8 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   outFile.open(call.str().c_str(),ios_base::out);
   //Write atoms to the xyz file
   outFile << Natoms << '\n';
+  //This block has been commented for Tinker-HP compatibility
+  /* S:JORGE
   if (PBCon)
   {
     //Write box size
@@ -1565,6 +1607,7 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     outFile << "90.0 90.0 90.0";
     outFile << '\n';
   }
+  E:JORGE */
   ct = 0; //Counter for QM atoms
   for (int i=0;i<Natoms;i++)
   {
@@ -1585,6 +1628,208 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       outFile << setw(6) << (QMMMData[i].bonds[j]+1);
     }
     outFile << '\n';
+  }
+  outFile.flush();
+  outFile.close();
+  //Calculate MM potential energy
+  call.str("");
+  call << "analyze LICHM_";
+  call << bead << ".xyz E > LICHM_";
+  call << bead << ".log";
+  globalSys = system(call.str().c_str());
+  call.str("");
+  call << "LICHM_" << bead << ".log";
+  inFile.open(call.str().c_str(),ios_base::in);
+  //Read MM potential energy
+  bool EFound = 0;
+  //S:JORGE
+  //cout << "==> " << E << endl;
+  //E:JORGE
+  while ((!inFile.eof()) and inFile.good())
+  {
+    inFile >> dummy;
+    if (dummy == "Total")
+    {
+      inFile >> dummy >> dummy;
+      if (dummy == "Energy")
+      {
+        inFile >> dummy >> E;
+        EFound = 1;
+      }
+    }
+  }
+  //S:JORGE
+  //cout << "==> " << E << endl;
+  //E:JORGE
+  if (!EFound)
+  {
+    //Warn user if no energy was found
+    cerr << "Warning: No MM energy found after a calculation!!!";
+    cerr << '\n';
+    cerr << " LICHEM will attempt to continue...";
+    cerr << '\n';
+    cerr.flush(); //Print warning immediately
+    E = hugeNum; //Large number to reject step
+  }
+  inFile.close();
+  //Clean up files
+  if(!QMMMOpts.KeepFiles){
+    call.str("");
+    call << "rm -f";
+    call << " LICHM_" << bead << ".xyz";
+    call << " LICHM_" << bead << ".log";
+    call << " LICHM_" << bead << ".key";
+    call << " LICHM_" << bead << ".err";
+    globalSys = system(call.str().c_str());
+  }
+  else{
+    call.str("");
+    call << "rm -f";
+    //call << " LICHM_" << bead << ".xyz";
+    //call << " LICHM_" << bead << ".key";
+    call << " LICHM_" << bead << ".err";
+    call << "; mv ";
+    call << "LICHM_" << bead << ".log ";
+    call << "LICHM_TINKEREnergy_" << bead << ".log ";
+    //S:JORGE
+    call << "; mv ";
+    call << "LICHM_" << bead << ".key ";
+    call << "LICHM_TINKEREnergy_" << bead << ".key ";
+    call << "; mv ";
+    call << "LICHM_" << bead << ".xyz ";
+    call << "LICHM_TINKEREnergy_" << bead << ".xyz ";
+    //E:JORGE
+    globalSys = system(call.str().c_str());
+  }
+ 
+  //Calculate GEM energy
+  if (GEM and QMMM)
+  {
+     E += TINKERGEMEnergy(QMMMData,QMMMOpts,bead,logFile);
+  }
+
+  //Calculate polarization energy
+  if ((AMOEBA or GEM or QMMMOpts.useImpSolv) and QMMM)
+  {
+    //Correct polarization energy for QMMM simulations
+    E += TINKERPolEnergy(QMMMData,QMMMOpts,bead,logFile);
+  }
+  //Change units
+  E *= kcal2eV;
+  return E;
+};
+
+
+//S:JORGE
+double TINKERGEMEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
+                    int bead,fstream& logFile)
+{
+  //Runs TINKER MM energy calculations
+  fstream outFile,inFile; //Generic file streams
+  stringstream call; //Stream for system calls and reading/writing files
+  call.copyfmt(cout); //Copy settings from cout
+  string dummy; //Generic string
+  double E = 0;
+  int ct; //Generic counter
+  call.str("");
+  //Copy the original key file and make changes
+  call.str("");
+  call << "cp tinker.key LICHM_";
+  call << bead << ".key";
+  globalSys = system(call.str().c_str());
+  //Update key file
+  call.str("");
+  call << "LICHM_";
+  call << bead << ".key";
+  outFile.open(call.str().c_str(),ios_base::app|ios_base::out);
+  outFile << '\n';
+  if (QMMM)
+  {
+    outFile << "#LICHEM QMMM keywords"; //Marks the changes
+  }
+  else
+  {
+    outFile << "#LICHEM MM keywords"; //Marks the changes
+  }
+  outFile << '\n';
+  //S:JORGE
+  if (GEM)
+  {
+    outFile << "USE-GEM" << '\n';
+    outFile << "ONLY-XC" << '\n';
+  }
+  if (QMMMOpts.useLREC)
+  {
+    //Apply cutoff
+    if (QMMMOpts.useEwald and PBCon)
+    {
+      //Use Ewald or PME
+      outFile << "ewald" << '\n';
+    }
+    else if (!QMMMOpts.useImpSolv)
+    {
+      //Use smoothing functions
+      outFile << "cutoff " << LICHEMFormFloat(QMMMOpts.LRECCut,12);
+      outFile << '\n';
+      outFile << "taper " << LICHEMFormFloat(0.90*QMMMOpts.LRECCut,12);
+      outFile << '\n';
+    }
+  }
+  outFile << "openmp-threads " << Ncpus << '\n';
+  outFile << "digits 12" << '\n'; //Increase precision
+  if (PBCon)
+  {
+    //PBC defined twice for safety
+    outFile << "a-axis " << LICHEMFormFloat(Lx,12) << '\n';
+    outFile << "b-axis " << LICHEMFormFloat(Ly,12) << '\n';
+    outFile << "c-axis " << LICHEMFormFloat(Lz,12) << '\n';
+    outFile << "alpha 90.0" << '\n';
+    outFile << "beta 90.0" << '\n';
+    outFile << "gamma 90.0" << '\n';
+  }
+  if (QMMM)
+  {
+    outFile << "polarizeterm none" << '\n'; //Remove polarization energy
+  }
+  outFile.flush();
+  outFile.close();
+  //Create TINKER xyz file from the structure
+  call.str("");
+  call << "LICHM_" << bead << ".xyz";
+  outFile.open(call.str().c_str(),ios_base::out);
+  //Write atoms to the xyz file
+  ct = 0; //Counter for QM atoms
+  for (int i=0;i<Natoms;i++)
+  {
+    if (QMMMData[i].MMRegion)
+    {
+       ct += 1;
+    }
+  }
+  outFile << ct << '\n';
+  ct = 0; //Counter for QM atoms
+  for (int i=0;i<Natoms;i++)
+  {
+    if (QMMMData[i].MMRegion)
+    {
+       outFile << setw(6) << (QMMMData[i].id+1);
+       outFile << " ";
+       outFile << setw(3) << QMMMData[i].MMTyp;
+       outFile << " ";
+       outFile << LICHEMFormFloat(QMMMData[i].P[bead].x,16);
+       outFile << " ";
+       outFile << LICHEMFormFloat(QMMMData[i].P[bead].y,16);
+       outFile << " ";
+       outFile << LICHEMFormFloat(QMMMData[i].P[bead].z,16);
+       outFile << " ";
+       outFile << setw(4) << QMMMData[i].numTyp;
+       for (unsigned int j=0;j<QMMMData[i].bonds.size();j++)
+       {
+         outFile << " "; //Avoids trailing spaces
+         outFile << setw(6) << (QMMMData[i].bonds[j]+1);
+       }
+       outFile << '\n';
+    }
   }
   outFile.flush();
   outFile.close();
@@ -1636,27 +1881,28 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   else{
     call.str("");
     call << "rm -f";
-    call << " LICHM_" << bead << ".xyz";
-    call << " LICHM_" << bead << ".key";
+    //call << " LICHM_" << bead << ".xyz";
+    //call << " LICHM_" << bead << ".key";
     call << " LICHM_" << bead << ".err";
     call << "; mv ";
     call << "LICHM_" << bead << ".log ";
-    call << "LICHM_TINKEREnergy_" << bead << ".log ";
+    call << "LICHM_TINKERGEMEnergy_" << bead << ".log ";
+    //S:JORGE
+    call << "; mv ";
+    call << "LICHM_" << bead << ".key ";
+    call << "LICHM_TINKERGEMEnergy_" << bead << ".key ";
+    call << "; mv ";
+    call << "LICHM_" << bead << ".xyz ";
+    call << "LICHM_TINKERGEMEnergy_" << bead << ".xyz ";
+    //E:JORGE
     globalSys = system(call.str().c_str());
   }
 
-  double tempE;
-  tempE=E;
-  //Calculate polarization energy
-  if ((AMOEBA or GEM or QMMMOpts.useImpSolv) and QMMM)
-  {
-    //Correct polarization energy for QMMM simulations
-    E += TINKERPolEnergy(QMMMData,QMMMOpts,bead,logFile);
-  }
-  //Change units
-  E *= kcal2eV;
   return E;
 };
+
+//E:JORGE
+
 
 MatrixXd TINKERHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                        int bead)
@@ -1822,6 +2068,8 @@ MatrixXd TINKERHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   outFile.open(call.str().c_str(),ios_base::out);
   //Write atoms to the xyz file
   outFile << Natoms << '\n';
+  //This block has been commented for Tinker-HP compatibility
+  /* S:JORGE
   if (PBCon)
   {
     //Write box size
@@ -1831,6 +2079,7 @@ MatrixXd TINKERHessian(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     outFile << "90.0 90.0 90.0";
     outFile << '\n';
   }
+  E:JORGE */
   ct = 0; //Counter for QM atoms
   for (int i=0;i<Natoms;i++)
   {
@@ -2173,6 +2422,8 @@ double TINKEROpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
   outFile.open(call.str().c_str(),ios_base::out);
   //Write atoms to the xyz file
   outFile << Natoms << '\n';
+  //This block has been commented for Tinker-HP compatibility
+  /* S:JORGE
   if (PBCon)
   {
     //Write box size
@@ -2182,6 +2433,7 @@ double TINKEROpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
     outFile << "90.0 90.0 90.0";
     outFile << '\n';
   }
+  E:JORGE */
   ct = 0; //Counter for QM atoms
   for (int i=0;i<Natoms;i++)
   {

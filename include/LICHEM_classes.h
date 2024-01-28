@@ -90,6 +90,13 @@ class QMMMSettings
     //Input needed for QM wrappers
     string func; //QM method (functional, HF, etc)
     string basis; //Basis set for QM calculations
+    //S:JORGE
+    bool dispbool; //addng dispersion
+    string dispersion; //adding dispersion
+    string gembasis; //GEM basis set
+    double kexchange; //K exchange
+    bool prefitted; // Prefixed coefficients for GEM
+    //E:JORGE
     int RAM; //Ram for QM calculations
     bool memMB; //Is the RAM in mb or gb
     int charge; //QM total charge

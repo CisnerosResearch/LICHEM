@@ -111,6 +111,7 @@ double PSI4Energy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead)
   stringstream call; //Stream for system calls and reading/writing files
   call.copyfmt(cout); //Copy settings from cout
   double E = 0.0;
+  double Egem = 0.0;
   //Check if there is a checkpoint file
   bool useCheckPoint;
   call.str("");
@@ -131,14 +132,28 @@ double PSI4Energy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead)
   {
     call << "oeprop(qmwfn,'MULLIKEN_CHARGES')" << '\n';
   }
-  WritePSI4Input(QMMMData,call.str(),QMMMOpts,bead);
+  //S:JORGE
   //Call PSI4
-  call.str("");
-  call << "psi4 -n " << Ncpus << " -i ";
-  call << "LICHM_" << bead << ".dat -o ";
-  call << "LICHM_" << bead << ".out > ";
-  call << "LICHM_" << bead << ".log";
-  globalSys = system(call.str().c_str());
+  if (GEM)
+  {
+    WritePSITHONInput(QMMMData,call.str(),QMMMOpts,bead);
+    call.str("");
+    call << "python ";
+    call << "newLICHM_" << bead << ".py > ";
+    call << "newLICHM_" << bead << ".log";
+    globalSys = system(call.str().c_str());
+  }
+  if (!GEM)
+  {
+    WritePSI4Input(QMMMData,call.str(),QMMMOpts,bead);
+    call.str("");
+    call << "psi4 -n " << Ncpus << " -i ";
+    call << "LICHM_" << bead << ".dat -o ";
+    call << "LICHM_" << bead << ".out > ";
+    call << "LICHM_" << bead << ".log";
+    globalSys = system(call.str().c_str());
+  }
+  //E:JORGE
   //Save checkpoint file for the next calculation
   call.str("");
   call << "mv *.LICHM_" << bead << ".180 ";
@@ -189,6 +204,34 @@ double PSI4Energy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead)
     }
   }
   inFile.close();
+
+  //S:JORGE
+  if (GEM)
+  {
+    call.str("");
+    call << "newLICHM_" << bead << ".log";
+    inFile.open(call.str().c_str(),ios_base::in);
+    //bool QMFinished = 0;
+    while ((!inFile.eof()) and inFile.good())
+    {
+      getline(inFile,dummy);
+      stringstream line(dummy);
+      line >> dummy;
+      if (dummy == "QM+GEM")
+      {
+        line >> dummy; //Check property
+        if (dummy == "Energy:")
+        {
+          //Read energy
+          line >> E; //Read energy
+          QMFinished = 1;
+        }
+      }
+    }
+    inFile.close();
+  }
+  //E:JORGE
+
   //Collect energy (post-SCF)
   call.str("");
   call << "LICHM_" << bead << ".log";
@@ -205,6 +248,7 @@ double PSI4Energy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead)
     }
   }
   inFile.close();
+
   //Check for errors
   if (!QMFinished)
   {

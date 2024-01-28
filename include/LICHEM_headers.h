@@ -212,6 +212,8 @@ void TINK2LICHEM(int&,char**&);
 
 double TINKEREnergy(vector<QMMMAtom>&,QMMMSettings&,int,fstream&);
 
+double TINKERGEMEnergy(vector<QMMMAtom>&,QMMMSettings&,int,fstream&);
+
 double TINKERForces(vector<QMMMAtom>&,VectorXd&,QMMMSettings&,int);
 
 MatrixXd TINKERHessian(vector<QMMMAtom>&,QMMMSettings&,int);
@@ -235,6 +237,8 @@ void WriteGauInput(vector<QMMMAtom>&,string,QMMMSettings&,int);
 void WriteNWChemInput(vector<QMMMAtom>&,string,QMMMSettings&,int);
 
 void WriteModes(vector<QMMMAtom>&,bool,VectorXd&,MatrixXd&,QMMMSettings&,int);
+
+void WritePSITHONInput(vector<QMMMAtom>&,string,QMMMSettings&,int);
 
 void WritePSI4Input(vector<QMMMAtom>&,string,QMMMSettings&,int);
 

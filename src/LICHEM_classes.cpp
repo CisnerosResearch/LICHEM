@@ -299,6 +299,12 @@ QMMMSettings::QMMMSettings()
   perOpt=maxOptSteps;
   perQM=MaxQMSteps;
   //End: Hatice
+  //S:JORGE
+  dispbool = false;
+  gembasis = "gemherm";
+  kexchange = 7.07566;
+  prefitted = 1;
+  //E:JORGE
   return;
 };
 
