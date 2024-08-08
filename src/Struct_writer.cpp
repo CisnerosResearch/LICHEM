@@ -751,7 +751,8 @@ void WritePSITHONInput(vector<QMMMAtom>& QMMMData, string calcTyp,
   call << '"' << '"' << '"' << ")" << '\n';
 
   call << "molB = psi4.geometry(" << '"' << '"' << '"' << '\n';
-  call << " " << QMMMOpts.charge;
+  //call << " " << QMMMOpts.charge;
+  call << " " << "0"; //zero by convenience, fix later
   call << " " << QMMMOpts.spin << '\n';
   for (int i=0;i<Natoms;i++)
   {
@@ -776,7 +777,7 @@ void WritePSITHONInput(vector<QMMMAtom>& QMMMData, string calcTyp,
   call << "K_exchange = " << QMMMOpts.kexchange << "\n" << "\n";
 
   call << "epsilon = 1e-12" << '\n';
-  call << "regularizer = 0.000001" << '\n';
+  call << "regularizer = 1e-8" << '\n';
   call << "constrain = True" << '\n' << '\n';
 
   call << "psi4.set_options({'puream' : False, 'print' : 1,'scf_type' : 'df'})" << '\n' << '\n';
@@ -855,6 +856,7 @@ void WritePSITHONInput(vector<QMMMAtom>& QMMMData, string calcTyp,
   call << "            fit_coefficients += lam * qdot" << '\n';
   call << "            new_nelec = np.dot(fit_coefficients, q)" << '\n';
   call << "            psi4.core.print_out(f'\\nNumber of electrons after constraining: {new_nelec:.6f}')" << '\n';
+  call << "            np.savetxt('fitcoeffs.dat',fit_coefficients)" << '\n';
   call << "    else:" << '\n';
   call << "        fit_coefficients = np.loadtxt('fitcoeffs.dat')" << '\n';
   call << "    coefs_vec = psi4.core.Vector(aux_basis.nbf())" << '\n';
