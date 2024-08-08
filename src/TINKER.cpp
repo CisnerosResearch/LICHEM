@@ -873,9 +873,15 @@ double TINKERForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   else{
     call.str("");
     call << "rm -f";
-    call << " LICHM_" << bead << ".xyz";
-    call << " LICHM_" << bead << ".key";
+    //call << " LICHM_" << bead << ".xyz";
+    //call << " LICHM_" << bead << ".key";
     call << " LICHM_" << bead << ".err";
+    call << "; mv ";
+    call << "LICHM_" << bead << ".xyz ";
+    call << "LICHM_TINKERForces_" << bead << ".xyz ";
+    call << "; mv ";
+    call << "LICHM_" << bead << ".key ";
+    call << "LICHM_TINKERForces_" << bead << ".key ";
     call << "; mv ";
     call << "LICHM_" << bead << ".grad ";
     call << "LICHM_TINKERForces_" << bead << ".grad ";
@@ -1429,9 +1435,15 @@ double TINKERPolForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
   else{
     call.str("");
     call << "rm -f";
-    call << " LICHM_" << bead << ".xyz";
-    call << " LICHM_" << bead << ".key";
+    //call << " LICHM_" << bead << ".xyz";
+    //call << " LICHM_" << bead << ".key";
     call << " LICHM_" << bead << ".err";
+    call << "; mv ";
+    call << "LICHM_" << bead << ".xyz ";
+    call << "LICHM_TINKERPolForces_" << bead << ".xyz ";
+    call << "; mv ";
+    call << "LICHM_" << bead << ".key ";
+    call << "LICHM_TINKERPolForces_" << bead << ".key ";
     call << "; mv ";
     call << "LICHM_" << bead << ".grad ";
     call << "LICHM_TINKERPolForces_" << bead << ".grad ";
@@ -1481,6 +1493,7 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   {
     outFile << "ONLY-HALGREN" << '\n';
   }
+  //E:JORGE
   if (QMMMOpts.useLREC)
   {
     //Apply cutoff
@@ -2228,6 +2241,12 @@ double TINKEROpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
     outFile << "#LICHEM MM keywords"; //Marks the changes
   }
   outFile << '\n';
+  //S:JORGE
+  if (GEM)
+  {
+    outFile << "ONLY-HALGREN" << '\n';
+  }
+  //E:JORGE
   if (QMMMOpts.useMMCut)
   {
     //Apply cutoff
@@ -2367,7 +2386,7 @@ double TINKEROpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
       }
     }
   }
-  if (AMOEBA)
+  if (AMOEBA or GEM)
   {
     for (int i=0;i<Natoms;i++)
     {
@@ -2495,7 +2514,7 @@ double TINKEROpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
     call << "rm -f";
     call << " LICHM_" << bead << ".xyz";
     call << " LICHM_" << bead << ".log";
-    call << " LICHM_" << bead << ".xyz_*";
+    //call << " LICHM_" << bead << ".xyz_*";
     call << " LICHM_" << bead << ".key";
     call << " LICHM_" << bead << ".err";
     globalSys = system(call.str().c_str());
@@ -2503,10 +2522,16 @@ double TINKEROpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
   else{
     call.str("");
     call << "rm -f";
-    call << " LICHM_" << bead << ".xyz";
-    call << " LICHM_" << bead << ".xyz_*";
-    call << " LICHM_" << bead << ".key";
+    //call << " LICHM_" << bead << ".xyz";
+    //call << " LICHM_" << bead << ".xyz_*";
+    //call << " LICHM_" << bead << ".key";
     call << " LICHM_" << bead << ".err";
+    call << "; mv ";
+    call << "LICHM_" << bead << ".xyz ";
+    call << "LICHM_TINKEROpt_" << bead << ".xyz ";
+    call << "; mv ";
+    call << "LICHM_" << bead << ".key ";
+    call << "LICHM_TINKEROpt_" << bead << ".key ";
     call << "; mv ";
     call << "LICHM_" << bead << ".log ";
     call << "LICHM_TINKEROpt_" << bead << ".log ";
