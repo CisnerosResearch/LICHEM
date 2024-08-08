@@ -1642,9 +1642,6 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   inFile.open(call.str().c_str(),ios_base::in);
   //Read MM potential energy
   bool EFound = 0;
-  //S:JORGE
-  //cout << "==> " << E << endl;
-  //E:JORGE
   while ((!inFile.eof()) and inFile.good())
   {
     inFile >> dummy;
@@ -1658,9 +1655,6 @@ double TINKEREnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
       }
     }
   }
-  //S:JORGE
-  //cout << "==> " << E << endl;
-  //E:JORGE
   if (!EFound)
   {
     //Warn user if no energy was found
@@ -2460,6 +2454,13 @@ double TINKEROpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
   }
   outFile.flush();
   outFile.close();
+  //S:JORGE
+  //Remove previous structures before minimizing
+  call.str("");
+  call << "rm -f";
+  call << " LICHM_" << bead << ".xyz_*";
+  globalSys = system(call.str().c_str());
+  //E:JORGE
   //Run optimization
   call.str("");
   call << "minimize LICHM_";
@@ -2472,7 +2473,7 @@ double TINKEROpt(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts, int bead,
   call << "LICHM_" << bead << ".xyz_2";
   inFile.open(call.str().c_str(),ios_base::in);
   getline(inFile,dummy); //Discard number of atoms
-  if (PBCon)
+  if (PBCon and !GEM) //Modified for Tinker-HP compatibility
   {
     //Discard PBC information
     getline(inFile,dummy);
