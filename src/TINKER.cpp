@@ -632,6 +632,12 @@ double TINKERForces(vector<QMMMAtom>& QMMMData, VectorXd& forces,
     outFile << "#LICHEM MM keywords"; //Marks the changes
   }
   outFile << '\n';
+  //S:JORGE
+  if (GEM)
+  {
+    outFile << "USE-GEM" << '\n';
+  }
+  //E:JORGE
   if (QMMMOpts.useLREC)
   {
     //Apply cutoff
@@ -1765,6 +1771,7 @@ double TINKERGEMEnergy(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
     outFile << "USE-GEM" << '\n';
     outFile << "ONLY-XC" << '\n';
   }
+  //E:JORGE
   if (QMMMOpts.useLREC)
   {
     //Apply cutoff
