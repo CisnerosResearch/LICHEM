@@ -78,11 +78,11 @@ void updatepath(VectorXd& wholepath, vector<QMMMAtom>& QMMMData,
                 QMMMSettings& QMMMOpts,int beadsize, int Natoms,
                 bool path_to_struct);
 
-double CalcEnergy(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
+void CalcEnergy(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
                   VectorXd& Eqm_images, VectorXd& Emm_images,
                   VectorXd& Eqmmm_images,fstream& logFile);
 
-double runMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,fstream&);
+void runMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,fstream&);
 
 double TINKEROptRestr(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                       int Bead, double restr,fstream&, int&);
@@ -93,7 +93,7 @@ bool QSMConverged(vector<QMMMAtom>& QMMMData, vector<QMMMAtom>& OldQMMMData,
                   fstream& logFile);
 
                   
-double CalcForces(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
+void CalcForces(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
                   VectorXd& Eqm_images, VectorXd& Emm_images,
                   VectorXd& Eqmmm_images,VectorXd& force,
                   int beadsize, int QMdim, bool first_time,fstream& logFile);
@@ -108,7 +108,7 @@ void print_progress(QMMMSettings& QMMMOpts, int print_level, VectorXd& Eqmmm_ima
                     double RMSdiff, double MAXforce, double RMSforce,
                     VectorXd& reactCoord,fstream&);
 
-double runRestrMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,double restr,fstream&);
+void runRestrMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,double restr,fstream&);
 
 void calc_react_coord(QMMMSettings& QMMMOpts, vector<QMMMAtom>& QMMMData,
                       VectorXd& reactCoord);

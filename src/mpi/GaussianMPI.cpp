@@ -66,12 +66,7 @@ void GaussianForcesMPIWrite(vector<QMMMAtom>& QMMMData,
 
   //Construct Gaussian input
   call.str("");
-  if(g09){
-    call << "%Nprocshared=" << Ncpus << '\n';
-  }
-  else{
-    call << "%CPU=0-" << Ncpus-1 << '\n';
-  }
+  call << "%Nprocshared=" << Ncpus << '\n';
   //End: Hatice
   //
   call << "#P ";

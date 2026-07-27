@@ -1475,7 +1475,6 @@ double TINKEREnergyMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
   string dummy; //Generic string
   fstream inFile;
   double E=0.0;
-
   call.str("");
   call << "LICHM_TINKEREnergy_" << bead << ".log";
   inFile.open(call.str().c_str(),ios_base::in);
@@ -1523,6 +1522,13 @@ double TINKERPolEnergyMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts
                     int bead)  
 {
 
+  //if (bead >= QMMMOpts.NBeads) {
+  //    std::cerr << "WARNING: Ignoring invalid bead "
+  //              << bead << " (NBeads = "
+  //              << QMMMOpts.NBeads << ")" << std::endl;
+  //    return 0.0;
+  //}
+
   stringstream call; //Stream for system calls and reading/writing files
   call.copyfmt(cout); //Copy settings from cout
   string dummy; //Generic string
@@ -1564,10 +1570,11 @@ double TINKERPolEnergyMPIRead(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts
   if (!EFound)
   {
     //Warn user if no energy was found
-    cerr << "Warning: No MM energy found after a calculation!!!";
+    cerr << "Warning: No MM Polarization energy found after a calculation!!!";
     cerr << '\n';
     cerr << " LICHEM will attempt to continue...";
     cerr << '\n';
+    cerr << bead ; 
     cerr.flush(); //Print warning immediately
     EPol = 0; //Prevents errors when polarization is off
     ESolv = 0; //Prevents errors when implicit solvation is off

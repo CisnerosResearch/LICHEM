@@ -5,6 +5,7 @@
 
 prefix=$(pwd)/bin
 mpi=false
+static_define=""
 
 echo ''
 echo '###################################################'
@@ -22,6 +23,9 @@ for arg in "$@"; do
         prefix=`echo $arg | sed 's/--prefix=//'`
         ;;
 
+    --static)
+        static_define="-static";;	
+
     --parallel)
         mpi=true;;
 
@@ -29,6 +33,7 @@ for arg in "$@"; do
         echo 'usage: ./configure [options]'
         echo 'options:'
         echo '  --help    : available options.'
+	echo '  --static  : statically link libraries into the executable'
         echo '  --parallel: install parallel lichem'
         echo '  --prefix= : installation directory. '
         echo '              i.e. --prefix=./bin/'
@@ -57,31 +62,29 @@ if $mpi; then
     echo '   Configuring for parallel LICHEM'
     echo '   Installation directory: ' $prefix
     echo '   CXX= mpicxx'
-    echo '   CXXFLAGS=-O3 -fopenmp'
-    echo 'CXX= mpic++' >>Makefile
-    echo 'CXXFLAGS= -O3 -fopenmp' >>Makefile
-    #update header file
+    echo "   CXXFLAGS= ${static_define} -O3 -fopenmp"
+
+    echo 'CXX= mpicxx' >> Makefile
+    echo "CXXFLAGS= ${static_define} -O3 -fopenmp" >> Makefile
     sed -i 's/LICHEM_QSM\.h/LICHEM_QSM_MPI\.h/g' include/LICHEM_headers.h
     #add mpi header
-    if ! grep -q "#include <mpi\.h>" include/LICHEM_clibs.h ;
-    then
-        #sed -i 's/\ (.* \) #endif/ \ 1#include <mpi\.h>/g' include/LICHEM_clibs.h
+    if ! grep -q "#include <mpi\.h>" include/LICHEM_clibs.h; then
         sed -i '/#include <algorithm>/a #include <mpi\.h>' include/LICHEM_clibs.h
-        #echo '#endif' >> include/LICHEM_clibs.h
     fi
 
 else
     echo '   Configuring for serial LICHEM'
     echo '   Installation directory: ' $prefix
     echo '   CXX= g++'
-    echo '   CXXFLAGS= -static -O3 -fopenmp'
-    echo 'CXX= g++' >>Makefile
-    echo 'CXXFLAGS= -static -O3 -fopenmp' >>Makefile
+    echo "   CXXFLAGS= ${static_define} -O3 -fopenmp"
+
+    echo 'CXX= g++' >> Makefile
+    echo "CXXFLAGS= ${static_define} -O3 -fopenmp" >> Makefile
     echo '' >>Makefile
-    echo 'UNAME := $(shell uname)' >>Makefile
-    echo 'ifeq ($(UNAME), Darwin)' >>Makefile
-    echo 'CXXFLAGS= -O3 -fopenmp' >>Makefile
-    echo 'endif' >>Makefile
+    echo 'UNAME := $(shell uname)' >> Makefile
+    echo 'ifeq ($(UNAME), Darwin)' >> Makefile
+    echo 'CXXFLAGS= -O3 -fopenmp' >> Makefile
+    echo 'endif' >> Makefile
     #update header file
     sed -i 's/LICHEM_QSM_MPI\.h/LICHEM_QSM\.h/g' include/LICHEM_headers.h
     #if mpi.h exists remove it

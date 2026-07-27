@@ -76,11 +76,11 @@ void updatepath(VectorXd& wholepath, vector<QMMMAtom>& QMMMData,
                 QMMMSettings& QMMMOpts,int beadsize, int Natoms,
                 bool path_to_struct);
 
-double CalcEnergy(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
+void CalcEnergy(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
                   VectorXd& Eqm_images, VectorXd& Emm_images,
                   VectorXd& Eqmmm_images,fstream& logFile);
 
-double runMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts);
+void runMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts);
 
 
 double TINKEROptRestr(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
@@ -92,7 +92,7 @@ bool QSMConverged(vector<QMMMAtom>& QMMMData, vector<QMMMAtom>& OldQMMMData,
                   fstream& logFile);
 
                   
-double CalcForces(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
+void CalcForces(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
                   VectorXd& Eqm_images, VectorXd& Emm_images,
                   VectorXd& Eqmmm_images,VectorXd& force,
                   int beadsize, int QMdim, bool first_time,fstream& logFile);
@@ -107,7 +107,7 @@ void print_progress(QMMMSettings& QMMMOpts, int print_level, VectorXd& Eqmmm_ima
                     double RMSdiff, double MAXforce, double RMSforce,
                     VectorXd& reactCoord,fstream&);
 
-double runRestrMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,double restr);
+void runRestrMMopt(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,double restr);
 
 void calc_react_coord(QMMMSettings& QMMMOpts, vector<QMMMAtom>& QMMMData,
                       VectorXd& reactCoord);
@@ -206,13 +206,13 @@ void QSMConvergedMPI(vector<QMMMAtom>& QMMMData, vector<QMMMAtom>& OldQMMMData,
                   int stepct, QMMMSettings& QMMMOpts, VectorXd& Eqmmm_images,
                   bool &PathDone,fstream&);                 
                   
-double CalcForcesMPI(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
+void CalcForcesMPI(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
                   VectorXd& Eqm_images, VectorXd& Emm_images,
                   VectorXd& Eqmmm_images,VectorXd& force,
                   int beadsize, int QMdim, bool first_time,fstream& logFile);    
 
                   
-double runMMoptMPI(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
+void runMMoptMPI(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
                    bool before_qsm,fstream&); 
 
 
@@ -220,7 +220,7 @@ void WriteGauInputMPI(vector<QMMMAtom>& QMMMData, string calcTyp,
                    QMMMSettings& QMMMOpts, int bead,
                    int gautype);
 
-double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
+void runRestrMMoptMPI(vector<QMMMAtom>& QMMMData, QMMMSettings& QMMMOpts,
                         double restr,fstream&);
  
 

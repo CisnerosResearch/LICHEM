@@ -18,21 +18,20 @@
   # Functions for reaction path optimizations in parallel                       #
   # Includes:                                                                   #
   #                                                                             #
-  #       Force calculation        : double CalcForcesMPI                       #
+  #       Force calculation        : void CalcForcesMPI                         #
   #                                                                             #
   #       MM Optimization without                                               #
-  #       restrains                : double runMMoptMPI                         #
+  #       restrains                : void runMMoptMPI                           #
   #                                                                             #
   #       MM Optimization with                                                  #
-  #       restrains                : double runRestrMMoptMPI                    #
-  #                                  (calls double TINKEROptRestr)              #
+  #       restrains                : void runRestrMMoptMPI                      #
   #                                                                             #
-  #       Convergence Test for QSM : bool QSMConverged                          #
+  #       Convergence Test for QSM : void QSMConverged                          #
   #                                                                             #
   ###############################################################################
 */
 
-double CalcForcesMPI(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,\
+void CalcForcesMPI(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,\
 VectorXd& Eqm_images, VectorXd& Emm_images,VectorXd& Eqmmm_images,\
 VectorXd& force, int beadsize, int QMdim, bool first_time,fstream& logFile)
 {
@@ -309,7 +308,7 @@ VectorXd& force, int beadsize, int QMdim, bool first_time,fstream& logFile)
 
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-double runMMoptMPI(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
+void runMMoptMPI(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
                 bool before_qsm,fstream& logFile)
 {
 
@@ -430,7 +429,7 @@ double runMMoptMPI(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
 
 }
 //---------------------------------------------------------------------------
-double runRestrMMoptMPI(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
+void runRestrMMoptMPI(vector<QMMMAtom>& QMMMData,QMMMSettings& QMMMOpts,
                         double restr,fstream& logFile)
 {
 
